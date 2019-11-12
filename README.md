@@ -1,1 +1,1 @@
-"# msgraph-samples-dashboard" 
+# msgraph-samples-dashboard
