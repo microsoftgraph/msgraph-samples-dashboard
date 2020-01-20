@@ -6,15 +6,20 @@ using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration.UserSecrets;
+using Microsoft.AspNetCore.Http;
 
 namespace SamplesDashboard
 {
+
     public class Startup
     {
+        //string userSecrets = string.Empty;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }
+        }      
 
         public IConfiguration Configuration { get; }
 
@@ -22,6 +27,8 @@ namespace SamplesDashboard
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            //userSecrets = Configuration["auth_token"];
+
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -29,14 +36,36 @@ namespace SamplesDashboard
                 configuration.RootPath = "ClientApp/build";
             });
         }
+        //public Startup(IWebHostEnvironment env)
+        //{
+        //    var builder = new ConfigurationBuilder()
+        //      .SetBasePath(env.ContentRootPath)
+        //      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        //      .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
+        //      .AddEnvironmentVariables();
+
+        //    // Add support for user secrets in development mode
+        //    if (env.IsDevelopment())
+        //    {
+        //        builder.AddUserSecrets<Startup>();
+        //    }
+        //    builder.AddEnvironmentVariables();
+        //    Configuration = builder.Build();
+        //}
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            //var result = string.IsNullOrEmpty(userSecrets) ? "Not found" : userSecrets;
+            //app.Run(async (context) =>
+            //{
+            //    await context.Response.WriteAsync($"Secret is {result}");
+            //});
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }
+
+            }            
             else
             {
                 app.UseExceptionHandler("/Error");
