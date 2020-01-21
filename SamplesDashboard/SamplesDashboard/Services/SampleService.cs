@@ -13,7 +13,7 @@ namespace SamplesDashboard.Services
         public static async Task<List<Repo>> GetSamples()
         {
             var productInformation = new ProductHeaderValue("Octokit.GraphQL", "0.1.4-beta");
-            var connection = new Connection(productInformation, "093bb609945fa374d8a6b329c66ebea6a297069c");
+            var connection = new Connection(productInformation, "");
 
             var query = new Query()
                 .RepositoryOwner("microsoftgraph")
