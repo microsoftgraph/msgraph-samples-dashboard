@@ -12,10 +12,10 @@ namespace SamplesDashboard.Services
         //Query to retrieve samples data
         private static readonly ICompiledQuery<IEnumerable<Repo>> samplesQuery = new Query()
                  .RepositoryOwner("microsoftgraph")
-                 .Repositories(first: 50)
+                 .Repositories(first: 500)
                  .Nodes
                  .Select(r => new Repo { 
-                     Name = r.Name,
+                     Name = r.Name,                   
                      Owner = r.Owner.Login,
                      Language = r.PrimaryLanguage.Select(lang => lang.Name).Single(),
                      PullRequests = r.PullRequests(null, null, null, null, null, null, null, null, new List<PullRequestState>{PullRequestState.Open} ).TotalCount,
@@ -27,7 +27,7 @@ namespace SamplesDashboard.Services
         {
             //run query 
             var result = await connection.Run(samplesQuery);
-            return result.ToList();
+            return result.Where(r => r.Name.Contains("sample")).ToList();
         }
     }
 }
