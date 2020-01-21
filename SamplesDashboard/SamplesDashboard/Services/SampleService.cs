@@ -12,7 +12,7 @@ namespace SamplesDashboard.Services
         //Query to retrieve samples data
         private static readonly ICompiledQuery<IEnumerable<Repo>> samplesQuery = new Query()
                  .RepositoryOwner("microsoftgraph")
-                 .Repositories(first: 500)
+                 .Repositories(first: 30)
                  .Nodes
                  .Select(r => new Repo { 
                      Name = r.Name,                   
