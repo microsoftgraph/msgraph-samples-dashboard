@@ -20,7 +20,7 @@ namespace SamplesDashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            var samples = await Samples.GetSamples(); 
+            var samples = await SampleServices.GetSamples(); 
             
             return Ok(samples);
         }
