@@ -1,13 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Configuration.UserSecrets;
-using Microsoft.AspNetCore.Http;
+using Octokit.GraphQL;
 
 namespace SamplesDashboard
 {
@@ -19,14 +16,16 @@ namespace SamplesDashboard
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }      
-
-
+        } 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            //services.Configure<SamplesController>Configuration.GetValue("auth_token"));
+            var productInformation = new ProductHeaderValue(Configuration.GetValue<string>("product"),
+                Configuration.GetValue<string>("product_version"));
+
+            var token = Configuration.GetValue<string>("auth_token");
+            services.AddSingleton<IConnection>(new Connection(productInformation, token));
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -47,12 +46,10 @@ namespace SamplesDashboard
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-           
+        {           
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-
             }            
             else
             {

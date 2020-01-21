@@ -1,6 +1,4 @@
-﻿using System;
-//using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Octokit.GraphQL;
 using System.Collections.Generic;
@@ -11,35 +9,24 @@ namespace SamplesDashboard.Services
 {
     public static class SampleService
     {
-        public static async Task<List<Repo>> GetSamples(Connection connection)
-        {
-            List<PullRequestState> pullRequestStates = new List<PullRequestState>
-            {
-                PullRequestState.Open
-            };
-            List<IssueState> issueStates = new List<IssueState> 
-            {
-                IssueState.Open 
-            };
-
-            var query = new Query()
+        //Query to retrieve samples data
+        private static readonly ICompiledQuery<IEnumerable<Repo>> samplesQuery = new Query()
                  .RepositoryOwner("microsoftgraph")
                  .Repositories(first: 50)
                  .Nodes
                  .Select(r => new Repo { 
                      Name = r.Name,
                      Owner = r.Owner.Login,
-                     //Status
-                     Language = r.PrimaryLanguage.Name,
-                     PullRequests = r.PullRequests(null, null, null, null, null, null, null, null, pullRequestStates ).TotalCount,
-                     Issues = r.Issues(null, null, null, null, null, null, null, issueStates).TotalCount,
+                     Language = r.PrimaryLanguage.Select(lang => lang.Name).Single(),
+                     PullRequests = r.PullRequests(null, null, null, null, null, null, null, null, new List<PullRequestState>{PullRequestState.Open} ).TotalCount,
+                     Issues = r.Issues(null, null, null, null, null, null, null, new List<IssueState>{IssueState.Open}).TotalCount,
                      Stars = r.Stargazers(null, null, null, null, null).TotalCount
-                    //featurearea
-                });;;
-             
-            //run query 
-            var result = await connection.Run(query);
+                 }).Compile();
 
+        public static async Task<List<Repo>> GetSamples(IConnection connection)
+        {
+            //run query 
+            var result = await connection.Run(samplesQuery);
             return result.ToList();
         }
     }

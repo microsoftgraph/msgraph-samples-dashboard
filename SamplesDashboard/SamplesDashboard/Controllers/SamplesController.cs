@@ -9,24 +9,17 @@ namespace SamplesDashboard.Controllers
     [ApiController]
     public class SamplesController : Controller
     {
-        public IConfiguration Configuration { get; }
-
-        public SamplesController(IConfiguration configuration)
+        private readonly IConnection connection;
+        public SamplesController(IConnection connection)
         {
-            Configuration = configuration;
+            this.connection = connection;
         }
+
         [Produces("application/json")]
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
-        {
-
-            var productInformation = new ProductHeaderValue("Octokit.GraphQL", "0.1.4-beta");
-            
-            var token = Configuration.GetValue<string>("auth_token");
-            var connection = new Connection(productInformation, token);
-
-            var samples = await SampleService.GetSamples(connection); 
-            
+        {         
+            var samples = await SampleService.GetSamples(this.connection);             
             return Ok(samples);
         }
     }
