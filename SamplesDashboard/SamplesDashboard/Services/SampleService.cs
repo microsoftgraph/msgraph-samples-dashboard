@@ -5,26 +5,37 @@ using System.Threading.Tasks;
 using Octokit.GraphQL;
 using System.Collections.Generic;
 using SamplesDashboard.Models;
+using Octokit.GraphQL.Model;
 
 namespace SamplesDashboard.Services
 {
-    public class SampleServices
+    public static class SampleService
     {
-        public static async Task<List<Repo>> GetSamples()
+        public static async Task<List<Repo>> GetSamples(Connection connection)
         {
-            var productInformation = new ProductHeaderValue("Octokit.GraphQL", "0.1.4-beta");
-            var connection = new Connection(productInformation, "305098146e3c47ef05c78244e3c1953516bd26d9");
+            List<PullRequestState> pullRequestStates = new List<PullRequestState>
+            {
+                PullRequestState.Open
+            };
+            List<IssueState> issueStates = new List<IssueState> 
+            {
+                IssueState.Open 
+            };
 
             var query = new Query()
-                .RepositoryOwner("microsoftgraph")
-                .Repositories(first: 50)
-                .Nodes
-                .Select(r => new Repo {
-                    Name = r.Name,
-                    Owner = r.Owner,
-
-
-                });
+                 .RepositoryOwner("microsoftgraph")
+                 .Repositories(first: 50)
+                 .Nodes
+                 .Select(r => new Repo { 
+                     Name = r.Name,
+                     Owner = r.Owner.Login,
+                     //Status
+                     Language = r.PrimaryLanguage.Name,
+                     PullRequests = r.PullRequests(null, null, null, null, null, null, null, null, pullRequestStates ).TotalCount,
+                     Issues = r.Issues(null, null, null, null, null, null, null, issueStates).TotalCount,
+                     Stars = r.Stargazers(null, null, null, null, null).TotalCount
+                    //featurearea
+                });;;
              
             //run query 
             var result = await connection.Run(query);
