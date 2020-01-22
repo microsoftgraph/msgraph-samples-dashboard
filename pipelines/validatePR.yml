@@ -1,0 +1,76 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+pr:
+- master
+- dev
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: UseDotNet@2
+  displayName: "Use dotnetcore3"
+  inputs:
+    packageType: sdk
+    version: 3.0.100
+
+- task: UseNode@1
+  inputs:
+    checkLatest: true
+
+- task: DotNetCoreCLI@2
+  displayName: "Restore Packages"
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: select
+
+- task: DotNetCoreCLI@2
+  displayName: "Build Projects"
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: Npm@1
+  displayName: "Install NPM packages"
+  inputs:
+    command: 'install'
+    workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
+
+- task: Npm@1
+  displayName: "Pre-emptive npm Build"
+  inputs:
+    command: 'custom'
+    workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
+    customCommand: 'run build'
+
+- task: DotNetCoreCLI@2
+  displayName: "Run Tests"
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --logger trx'
+
+- task: PublishTestResults@2
+  displayName: "Publish Test Results"
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
+
+- task: YodLabs.O365PostMessage.O365PostMessageBuild.O365PostMessageBuild@0
+  displayName: 'Graph Client Tooling pipeline fail notification'
+  inputs:
+    addressType: serviceEndpoint
+    serviceEndpointName: 'microsoftgraph pipeline status'
+    title: '$(Build.DefinitionName) failure notification'
+    text: 'This pipeline has failed. View the build details for further information. This is a blocking failure. '
+  condition: failed()
+  enabled: true
