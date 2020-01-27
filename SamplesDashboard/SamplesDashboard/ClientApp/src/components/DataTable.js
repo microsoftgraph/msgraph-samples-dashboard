@@ -29,7 +29,7 @@ export default class DataTable extends Component {
                     <td>{sample.name}</td>
                     <td>{sample.owner}</td>
                     <td>{sample.status}</td>
-                    <td>{}</td>
+                    <td>{sample.language}</td>
                     <td>{sample.pullRequests}</td>
                     <td>{sample.issues}</td>
                     <td>{sample.stars}</td>q

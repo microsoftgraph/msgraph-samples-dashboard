@@ -87,68 +87,7 @@ namespace SamplesDashboard.Services
             }
             return samples.ToList();
         }
-        //public static async Task<List<Repo>> GetYamlData(IConnection connection)
-        //{
-        //    var samples = await GetSamples(connection);
-
-        //    List<string> languageList = new List<string>();
-        //    List<string> servicesList = new List<string>();
-
-
-        //    foreach (var sample in samples)
-        //    {
-        //        //links to sample names
-        //        string str1 = "https://raw.githubusercontent.com/microsoftgraph/";
-        //        string str2 = "/master/README.md";
-
-        //        //download yaml file and parsing it
-        //        HttpClient httpClient = new HttpClient();
-        //        HttpResponseMessage reponseMessage = await httpClient.GetAsync(string.Concat(str1, sample.Name, str2));
-        //        string fileContents = await reponseMessage.Content.ReadAsStringAsync();
-        //        string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
-        //        string header = parts[0];
-
-        //        string[] lines = header.Split("\r\n");
-
-        //        //Getting language and storing it to a list
-        //        bool foundLanguageHeader = false;
-
-        //        for (int i = 0; i < lines.Length; i++)
-        //        {
-        //            if (lines[i].Contains("languages"))
-        //            {
-        //                foundLanguageHeader = true;
-        //                continue;
-        //            }
-        //            if (foundLanguageHeader)
-        //            {
-        //                if (lines[i].Contains(":"))
-        //                    break;
-        //                languageList.Add(lines[i].Split("-", StringSplitOptions.RemoveEmptyEntries).Last());
-        //            }
-        //        }
-        //        // getting services
-        //        bool foundServicesHeader = false;
-        //        for (int i = 0; i < lines.Length; i++)
-        //        {
-        //            if (lines[i].Contains("services"))
-        //            {
-        //                foundServicesHeader = true;
-        //                continue;
-        //            }
-        //            if (foundServicesHeader)
-        //            {
-        //                if (lines[i].Contains(":"))
-        //                    break;
-        //                servicesList.Add(lines[i].Split("-", StringSplitOptions.RemoveEmptyEntries).Last());
-        //            }
-        //        }
-
-        //        sample.FeatureArea = servicesList;
-        //        sample.Language = languageList;
-        //    }
-        //    return samples.ToList();
-        //}
+      
         
     }
 }
