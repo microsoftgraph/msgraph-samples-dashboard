@@ -7,7 +7,6 @@ using SamplesDashboard.Models;
 using SamplesDashboard.Services;
 namespace SamplesDashboard.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class SamplesController : Controller
     {
@@ -18,12 +17,28 @@ namespace SamplesDashboard.Controllers
         }
 
         [Produces("application/json")]
+        [Route("api/[controller]")]
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
             List<Repo> samples = await SampleService.GetSamples(this.connection);
             return Ok(samples);
         }
-        
+
+        [Produces("application/json")]
+        [Route("/feature/{id}")]
+        public async Task<IActionResult> GetFeatureAreaAsync(string id)
+        {
+            List<string> LanguageList = await SampleService.GetFeatures(id);
+            return Ok(LanguageList);
+        }
+
+        [Produces("application/json")]
+        [Route("/language/{id}")]
+        public async Task<IActionResult> GetLanguageAsync(string id)
+        {
+            var language = await SampleService.GetLanguages(id);
+            return Ok(language);
+        }
     }
 }
