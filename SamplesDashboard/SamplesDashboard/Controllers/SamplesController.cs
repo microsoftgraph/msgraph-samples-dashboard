@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Octokit.GraphQL;
+using SamplesDashboard.Models;
 using SamplesDashboard.Services;
 namespace SamplesDashboard.Controllers
 {
@@ -18,8 +20,8 @@ namespace SamplesDashboard.Controllers
         [Produces("application/json")]
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
-        {         
-            var samples = await SampleService.GetSamples(this.connection);
+        {
+            List<Repo> samples = await SampleService.GetSamples(this.connection);
             return Ok(samples);
         }
         

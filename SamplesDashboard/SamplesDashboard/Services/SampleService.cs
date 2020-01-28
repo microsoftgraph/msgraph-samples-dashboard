@@ -21,7 +21,6 @@ namespace SamplesDashboard.Services
                    {
                        Name = repo.Name,
                        Owner = repo.Owner.Login,
-                       //Language = repo.PrimaryLanguage.Select(lang => lang.Name).Single(),
                        Issues = repo.Issues(null, null, null, null, null, null, null, new List<IssueState> { IssueState.Open }).TotalCount,
                        Stars = repo.Stargazers(null, null, null, null, null).TotalCount,
                        PullRequests = repo.PullRequests(null, null, null, null, null, null, null, null, new List<PullRequestState> { PullRequestState.Open }).TotalCount,
@@ -35,59 +34,54 @@ namespace SamplesDashboard.Services
             //run query 
             var samples = await connection.Run(samplesQuery);
 
+            //iterate through each sample and set the language and feature area
             foreach (var sample in samples)
-            {
-                //links to sample names
-                string str1 = "https://raw.githubusercontent.com/microsoftgraph/";
-                string str2 = "/master/Readme.md";
-
+            {               
                 //download yaml file and parsing it
                 HttpClient httpClient = new HttpClient();
-                HttpResponseMessage reponseMessage = await httpClient.GetAsync(string.Concat(str1, sample.Name, str2));
-                string fileContents = await reponseMessage.Content.ReadAsStringAsync();
-                string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
-                string header = parts[0];
+                HttpResponseMessage reponseMessage = null;
+                reponseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sample.Name,"/master/Readme.md"));
+                if(reponseMessage.StatusCode.ToString().Equals("NotFound"))
+                    reponseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sample.Name, "/master/README.md"));
 
-                string[] lines = header.Split("\r\n");
-
-                //Getting language and storing it to a list
-                bool foundLanguageHeader = false;
-                bool foundServicesHeader = false;
-                List<string> languageList = new List<string>();
-                List<string> servicesList = new List<string>();
-
-                for (int i = 0; i < lines.Length; i++)
+                if (reponseMessage.IsSuccessStatusCode)
                 {
-                    if (lines[i].Contains("language"))
-                    {
-                        foundLanguageHeader = true;
-                        continue;
-                    }
-                    if (foundLanguageHeader)
-                    {
-                        if (lines[i].Contains(":"))
-                            break;
-                        languageList.Add(lines[i].Split("-", StringSplitOptions.RemoveEmptyEntries).Last());                       
-                    }
-                    if (lines[i].Contains("services"))
-                    {
-                        foundServicesHeader = true;
-                        continue;
-                    }
-                    if (foundServicesHeader)
-                    {
-                        if (lines[i].Contains(":"))
-                            break;
-                        servicesList.Add(lines[i].Split("-", StringSplitOptions.RemoveEmptyEntries).Last());
-                    }
+                    string fileContents = await reponseMessage.Content.ReadAsStringAsync();
+                    string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
+                    string header = parts[0];
+                    string[] lines = header.Split("\r\n");
+
+                    sample.Language = SearchTerm("language", lines);
+                    sample.FeatureArea = SearchTerm("services", lines);
                 }
-                
-                sample.FeatureArea = servicesList;
-                sample.Language = languageList;
+                else
+                {
+                    sample.FeatureArea = null;
+                    sample.Language = null;
+                }
             }
             return samples.ToList();
         }
-      
-        
+        private static List<string> SearchTerm(string term, string[] lines)
+        {
+            bool foundHeader = false;
+            List<string> myList = new List<string>();
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].Contains(term))
+                {
+                    foundHeader = true;
+                    continue;
+                }
+                if (foundHeader)
+                {
+                    if (lines[i].Contains(":"))
+                        break;
+                    myList.Add(lines[i].Split("-", StringSplitOptions.RemoveEmptyEntries).Last());
+                }
+            }
+            return myList;
+        }
     }
 }

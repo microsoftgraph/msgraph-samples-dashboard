@@ -32,7 +32,7 @@ export default class DataTable extends Component {
                     <td>{sample.language}</td>
                     <td>{sample.pullRequests}</td>
                     <td>{sample.issues}</td>
-                    <td>{sample.stars}</td>q
+                    <td>{sample.stars}</td>
                     <td>{sample.featureArea}</td>
                     <td>{sample.securityAlerts}</td>
                 </tr>
