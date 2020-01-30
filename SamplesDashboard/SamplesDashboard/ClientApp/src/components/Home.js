@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import DataTable from './DataTable';
+import DetailsListBasicExample from './DetailList';
 
 class Home extends Component {          
     render() {
@@ -9,7 +9,7 @@ class Home extends Component {
                 <br/>
                 <h2> List of Samples </h2>
                 <br />
-                <DataTable  />
+                <DetailsListBasicExample />
             </div>
         );
     }
