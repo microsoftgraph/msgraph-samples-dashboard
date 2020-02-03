@@ -7,6 +7,9 @@ import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { Announced } from 'office-ui-fabric-react/lib/Announced';
+import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
+
+initializeIcons();
 
 const detailListClass = mergeStyles({
     display: 'block',
@@ -42,7 +45,7 @@ export interface IListDataState {
     announcedMessage?: string;
 }
 
-export default class ListData extends React.Component<{}, IListDataState> {
+export default class SampleList extends React.Component<{}, IListDataState> {
     private _selection: Selection;
     private _allItems: IListDataItem[];
 
@@ -110,8 +113,8 @@ export default class ListData extends React.Component<{}, IListDataState> {
                 <MarqueeSelection selection={this._selection} data-is-scrollable={true}>
                 <DetailsList
                     items={items}
-                    columns={columns}
-                    selectionMode={SelectionMode.multiple}
+                            columns={columns}
+                            selectionMode={SelectionMode.none}
                     getKey={this._getKey}
                     setKey="multiple"
                     layoutMode={DetailsListLayoutMode.justified}
@@ -134,18 +137,18 @@ export default class ListData extends React.Component<{}, IListDataState> {
         return item.key;
     }
 
-  private _getSelectionDetails(): string {
-    const selectionCount = this._selection.getSelectedCount();
+    private _getSelectionDetails(): string {
+        const selectionCount = this._selection.getSelectedCount();
 
     switch (selectionCount) {
-      case 0:
-        return 'No items selected';
-      case 1:
-        return '1 item selected: ' + (this._selection.getSelection()[0] as IListDataItem).name;
-      default:
-        return `${selectionCount} items selected`;
+        case 0:
+            return 'No items selected';
+        case 1:
+            return '1 item selected: ' + (this._selection.getSelection()[0] as IListDataItem).name;
+        default:
+            return `${selectionCount} items selected`;
+        }
     }
-  }
 
     private _onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
         this.setState({
@@ -154,7 +157,7 @@ export default class ListData extends React.Component<{}, IListDataState> {
     };
 
     private _onItemInvoked = (item: IListDataItem): void => {
-    alert(`Item invoked: ${item.name}`);
+        alert(`Item invoked: ${item.name}`);
     };
 
     private _onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
