@@ -150,7 +150,7 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         }
     }
 
-    private _onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text: string): void => {
+    private _onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: string | undefined): void => {
         this.setState({
             items: text ? this._allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this._allItems
         });
