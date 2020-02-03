@@ -58,15 +58,15 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         // Populate with items for demos.
         this._allItems = [];
         const columns: IColumn[] = [
-            { key: 'column1', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true, isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this._onColumnClick },
-            { key: 'column2', name: 'Owner', fieldName: 'owner', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'column3', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'column4', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'column5', name: 'Open Pull Requests', fieldName: 'pullRequests', minWidth: 150, maxWidth: 200, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'column6', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'column7', name: 'Stars', fieldName: 'stars', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'column8', name: 'Feature Area', fieldName: 'featureArea', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'column9', name: 'Security Alerts', fieldName: 'securityAlerts', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick }
+            { key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true, isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this._onColumnClick },
+            { key: 'owner', name: 'Owner', fieldName: 'owner', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'pullRequests', name: 'Open Pull Requests', fieldName: 'pullRequests', minWidth: 150, maxWidth: 200, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'issues', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'stars', name: 'Stars', fieldName: 'stars', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'securityAlerts', name: 'Security Alerts', fieldName: 'securityAlerts', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick }
         ];
 
         this.state = {
