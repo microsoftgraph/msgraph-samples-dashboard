@@ -13,7 +13,7 @@ namespace SamplesDashboard.Services
     {
         //Query to retrieve samples data
         private static readonly ICompiledQuery<IEnumerable<Repo>> samplesQuery
-            = new Query().Search("org:microsoftgraph training OR sample in:name", SearchType.Repository, 100)
+            = new Query().Search("org:microsoftgraph archived:false sample in:name", SearchType.Repository, 100)
             .Nodes
             .Select(node => node.Switch<Repo>(
                when => when.Repository(
@@ -33,52 +33,76 @@ namespace SamplesDashboard.Services
         {
             //run query 
             var samples = await connection.Run(samplesQuery);
-
-            //iterate through each sample and set the language and feature area
-            foreach (var sample in samples)
-            {               
-                //download yaml file and parsing it
-                HttpClient httpClient = new HttpClient();
-                HttpResponseMessage reponseMessage = null;
-                reponseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sample.Name,"/master/Readme.md"));
-                if(reponseMessage.StatusCode.ToString().Equals("NotFound"))
-                    reponseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sample.Name, "/master/README.md"));
-
-                if (reponseMessage.IsSuccessStatusCode)
-                {
-                    string fileContents = await reponseMessage.Content.ReadAsStringAsync();
-                    string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
-                    string header = parts[0];
-                    string[] lines = header.Split("\r\n");
-
-                    sample.Language = SearchTerm("language", lines);
-                    sample.FeatureArea = SearchTerm("services", lines);
-                }
-                else
-                {
-                    sample.FeatureArea = null;
-                    sample.Language = null;
-                }
-            }
             return samples.ToList();
         }
+
+
+        public static async Task<List<String>> GetLanguages(string sampleName)
+        {
+            string header = await GetYamlHeader(sampleName);
+            if (!string.IsNullOrEmpty(header))
+            {
+                string[] lines = header.Split("\r\n");
+                return SearchTerm("languages", lines);
+            }
+
+            return new List<string>();
+        }
+
+
+        public static async Task<List<string>> GetFeatures(String sampleName)
+        {
+            string header = await GetYamlHeader(sampleName);
+            if (!string.IsNullOrEmpty(header))
+            {
+                string[] lines = header.Split("\r\n");
+                return SearchTerm("services", lines);
+            }
+
+            return new List<string>();
+        }
+
+        private static async Task<string> GetYamlHeader(string sampleName)
+        {
+            //run query 
+            HttpClient httpClient = new HttpClient();
+            HttpResponseMessage responseMessage  = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
+            
+            if (responseMessage.StatusCode.ToString().Equals("NotFound"))
+                responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/README.md"));
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                string fileContents = await responseMessage.Content.ReadAsStringAsync();
+                string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
+                //we have a valid header between ---
+                if (parts.Length > 1)
+                {
+                    return parts[0];
+                }
+                
+            }
+
+            return "";
+        }
+
         private static List<string> SearchTerm(string term, string[] lines)
         {
             bool foundHeader = false;
             List<string> myList = new List<string>();
 
-            for (int i = 0; i < lines.Length; i++)
+            foreach (var line in lines)
             {
-                if (lines[i].Contains(term))
+                if (line.Contains(term))
                 {
                     foundHeader = true;
                     continue;
                 }
                 if (foundHeader)
                 {
-                    if (lines[i].Contains(":"))
+                    if (line.Contains(":"))
                         break;
-                    myList.Add(lines[i].Split("-", StringSplitOptions.RemoveEmptyEntries).Last());
+                    myList.Add(line.Split("-", StringSplitOptions.RemoveEmptyEntries).Last());
                 }
             }
             return myList;
