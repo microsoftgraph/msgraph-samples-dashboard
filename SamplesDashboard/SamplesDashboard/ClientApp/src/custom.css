@@ -21,3 +21,6 @@ td, th {
     border: 1px solid #ddd;
     padding:15px;
 }
+.container {
+    max-width: 100%
+}
