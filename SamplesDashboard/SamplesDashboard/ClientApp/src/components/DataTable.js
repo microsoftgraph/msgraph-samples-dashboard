@@ -1,6 +1,4 @@
 ﻿import React, { Component } from 'react';
-import Language from './Language'
-import Service from './Service'
 
 export default class DataTable extends Component {
     constructor(props) {
@@ -31,11 +29,11 @@ export default class DataTable extends Component {
                     <td>{sample.name}</td>
                     <td>{sample.owner}</td>
                     <td>{sample.status}</td>
-                    <td><Language sampleName= { sample.name } /> </td>
+                    <td>{sample.language}</td>
                     <td>{sample.pullRequests}</td>
                     <td>{sample.issues}</td>
                     <td>{sample.stars}</td>
-                    <td><Service sampleName={sample.name} /></td>
+                    <td>{sample.featureArea}</td>
                     <td>{sample.securityAlerts}</td>
                 </tr>
             ),

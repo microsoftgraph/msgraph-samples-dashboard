@@ -21,6 +21,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
     <PackageReference Include="Octokit.GraphQL" Version="0.1.4-beta" />
+    <PackageReference Include="OfficeUIFabric" Version="2.6.3" />
   </ItemGroup>
 
   <ItemGroup>
