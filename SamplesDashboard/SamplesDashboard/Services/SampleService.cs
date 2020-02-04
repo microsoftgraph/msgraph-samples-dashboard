@@ -36,7 +36,7 @@ namespace SamplesDashboard.Services
             return samples.ToList();
         }
 
-
+        //Get languages list from parsed yaml header
         public static async Task<List<String>> GetLanguages(string sampleName)
         {
             string header = await GetYamlHeader(sampleName);
@@ -49,7 +49,7 @@ namespace SamplesDashboard.Services
             return new List<string>();
         }
 
-
+        //Get services list from the parsed yaml header
         public static async Task<List<string>> GetFeatures(String sampleName)
         {
             string header = await GetYamlHeader(sampleName);
@@ -62,6 +62,7 @@ namespace SamplesDashboard.Services
             return new List<string>();
         }
 
+        //fetch yaml header from sample repo and parse it
         private static async Task<string> GetYamlHeader(string sampleName)
         {
             //run query 
@@ -102,7 +103,7 @@ namespace SamplesDashboard.Services
                 {
                     if (line.Contains(":"))
                         break;
-                    myList.Add(line.Split("-", StringSplitOptions.RemoveEmptyEntries).Last());
+                    myList.Add(line.Split("-", StringSplitOptions.RemoveEmptyEntries).Last().Trim());
                 }
             }
             return myList;
