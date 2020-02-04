@@ -56,7 +56,7 @@ namespace SamplesDashboardTests
             var sampleName = "msgraph-training-aspnetmvcapp";
 
             //Act
-            var services = await SampleService.GetLanguages(sampleName);
+            var services = await SampleService.GetFeatures(sampleName);
 
             //Assert
             Assert.Empty(services);

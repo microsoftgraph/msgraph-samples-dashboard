@@ -26,8 +26,7 @@ namespace SamplesDashboard.Services
                        PullRequests = repo.PullRequests(null, null, null, null, null, null, null, null, new List<PullRequestState> { PullRequestState.Open }).TotalCount,
                        })
                )
-            ).Compile();
-       
+            ).Compile();       
 
         public static async Task<List<Repo>> GetSamples(IConnection connection)
         {
@@ -45,7 +44,6 @@ namespace SamplesDashboard.Services
                 string[] lines = header.Split("\r\n");
                 return SearchTerm("languages", lines);
             }
-
             return new List<string>();
         }
 
@@ -80,10 +78,8 @@ namespace SamplesDashboard.Services
                 if (parts.Length > 1)
                 {
                     return parts[0];
-                }
-                
+                }                
             }
-
             return "";
         }
 
