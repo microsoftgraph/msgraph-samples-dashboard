@@ -20,7 +20,7 @@ steps:
   displayName: "Use dotnetcore3"
   inputs:
     packageType: sdk
-    version: 3.0.100
+    version: 3.x
 
 - task: UseNode@1
   inputs:
