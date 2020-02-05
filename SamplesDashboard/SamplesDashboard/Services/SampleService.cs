@@ -13,7 +13,7 @@ namespace SamplesDashboard.Services
     {
         //Query to retrieve samples data
         private static readonly ICompiledQuery<IEnumerable<Repo>> samplesQuery
-            = new Query().Search("org:microsoftgraph archived:false sample in:name", SearchType.Repository, 100)
+            = new Query().Search("org:microsoftgraph archived:false training OR sample in:name", SearchType.Repository, 100)
             .Nodes
             .Select(node => node.Switch<Repo>(
                when => when.Repository(
@@ -48,7 +48,7 @@ namespace SamplesDashboard.Services
         }
 
         //Get services list from the parsed yaml header
-        public static async Task<List<string>> GetFeatures(String sampleName)
+        public static async Task<List<string>> GetFeatures(string sampleName)
         {
             string header = await GetYamlHeader(sampleName);
             if (!string.IsNullOrEmpty(header))
@@ -56,7 +56,6 @@ namespace SamplesDashboard.Services
                 string[] lines = header.Split("\r\n");
                 return SearchTerm("services", lines);
             }
-
             return new List<string>();
         }
 
