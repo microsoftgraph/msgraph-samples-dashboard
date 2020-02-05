@@ -19,6 +19,7 @@ export default class Language extends React.Component<{ sampleName: string }, IS
     fetchData = async () => {
         const response = await fetch('/language/' + this.props.sampleName);
         const data = await response.json();
+        console.log(data);
         this.setState(
             {
                 language: data
@@ -26,8 +27,7 @@ export default class Language extends React.Component<{ sampleName: string }, IS
     }
 
     public render() {
-        const language = this.state;
-        return (<div>{language}</div>);
+        return (this.state.language);
     
     }
 }

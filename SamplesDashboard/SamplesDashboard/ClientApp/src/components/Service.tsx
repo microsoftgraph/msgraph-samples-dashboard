@@ -26,8 +26,7 @@ export default class Service extends React.Component<{ sampleName: string }, ISt
     }
 
     public render() {
-        const services = this.state;
-        return (<div>{services}</div>);
+        return (this.state.services);
 
     }
 }

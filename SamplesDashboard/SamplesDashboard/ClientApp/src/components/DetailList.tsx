@@ -210,7 +210,7 @@ function _renderItemColumn(item: IListDataItem, index: number | undefined, colum
             return <span>{status} </span>;
 
         case 'Language':
-            return <span><Language sampleName={sampleName} /></span>;
+            return <span><Language sampleName = {sampleName} /></span>;
 
         case 'Open Pull Requests':
             return <span>{pullRequests} </span>;
@@ -222,7 +222,7 @@ function _renderItemColumn(item: IListDataItem, index: number | undefined, colum
             return <span>{stars} </span>;
 
         case 'Feature Area':
-            return <span>{sampleName}</span>;  
+            return <span><Service sampleName = {sampleName} /></span>;  
 
         case 'Security Alerts':
             return <span>{securityAlerts} </span>;
