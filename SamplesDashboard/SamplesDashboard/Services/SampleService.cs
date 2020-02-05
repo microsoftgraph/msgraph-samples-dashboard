@@ -9,9 +9,12 @@ using System;
 
 namespace SamplesDashboard.Services
 {
+    /// <summary>
+    ///  This class contains samples query services and functions to be used by the samples API
+    /// </summary>
     public static class SampleService
     {
-        //Query to retrieve samples data
+        ///Query to retrieve samples data
         private static readonly ICompiledQuery<IEnumerable<Repo>> samplesQuery
             = new Query().Search("org:microsoftgraph archived:false training OR sample in:name", SearchType.Repository, 100)
             .Nodes
@@ -26,8 +29,13 @@ namespace SamplesDashboard.Services
                        PullRequests = repo.PullRequests(null, null, null, null, null, null, null, null, new List<PullRequestState> { PullRequestState.Open }).TotalCount,
                        })
                )
-            ).Compile();       
-
+            ).Compile(); 
+        
+        /// <summary>
+        /// Gets the connection object used to run the samples query and return the samples list 
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <returns> A list of samples.</returns>
         public static async Task<List<Repo>> GetSamples(IConnection connection)
         {
             //run query 
@@ -35,7 +43,11 @@ namespace SamplesDashboard.Services
             return samples.ToList();
         }
 
-        //Get languages list from parsed yaml header
+        /// <summary>
+        /// Gets languages list from parsed yaml header
+        /// </summary>
+        /// <param name="sampleName"></param>
+        /// <returns> A new list of languages after parsing the yaml header.</returns>
         public static async Task<List<String>> GetLanguages(string sampleName)
         {
             string header = await GetYamlHeader(sampleName);
@@ -47,7 +59,11 @@ namespace SamplesDashboard.Services
             return new List<string>();
         }
 
-        //Get services list from the parsed yaml header
+        /// <summary>
+        /// Get services list from the parsed yaml header
+        /// </summary>
+        /// <param name="sampleName"></param>
+        /// <returns> A new list of services in the yaml header after parsing it.</returns>
         public static async Task<List<string>> GetFeatures(string sampleName)
         {
             string header = await GetYamlHeader(sampleName);
@@ -59,10 +75,13 @@ namespace SamplesDashboard.Services
             return new List<string>();
         }
 
-        //fetch yaml header from sample repo and parse it
+        /// <summary>
+        /// fetch yaml header from sample repo and parse it
+        /// </summary>
+        /// <param name="sampleName"></param>
+        /// <returns> The yaml header. </returns>
         private static async Task<string> GetYamlHeader(string sampleName)
         {
-            //run query 
             HttpClient httpClient = new HttpClient();
             HttpResponseMessage responseMessage  = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
             
@@ -82,6 +101,12 @@ namespace SamplesDashboard.Services
             return "";
         }
 
+        /// <summary>
+        /// Gets the searchterm and gets related entries.
+        /// </summary>
+        /// <param name="term"></param>
+        /// <param name="lines"></param>
+        /// <returns>A list of the searchterm specified.</returns>
         private static List<string> SearchTerm(string term, string[] lines)
         {
             bool foundHeader = false;
