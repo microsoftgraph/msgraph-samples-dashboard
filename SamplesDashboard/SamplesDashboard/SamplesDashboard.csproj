@@ -32,6 +32,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\components\Language.tsx" />
+    <None Remove="ClientApp\src\components\Service.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\components\Language.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\Service.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

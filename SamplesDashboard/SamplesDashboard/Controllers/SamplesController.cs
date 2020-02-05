@@ -29,16 +29,16 @@ namespace SamplesDashboard.Controllers
         [Route("/feature/{id}")]
         public async Task<IActionResult> GetFeatureAreaAsync(string id)
         {
-            List<string> LanguageList = await SampleService.GetFeatures(id);
-            return Ok(LanguageList);
+            List<string> ServicesList = await SampleService.GetFeatures(id);
+            return Ok(ServicesList);
         }
 
         [Produces("application/json")]
         [Route("/language/{id}")]
         public async Task<IActionResult> GetLanguageAsync(string id)
         {
-            var language = await SampleService.GetLanguages(id);
-            return Ok(language);
+            List<string> languages = await SampleService.GetLanguages(id);
+            return Ok(languages);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace SamplesDashboardTests
     public class SampleServiceTests
     {
         [Fact]
-        public async Task ShouldGetSampleLanguageAsync()
+        public async Task ShouldGetSampleLanguagesAsync()
         {
             //Arrange
             var sampleName = "powershell-intune-samples";
