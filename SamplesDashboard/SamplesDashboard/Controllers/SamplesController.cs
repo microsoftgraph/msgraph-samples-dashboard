@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Octokit.GraphQL;
+using SamplesDashboard.Models;
 using SamplesDashboard.Services;
 namespace SamplesDashboard.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
     public class SamplesController : Controller
     {
@@ -16,11 +17,28 @@ namespace SamplesDashboard.Controllers
         }
 
         [Produces("application/json")]
+        [Route("api/[controller]")]
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
-        {         
-            var samples = await SampleService.GetSamples(this.connection);             
+        {
+            List<Repo> samples = await SampleService.GetSamples(this.connection);
             return Ok(samples);
+        }
+
+        [Produces("application/json")]
+        [Route("/feature/{id}")]
+        public async Task<IActionResult> GetFeatureAreaAsync(string id)
+        {
+            List<string> ServicesList = await SampleService.GetFeatures(id);
+            return Ok(ServicesList);
+        }
+
+        [Produces("application/json")]
+        [Route("/language/{id}")]
+        public async Task<IActionResult> GetLanguageAsync(string id)
+        {
+            List<string> languages = await SampleService.GetLanguages(id);
+            return Ok(languages);
         }
     }
 }

@@ -8,14 +8,16 @@ import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { Announced } from 'office-ui-fabric-react/lib/Announced';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
+import Language from './Language';
+import Service from './Service';
 
 initializeIcons();
 
 const detailListClass = mergeStyles({
     display: 'block',
-    marginBottom: '10px'
-
+    marginBottom: '10px'  
 });
+
 const classNames = mergeStyleSets({
     wrapper: {
         height: '80vh',
@@ -61,11 +63,11 @@ export default class SampleList extends React.Component<{}, IListDataState> {
             { key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true, isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this._onColumnClick },
             { key: 'owner', name: 'Owner', fieldName: 'owner', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'pullRequests', name: 'Open Pull Requests', fieldName: 'pullRequests', minWidth: 150, maxWidth: 200, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'issues', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 200, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'pullRequests', name: 'Open Pull Requests', fieldName: 'pullRequests', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'issues', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'stars', name: 'Stars', fieldName: 'stars', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 100, maxWidth: 500, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'securityAlerts', name: 'Security Alerts', fieldName: 'securityAlerts', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick }
         ];
 
@@ -112,9 +114,9 @@ export default class SampleList extends React.Component<{}, IListDataState> {
                     {announcedMessage ? <Announced message={announcedMessage} /> : undefined}
                 <MarqueeSelection selection={this._selection} data-is-scrollable={true}>
                 <DetailsList
-                    items={items}
-                            columns={columns}
-                            selectionMode={SelectionMode.none}
+                    items={items} 
+                    columns={columns}
+                    selectionMode={SelectionMode.none}
                     getKey={this._getKey}
                     setKey="multiple"
                     layoutMode={DetailsListLayoutMode.justified}
@@ -125,6 +127,7 @@ export default class SampleList extends React.Component<{}, IListDataState> {
                     ariaLabelForSelectAllCheckbox="Toggle selection for all items"
                     checkButtonAriaLabel="Row checkbox"
                     onItemInvoked={this._onItemInvoked}
+                    onRenderItemColumn={_renderItemColumn}
                   />
                 </MarqueeSelection>
                 </ScrollablePane>
@@ -133,7 +136,8 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         );
     }
 
-    private _getKey(item: any, index?: number): string {
+    private _getKey(item: any, index?: number): string
+    {
         return item.key;
     }
 
@@ -182,6 +186,48 @@ export default class SampleList extends React.Component<{}, IListDataState> {
             items: newItems
         });
     };
+}
+
+//rendering the language and service component within the details list
+function _renderItemColumn(item: IListDataItem, index: number | undefined, column: IColumn | undefined) {
+    const col = column as IColumn;
+    const sampleName = item[col.fieldName = "name" as keyof IListDataItem] as string;
+    const owner = item[col.fieldName = "owner" as keyof IListDataItem] as string;
+    const status = item[col.fieldName = "status" as keyof IListDataItem] as string;
+    const pullRequests = item[col.fieldName = "pullRequests" as keyof IListDataItem] as string;
+    const issues = item[col.fieldName = "issues" as keyof IListDataItem] as string;
+    const stars = item[col.fieldName = "stars" as keyof IListDataItem] as string;
+    const securityAlerts = item[col.fieldName = "securityAlerts" as keyof IListDataItem] as string;
+    
+    switch (col.name) {
+        case 'Name':
+            return <span>{sampleName} </span>;
+
+        case 'Owner':
+            return <span>{owner} </span>;
+
+        case 'Status':
+            return <span>{status} </span>;
+
+        case 'Language':
+            return <span><Language sampleName = {sampleName} /></span>;
+
+        case 'Open Pull Requests':
+            return <span>{pullRequests} </span>;
+
+        case 'Open Issues':
+            return <span>{issues} </span>;
+
+        case 'Stars':
+            return <span>{stars} </span>;
+
+        case 'Feature Area':
+            return <span><Service sampleName = {sampleName} /></span>;  
+
+        case 'Security Alerts':
+            return <span>{securityAlerts} </span>;
+        
+    }
 }
 function _copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
     const key = columnKey as keyof T;

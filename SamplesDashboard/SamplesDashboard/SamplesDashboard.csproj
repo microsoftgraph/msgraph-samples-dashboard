@@ -21,6 +21,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
     <PackageReference Include="Octokit.GraphQL" Version="0.1.4-beta" />
+    <PackageReference Include="OfficeUIFabric" Version="2.6.3" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +29,16 @@
     <Content Remove="$(SpaRoot)**" />
     <None Remove="$(SpaRoot)**" />
     <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="ClientApp\src\components\Language.tsx" />
+    <None Remove="ClientApp\src\components\Service.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\components\Language.tsx" />
+    <TypeScriptCompile Include="ClientApp\src\components\Service.tsx" />
   </ItemGroup>
 
   <ItemGroup>
