@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using GraphQL.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Octokit.GraphQL;
 using SamplesDashboard.Models;
 using SamplesDashboard.Services;
 namespace SamplesDashboard.Controllers
@@ -10,10 +10,11 @@ namespace SamplesDashboard.Controllers
     [ApiController]
     public class SamplesController : Controller
     {
-        private readonly IConnection connection;
-        public SamplesController(IConnection connection)
+        private readonly GraphQLClient client;
+
+        public SamplesController(GraphQLClient client)
         {
-            this.connection = connection;
+            this.client = client;
         }
 
         [Produces("application/json")]
@@ -21,7 +22,7 @@ namespace SamplesDashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            List<Repo> samples = await SampleService.GetSamples(this.connection);
+            List<Repo> samples = await SampleService.GetSamples(this.client);
             return Ok(samples);
         }
 
