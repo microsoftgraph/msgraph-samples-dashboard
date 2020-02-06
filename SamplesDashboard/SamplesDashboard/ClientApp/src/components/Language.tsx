@@ -27,7 +27,9 @@ export default class Language extends React.Component<{ sampleName: string }, IS
     }
 
     public render() {
-        return (this.state.language);
-    
+        const languages = this.state.language.map((lang: string) => { return lang; }
+                            ).join(", ");
+        return (languages);
+               
     }
 }
