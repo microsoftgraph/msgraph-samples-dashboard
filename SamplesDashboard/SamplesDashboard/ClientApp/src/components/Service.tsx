@@ -26,7 +26,8 @@ export default class Service extends React.Component<{ sampleName: string }, ISt
     }
 
     public render() {
-        return (this.state.services);
-
+        const services = this.state.services.map((service: string) => { return service; }
+        ).join(", ");
+        return (services);
     }
 }
