@@ -61,14 +61,14 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         this._allItems = [];
         const columns: IColumn[] = [
             { key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true, isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this._onColumnClick },
-            { key: 'owner', name: 'Owner', fieldName: 'owner', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 200, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'pullRequests', name: 'Open Pull Requests', fieldName: 'pullRequests', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'issues', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'stars', name: 'Stars', fieldName: 'stars', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 100, maxWidth: 500, isResizable: true, onColumnClick: this._onColumnClick },
-            { key: 'securityAlerts', name: 'Security Alerts', fieldName: 'securityAlerts', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick }
+            { key: 'nameWithOwner', name: 'Owner', fieldName: 'nameWithOwner', minWidth: 200, maxWidth: 300, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'pullRequestCount', name: 'Open Pull Requests', fieldName: 'pullRequestCount', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'issueCount', name: 'Open Issues', fieldName: 'issueCount', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'starsCount', name: 'Stars', fieldName: 'starsCount', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 100, maxWidth: 200, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'vulnerabilityAlertsCount', minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this._onColumnClick }
         ];
 
         this.state = {
@@ -192,12 +192,12 @@ export default class SampleList extends React.Component<{}, IListDataState> {
 function _renderItemColumn(item: IListDataItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const sampleName = item[col.fieldName = "name" as keyof IListDataItem] as string;
-    const owner = item[col.fieldName = "owner" as keyof IListDataItem] as string;
+    const owner = item[col.fieldName = "nameWithOwner" as keyof IListDataItem] as string;
     const status = item[col.fieldName = "status" as keyof IListDataItem] as string;
-    const pullRequests = item[col.fieldName = "pullRequests" as keyof IListDataItem] as string;
-    const issues = item[col.fieldName = "issues" as keyof IListDataItem] as string;
-    const stars = item[col.fieldName = "stars" as keyof IListDataItem] as string;
-    const securityAlerts = item[col.fieldName = "securityAlerts" as keyof IListDataItem] as string;
+    const pullRequestCount = item[col.fieldName = "pullRequestCount" as keyof IListDataItem] as string;
+    const issueCount = item[col.fieldName = "issueCount" as keyof IListDataItem] as string;
+    const starsCount = item[col.fieldName = "starsCount" as keyof IListDataItem] as string;
+    const vulnerabilityAlertsCount = item[col.fieldName = "vulnerabilityAlertsCount" as keyof IListDataItem] as string;
     
     switch (col.name) {
         case 'Name':
@@ -213,19 +213,19 @@ function _renderItemColumn(item: IListDataItem, index: number | undefined, colum
             return <span><Language sampleName = {sampleName} /></span>;
 
         case 'Open Pull Requests':
-            return <span>{pullRequests} </span>;
+            return <span>{pullRequestCount} </span>;
 
         case 'Open Issues':
-            return <span>{issues} </span>;
+            return <span>{issueCount}</span>;
 
         case 'Stars':
-            return <span>{stars} </span>;
+            return <span>{starsCount} </span>;
 
         case 'Feature Area':
             return <span><Service sampleName = {sampleName} /></span>;  
 
         case 'Security Alerts':
-            return <span>{securityAlerts} </span>;
+            return <span>{vulnerabilityAlertsCount} </span>;
         
     }
 }
