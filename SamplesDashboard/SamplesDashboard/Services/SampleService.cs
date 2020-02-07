@@ -1,11 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Octokit.GraphQL;
 using System.Collections.Generic;
 using SamplesDashboard.Models;
-using Octokit.GraphQL.Model;
 using System.Net.Http;
 using System;
+using GraphQL.Client;
+using GraphQL.Common.Request;
 
 namespace SamplesDashboard.Services
 {
@@ -14,33 +14,45 @@ namespace SamplesDashboard.Services
     /// </summary>
     public static class SampleService
     {
-        ///Query to retrieve samples data
-        private static readonly ICompiledQuery<IEnumerable<Repo>> samplesQuery
-            = new Query().Search("org:microsoftgraph archived:false training OR sample in:name", SearchType.Repository, 100)
-            .Nodes
-            .Select(node => node.Switch<Repo>(
-               when => when.Repository(
-                   repo => new Repo()
-                   {
-                       Name = repo.Name,
-                       Owner = repo.Owner.Login,
-                       Issues = repo.Issues(null, null, null, null, null, null, null, new List<IssueState> { IssueState.Open }).TotalCount,
-                       Stars = repo.Stargazers(null, null, null, null, null).TotalCount,
-                       PullRequests = repo.PullRequests(null, null, null, null, null, null, null, null, new List<PullRequestState> { PullRequestState.Open }).TotalCount,
-                       })
-               )
-            ).Compile(); 
-        
+
         /// <summary>
-        /// Gets the connection object used to run the samples query and return the samples list 
+        /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
-        /// <param name="connection"></param>
+        /// <param name="client"></param>
         /// <returns> A list of samples.</returns>
-        public static async Task<List<Repo>> GetSamples(IConnection connection)
+        public static async Task<List<Repo>> GetSamples(GraphQLClient client)
         {
-            //run query 
-            var samples = await connection.Run(samplesQuery);
-            return samples.ToList();
+            //run query
+            var request = new GraphQLRequest
+            {
+                Query = @"
+	            {
+                  search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100) {
+                        nodes {
+                                ... on Repository {
+                                    id
+                                    name
+                                    nameWithOwner
+                                    vulnerabilityAlerts {
+                                        totalCount
+                                    }
+                                    issues(states: OPEN) {
+                                        totalCount
+                                    }
+                                    pullRequests(states: OPEN) {
+                                        totalCount
+                                    }
+                                    stargazers {
+                                        totalCount
+                                    }
+                                }
+                            }
+                        }
+                }"
+            };
+                var graphQLResponse = await client.PostAsync(request);
+                var samples = graphQLResponse.GetDataFieldAs<Repositories>("search");
+                return samples.nodes;
         }
 
         /// <summary>

@@ -1,10 +1,11 @@
+using GraphQL.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Octokit.GraphQL;
+using System.Net.Http.Headers;
 
 namespace SamplesDashboard
 {
@@ -21,12 +22,15 @@ namespace SamplesDashboard
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            var productInformation = new ProductHeaderValue(Configuration.GetValue<string>("product"),
-                Configuration.GetValue<string>("product_version"));
-
-            var token = Configuration.GetValue<string>("auth_token");
-            services.AddSingleton<IConnection>(new Connection(productInformation, token));
-
+            services.AddScoped(x =>
+            {
+                GraphQLClient graphQlClient = new GraphQLClient("https://api.github.com/graphql");
+                graphQlClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("auth_token"));
+                graphQlClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.antiope-preview+json"));
+                graphQlClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json"));
+                graphQlClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
+                return graphQlClient;
+            });
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
