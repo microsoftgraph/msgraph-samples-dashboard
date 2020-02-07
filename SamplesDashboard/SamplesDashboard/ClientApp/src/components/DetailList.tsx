@@ -61,7 +61,7 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         this._allItems = [];
         const columns: IColumn[] = [
             { key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true, isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this._onColumnClick },
-            { key: 'login', name: 'Owner', fieldName: 'login', minWidth: 200, maxWidth: 300, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'login', name: 'Owner', fieldName: 'login', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'pullRequestCount', name: 'Open Pull Requests', fieldName: 'pullRequestCount', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
