@@ -32,7 +32,9 @@ namespace SamplesDashboard.Services
                                 ... on Repository {
                                     id
                                     name
-                                    nameWithOwner
+                                    owner {
+                                        login
+                                    }
                                     vulnerabilityAlerts {
                                         totalCount
                                     }

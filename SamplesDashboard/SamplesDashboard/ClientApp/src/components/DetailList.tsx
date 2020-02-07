@@ -61,7 +61,7 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         this._allItems = [];
         const columns: IColumn[] = [
             { key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true, isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this._onColumnClick },
-            { key: 'nameWithOwner', name: 'Owner', fieldName: 'nameWithOwner', minWidth: 200, maxWidth: 300, isResizable: true, onColumnClick: this._onColumnClick },
+            { key: 'login', name: 'Owner', fieldName: 'login', minWidth: 200, maxWidth: 300, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
             { key: 'pullRequestCount', name: 'Open Pull Requests', fieldName: 'pullRequestCount', minWidth: 100, maxWidth: 150, isResizable: true, onColumnClick: this._onColumnClick },
@@ -192,7 +192,7 @@ export default class SampleList extends React.Component<{}, IListDataState> {
 function _renderItemColumn(item: IListDataItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const sampleName = item[col.fieldName = "name" as keyof IListDataItem] as string;
-    const owner = item[col.fieldName = "nameWithOwner" as keyof IListDataItem] as string;
+    const owner = item[col.fieldName = "login" as keyof IListDataItem] as string;
     const status = item[col.fieldName = "status" as keyof IListDataItem] as string;
     const pullRequestCount = item[col.fieldName = "pullRequestCount" as keyof IListDataItem] as string;
     const issueCount = item[col.fieldName = "issueCount" as keyof IListDataItem] as string;

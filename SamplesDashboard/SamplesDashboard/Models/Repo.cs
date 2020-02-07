@@ -5,7 +5,7 @@ namespace SamplesDashboard.Models
     public class Repo
     {
         public string Name { get; set; }
-        public string NameWithOwner { get; set; }
+        public Owner Owner { get; set; }
         public string Status { get; set; }
         public List<string> Language { get; set; }
         public PullRequests pullRequests { get; set; }
@@ -60,6 +60,18 @@ namespace SamplesDashboard.Models
                     vulnerabilityAlerts.totalCount = value;
             }
         }
+
+        public string login
+        {
+            get => Owner?.login ?? "";
+            set
+            {
+                if (Owner is null)
+                    Owner = new Owner { login = value };
+                else
+                    Owner.login = value;
+            }
+        }
     }
 
     public class Issues
@@ -77,5 +89,10 @@ namespace SamplesDashboard.Models
     public class SecurityAlerts
     {
         public int totalCount;
+    }
+
+    public class Owner
+    {
+        public string login;
     }
 }
