@@ -73,26 +73,4 @@ namespace SamplesDashboard.Models
             }
         }
     }
-
-    public class Issues
-    {
-        public int totalCount;
-    }
-    public class Stargazer
-    {
-        public int totalCount;
-    }
-    public class PullRequests
-    {
-        public int totalCount;
-    }
-    public class SecurityAlerts
-    {
-        public int totalCount;
-    }
-
-    public class Owner
-    {
-        public string login;
-    }
 }
