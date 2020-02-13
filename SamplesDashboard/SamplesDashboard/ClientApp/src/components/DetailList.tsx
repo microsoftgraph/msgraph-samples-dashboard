@@ -10,6 +10,7 @@ import { Announced } from 'office-ui-fabric-react/lib/Announced';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import Language from './Language';
 import Service from './Service';
+import { Link } from 'react-router-dom';
 
 initializeIcons();
 
@@ -201,7 +202,9 @@ function _renderItemColumn(item: IListDataItem, index: number | undefined, colum
     
     switch (col.name) {
         case 'Name':
-            return <span>{sampleName} </span>;
+            return <div>
+                <Link to={`/samples/${sampleName}`} ><span>{sampleName} </ span></Link>
+                   </div>;
 
         case 'Owner':
             return <span>{owner} </span>;
