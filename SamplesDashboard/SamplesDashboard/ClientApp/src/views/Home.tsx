@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import SampleList from './DetailList';
+import SampleList from './Samples';
 
 class Home extends Component {          
     render() {

@@ -19,7 +19,6 @@
     "reactstrap": "7.0.2",
     "redux": "4.0.1",
     "redux-thunk": "2.3.0",
-    "tslint": "^6.0.0",
     "typescript": "3.2.2"
   },
   "devDependencies": {
@@ -38,7 +37,10 @@
     "eslint-plugin-import": "2.14.0",
     "eslint-plugin-jsx-a11y": "6.1.2",
     "eslint-plugin-react": "7.11.1",
-    "typescript-eslint-parser": "21.0.2"
+    "typescript-eslint-parser": "21.0.2",
+    "tslint": "5.12.1",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-react": "4.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

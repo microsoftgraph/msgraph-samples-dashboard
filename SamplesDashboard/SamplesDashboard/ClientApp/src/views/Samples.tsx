@@ -1,16 +1,19 @@
-﻿import * as React from 'react';
-import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import { DetailsList, DetailsListLayoutMode, Selection, IColumn, SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
+﻿import { Announced } from 'office-ui-fabric-react/lib/Announced';
+import { DetailsList, DetailsListLayoutMode, IColumn, 
+    Selection, SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
+import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
+import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { MarqueeSelection } from 'office-ui-fabric-react/lib/MarqueeSelection';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
 import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
-import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
-import { Announced } from 'office-ui-fabric-react/lib/Announced';
-import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
-import Language from './Language';
-import Service from './Service';
+import { TextField } from 'office-ui-fabric-react/lib/TextField';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
+
+import Language from '../components/samples/Language';
+import Service from '../components/samples/Service';
+import { ISampleItem } from '../types/samples';
 
 initializeIcons();
 
@@ -28,29 +31,16 @@ const classNames = mergeStyleSets({
     }
 });
 
-export interface IListDataItem {
-    key: number;
-    name: string;
-    owner: string;
-    status: string;
-    language: string;
-    pullRequests: number;
-    issues: number;
-    stars: number;
-    featureArea: string;
-    securityAlerts: string;
-}
-
 export interface IListDataState {
     columns: IColumn[];
-    items: IListDataItem[];
+    items: ISampleItem[];
     selectionDetails: string;
     announcedMessage?: string;
 }
 
 export default class SampleList extends React.Component<{}, IListDataState> {
     private _selection: Selection;
-    private _allItems: IListDataItem[];
+    private _allItems: ISampleItem[];
 
     constructor(props: {}) {
         super(props);
@@ -147,7 +137,7 @@ export default class SampleList extends React.Component<{}, IListDataState> {
             case 0:
                 return 'No items selected';
             case 1:
-                return '1 item selected: ' + (this._selection.getSelection()[0] as IListDataItem).name;
+                return '1 item selected: ' + (this._selection.getSelection()[0] as ISampleItem).name;
             default:
                 return `${selectionCount} items selected`;
         }
@@ -184,15 +174,15 @@ export default class SampleList extends React.Component<{}, IListDataState> {
 }
 
 //rendering the language and service component within the details list
-function _renderItemColumn(item: IListDataItem, index: number | undefined, column: IColumn | undefined) {
+function _renderItemColumn(item: ISampleItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
-    const sampleName = item[col.fieldName = "name" as keyof IListDataItem] as string;
-    const owner = item[col.fieldName = "login" as keyof IListDataItem] as string;
-    const status = item[col.fieldName = "status" as keyof IListDataItem] as string;
-    const pullRequestCount = item[col.fieldName = "pullRequestCount" as keyof IListDataItem] as string;
-    const issueCount = item[col.fieldName = "issueCount" as keyof IListDataItem] as string;
-    const starsCount = item[col.fieldName = "starsCount" as keyof IListDataItem] as string;
-    const vulnerabilityAlertsCount = item[col.fieldName = "vulnerabilityAlertsCount" as keyof IListDataItem] as string;
+    const sampleName = item[col.fieldName = "name" as keyof ISampleItem] as string;
+    const owner = item[col.fieldName = "login" as keyof ISampleItem] as string;
+    const status = item[col.fieldName = "status" as keyof ISampleItem] as string;
+    const pullRequestCount = item[col.fieldName = "pullRequestCount" as keyof ISampleItem] as string;
+    const issueCount = item[col.fieldName = "issueCount" as keyof ISampleItem] as string;
+    const starsCount = item[col.fieldName = "starsCount" as keyof ISampleItem] as string;
+    const vulnerabilityAlertsCount = item[col.fieldName = "vulnerabilityAlertsCount" as keyof ISampleItem] as string;
 
     switch (col.name) {
         case 'Name':
