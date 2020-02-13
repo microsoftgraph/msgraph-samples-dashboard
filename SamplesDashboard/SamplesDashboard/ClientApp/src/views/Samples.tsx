@@ -1,9 +1,7 @@
-﻿import { Announced } from 'office-ui-fabric-react/lib/Announced';
-import { DetailsList, DetailsListLayoutMode, IColumn, 
-    Selection, SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
+﻿import { DetailsList, DetailsListLayoutMode, IColumn, 
+    SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
-import { MarqueeSelection } from 'office-ui-fabric-react/lib/MarqueeSelection';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
 import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
 import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
