@@ -19,6 +19,7 @@
     "reactstrap": "7.0.2",
     "redux": "4.0.1",
     "redux-thunk": "2.3.0",
+    "tslint": "^6.0.0",
     "typescript": "3.2.2"
   },
   "devDependencies": {
@@ -44,7 +45,7 @@
     "build": "react-scripts build",
     "test": "cross-env CI=true react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "lint": "eslint ./src/**/*.ts ./src/**/*.tsx"
+    "lint": "tslint --project tsconfig.json -c tslint.json"
   },
   "eslintConfig": {
     "extends": "react-app"
