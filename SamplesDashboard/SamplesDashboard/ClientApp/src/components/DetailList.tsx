@@ -127,7 +127,6 @@ export default class SampleList extends React.Component<{}, IListDataState> {
                     ariaLabelForSelectionColumn="Toggle selection"
                     ariaLabelForSelectAllCheckbox="Toggle selection for all items"
                     checkButtonAriaLabel="Row checkbox"
-                    onItemInvoked={this._onItemInvoked}
                     onRenderItemColumn={_renderItemColumn}
                   />
                 </MarqueeSelection>
@@ -159,10 +158,6 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         this.setState({
             items: text ? this._allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this._allItems
         });
-    };
-
-    private _onItemInvoked = (item: IListDataItem): void => {
-        alert(`Item invoked: ${item.name}`);
     };
 
     private _onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
