@@ -15,7 +15,7 @@ initializeIcons();
 
 const detailListClass = mergeStyles({
     display: 'block',
-    marginBottom: '10px'  
+    marginBottom: '10px'
 });
 
 const classNames = mergeStyleSets({
@@ -55,7 +55,7 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         super(props);
 
         this._selection = new Selection({
-        onSelectionChanged: () => this.setState({ selectionDetails: this._getSelectionDetails() })
+            onSelectionChanged: () => this.setState({ selectionDetails: this._getSelectionDetails() })
         });
         // Populate with items for demos.
         this._allItems = [];
@@ -98,59 +98,58 @@ export default class SampleList extends React.Component<{}, IListDataState> {
     public render(): JSX.Element {
         const { columns, items, selectionDetails, announcedMessage } = this.state;
 
-    return (
-        <Fabric>
-            <div className={classNames.wrapper}>
-            <div className={detailListClass}>{selectionDetails}</div>
-            <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
-                <Sticky stickyPosition={StickyPositionType.Header}>
-                <TextField
-                  className={detailListClass}
-                        label="Filter by name:"
-                        onChange={this._onFilterName}
-                  styles={{ root: { maxWidth: '300px' } }}
-                    />
-                    </Sticky>
-                    {announcedMessage ? <Announced message={announcedMessage} /> : undefined}
-                <MarqueeSelection selection={this._selection} data-is-scrollable={true}>
-                <DetailsList
-                    items={items} 
-                    columns={columns}
-                    selectionMode={SelectionMode.none}
-                    getKey={this._getKey}
-                    setKey="multiple"
-                    layoutMode={DetailsListLayoutMode.justified}
-                    isHeaderVisible={true}
-                    selection={this._selection}
-                    selectionPreservedOnEmptyClick={true}
-                    ariaLabelForSelectionColumn="Toggle selection"
-                    ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-                    checkButtonAriaLabel="Row checkbox"
-                    onItemInvoked={this._onItemInvoked}
-                    onRenderItemColumn={_renderItemColumn}
-                  />
-                </MarqueeSelection>
-                </ScrollablePane>
+        return (
+            <Fabric>
+                <div className={classNames.wrapper}>
+                    <div className={detailListClass}>{selectionDetails}</div>
+                    <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+                        <Sticky stickyPosition={StickyPositionType.Header}>
+                            <TextField
+                                className={detailListClass}
+                                label="Filter by name:"
+                                onChange={this._onFilterName}
+                                styles={{ root: { maxWidth: '300px' } }}
+                            />
+                        </Sticky>
+                        {announcedMessage ? <Announced message={announcedMessage} /> : undefined}
+                        <MarqueeSelection selection={this._selection} data-is-scrollable={true}>
+                            <DetailsList
+                                items={items}
+                                columns={columns}
+                                selectionMode={SelectionMode.none}
+                                getKey={this._getKey}
+                                setKey="multiple"
+                                layoutMode={DetailsListLayoutMode.justified}
+                                isHeaderVisible={true}
+                                selection={this._selection}
+                                selectionPreservedOnEmptyClick={true}
+                                ariaLabelForSelectionColumn="Toggle selection"
+                                ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+                                checkButtonAriaLabel="Row checkbox"
+                                onItemInvoked={this._onItemInvoked}
+                                onRenderItemColumn={_renderItemColumn}
+                            />
+                        </MarqueeSelection>
+                    </ScrollablePane>
                 </div>
-        </Fabric>
+            </Fabric>
         );
     }
 
-    private _getKey(item: any, index?: number): string
-    {
+    private _getKey(item: any, index?: number): string {
         return item.key;
     }
 
     private _getSelectionDetails(): string {
         const selectionCount = this._selection.getSelectedCount();
 
-    switch (selectionCount) {
-        case 0:
-            return 'No items selected';
-        case 1:
-            return '1 item selected: ' + (this._selection.getSelection()[0] as IListDataItem).name;
-        default:
-            return `${selectionCount} items selected`;
+        switch (selectionCount) {
+            case 0:
+                return 'No items selected';
+            case 1:
+                return '1 item selected: ' + (this._selection.getSelection()[0] as IListDataItem).name;
+            default:
+                return `${selectionCount} items selected`;
         }
     }
 
@@ -198,7 +197,7 @@ function _renderItemColumn(item: IListDataItem, index: number | undefined, colum
     const issueCount = item[col.fieldName = "issueCount" as keyof IListDataItem] as string;
     const starsCount = item[col.fieldName = "starsCount" as keyof IListDataItem] as string;
     const vulnerabilityAlertsCount = item[col.fieldName = "vulnerabilityAlertsCount" as keyof IListDataItem] as string;
-    
+
     switch (col.name) {
         case 'Name':
             return <span>{sampleName} </span>;
@@ -210,7 +209,7 @@ function _renderItemColumn(item: IListDataItem, index: number | undefined, colum
             return <span>{status} </span>;
 
         case 'Language':
-            return <span><Language sampleName = {sampleName} /></span>;
+            return <span><Language sampleName={sampleName} /></span>;
 
         case 'Open Pull Requests':
             return <span>{pullRequestCount} </span>;
@@ -222,11 +221,11 @@ function _renderItemColumn(item: IListDataItem, index: number | undefined, colum
             return <span>{starsCount} </span>;
 
         case 'Feature Area':
-            return <span><Service sampleName = {sampleName} /></span>;  
+            return <span><Service sampleName={sampleName} /></span>;
 
         case 'Security Alerts':
             return <span>{vulnerabilityAlertsCount} </span>;
-        
+
     }
 }
 function _copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {

@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using GraphQL.Client;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +28,14 @@ namespace SamplesDashboard.Controllers
         {
             List<Repo> samples = await SampleService.GetSamples(this.client);
             return Ok(samples);
+        }
+
+        [Produces("application/json")]
+        [Route("api/[controller]/{id}")]
+        public async Task<IActionResult> GetDependenciesAsync(string id)
+        {
+            var dependencies = await SampleService.GetDependencies(this.client, id);
+            return Ok(dependencies);
         }
 
         [Produces("application/json")]

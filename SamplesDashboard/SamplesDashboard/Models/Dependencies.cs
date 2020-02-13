@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 
 namespace SamplesDashboard.Models
 {
-    public class PullRequests
+    public class Dependencies
     {
-        public int totalCount;
+        public List<SampleDependencies> nodes;
+        public int totalCount { get; set; }
     }
 }
