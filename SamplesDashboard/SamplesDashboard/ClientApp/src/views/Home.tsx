@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import SampleList from './Samples';
 
 class Home extends Component {          
-    render() {
+    public render() {
         return (
             <div>
                 <h1> Samples Dashboard </h1>
