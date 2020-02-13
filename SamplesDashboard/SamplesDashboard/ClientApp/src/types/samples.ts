@@ -16,4 +16,5 @@ export interface ISampleItem {
 export interface ISamplesState {
     columns: IColumn[];
     items: ISampleItem[];
+    isLoading: boolean;
 }

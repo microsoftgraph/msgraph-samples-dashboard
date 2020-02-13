@@ -1,5 +1,5 @@
-﻿import { DetailsList, DetailsListLayoutMode, IColumn, 
-    SelectionMode } from 'office-ui-fabric-react/lib/DetailsList';
+﻿import {  DetailsListLayoutMode, IColumn, 
+    SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
@@ -60,6 +60,7 @@ export default class SampleList extends React.Component<{}, ISamplesState> {
         this.state = {
             columns,
             items: this.allItems,
+            isLoading: false
         };
     }
 
@@ -69,17 +70,19 @@ export default class SampleList extends React.Component<{}, ISamplesState> {
 
     // fetching the data from the api
     public fetchData = async () => {
+        this.setState({ isLoading: true });
         const response = await fetch('api/samples');
         const data = await response.json();
         this.allItems = data;
         this.setState(
             {
                 items: data,
+                isLoading: false
             });
     }
 
     public render(): JSX.Element {
-        const { columns, items } = this.state;
+        const { columns, items, isLoading } = this.state;
 
         return (
             <Fabric>
@@ -93,18 +96,17 @@ export default class SampleList extends React.Component<{}, ISamplesState> {
                                 styles={{ root: { maxWidth: '300px' } }}
                             />
                         </Sticky>
-                            <DetailsList
+                            <ShimmeredDetailsList
                                 items={items}
                                 columns={columns}
                                 selectionMode={SelectionMode.none}
-                                getKey={this.getKey}
-                                setKey='multiple'
                                 layoutMode={DetailsListLayoutMode.justified}
                                 isHeaderVisible={true}
                                 ariaLabelForSelectionColumn='Toggle selection'
                                 ariaLabelForSelectAllCheckbox='Toggle selection for all items'
                                 checkButtonAriaLabel='Row checkbox'
                                 onRenderItemColumn={renderItemColumn}
+                                enableShimmer={isLoading}
                             />
                     </ScrollablePane>
                 </div>
