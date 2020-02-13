@@ -1,3 +1,5 @@
+import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
+
 export interface ISampleItem {
     key: number;
     name: string;
@@ -9,4 +11,9 @@ export interface ISampleItem {
     stars: number;
     featureArea: string;
     securityAlerts: string;
+}
+
+export interface ISamplesState {
+    columns: IColumn[];
+    items: ISampleItem[];
 }

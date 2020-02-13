@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 
 import Language from '../components/samples/Language';
 import Service from '../components/samples/Service';
-import { ISampleItem } from '../types/samples';
+import { ISampleItem, ISamplesState } from '../types/samples';
 
 initializeIcons();
 
@@ -31,24 +31,12 @@ const classNames = mergeStyleSets({
     }
 });
 
-export interface IListDataState {
-    columns: IColumn[];
-    items: ISampleItem[];
-    selectionDetails: string;
-    announcedMessage?: string;
-}
-
-export default class SampleList extends React.Component<{}, IListDataState> {
-    private selection: Selection;
+export default class SampleList extends React.Component<{}, ISamplesState> {
     private allItems: ISampleItem[];
 
     constructor(props: {}) {
         super(props);
 
-        this.selection = new Selection({
-            onSelectionChanged: () => this.setState({ selectionDetails: this.getSelectionDetails() })
-        });
-        // Populate with items for demos.
         this.allItems = [];
         const columns: IColumn[] = [
             { key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true, 
@@ -74,8 +62,6 @@ export default class SampleList extends React.Component<{}, IListDataState> {
         this.state = {
             columns,
             items: this.allItems,
-            selectionDetails: this.getSelectionDetails(),
-            announcedMessage: undefined
         };
     }
 
@@ -85,23 +71,21 @@ export default class SampleList extends React.Component<{}, IListDataState> {
 
     // fetching the data from the api
     public fetchData = async () => {
-        const response = await fetch('api/Samples');
+        const response = await fetch('api/samples');
         const data = await response.json();
         this.allItems = data;
         this.setState(
             {
                 items: data,
-                selectionDetails: this.getSelectionDetails()
             });
     }
 
     public render(): JSX.Element {
-        const { columns, items, selectionDetails, announcedMessage } = this.state;
+        const { columns, items } = this.state;
 
         return (
             <Fabric>
                 <div className={classNames.wrapper}>
-                    <div className={detailListClass}>{selectionDetails}</div>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
                             <TextField
@@ -111,8 +95,6 @@ export default class SampleList extends React.Component<{}, IListDataState> {
                                 styles={{ root: { maxWidth: '300px' } }}
                             />
                         </Sticky>
-                        {announcedMessage ? <Announced message={announcedMessage} /> : undefined}
-                        <MarqueeSelection selection={this.selection} data-is-scrollable={true}>
                             <DetailsList
                                 items={items}
                                 columns={columns}
@@ -121,14 +103,11 @@ export default class SampleList extends React.Component<{}, IListDataState> {
                                 setKey='multiple'
                                 layoutMode={DetailsListLayoutMode.justified}
                                 isHeaderVisible={true}
-                                selection={this.selection}
-                                selectionPreservedOnEmptyClick={true}
                                 ariaLabelForSelectionColumn='Toggle selection'
                                 ariaLabelForSelectAllCheckbox='Toggle selection for all items'
                                 checkButtonAriaLabel='Row checkbox'
                                 onRenderItemColumn={renderItemColumn}
                             />
-                        </MarqueeSelection>
                     </ScrollablePane>
                 </div>
             </Fabric>
@@ -137,19 +116,6 @@ export default class SampleList extends React.Component<{}, IListDataState> {
 
     private getKey(item: any, index?: number): string {
         return item.key;
-    }
-
-    private getSelectionDetails(): string {
-        const selectionCount = this.selection.getSelectedCount();
-
-        switch (selectionCount) {
-            case 0:
-                return 'No items selected';
-            case 1:
-                return '1 item selected: ' + (this.selection.getSelection()[0] as ISampleItem).name;
-            default:
-                return `${selectionCount} items selected`;
-        }
     }
 
     private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, 
