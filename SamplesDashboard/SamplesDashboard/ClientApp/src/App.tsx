@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Route } from 'react-router';
-import Layout from './components/layout/Layout';
-import Home from './views/Home';
 
+import Layout from './components/layout/Layout';
 import './custom.css';
 import Samples from './views/Details';
+import Home from './views/Home';
 
 export default () => (
     <Layout>

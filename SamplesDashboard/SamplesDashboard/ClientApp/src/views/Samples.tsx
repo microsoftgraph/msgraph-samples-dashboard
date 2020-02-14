@@ -1,14 +1,15 @@
-﻿import {  DetailsListLayoutMode, IColumn, 
+﻿import {  DetailsListLayoutMode, IColumn, Label,
     SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
 import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
-import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
+import { FontSizes, mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
+import PageTitle from '../components/layout/PageTitle';
 import Language from '../components/samples/Language';
 import Service from '../components/samples/Service';
 import { ISampleItem, ISamplesState } from '../types/samples';
@@ -26,6 +27,9 @@ const classNames = mergeStyleSets({
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap'
+    },
+    pageTitle: {
+        fontSize: FontSizes.large
     }
 });
 
@@ -86,6 +90,7 @@ export default class SampleList extends React.Component<{}, ISamplesState> {
 
         return (
             <Fabric>
+                <PageTitle title='List of samples' />
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
@@ -102,9 +107,6 @@ export default class SampleList extends React.Component<{}, ISamplesState> {
                                 selectionMode={SelectionMode.none}
                                 layoutMode={DetailsListLayoutMode.justified}
                                 isHeaderVisible={true}
-                                ariaLabelForSelectionColumn='Toggle selection'
-                                ariaLabelForSelectAllCheckbox='Toggle selection for all items'
-                                checkButtonAriaLabel='Row checkbox'
                                 onRenderItemColumn={renderItemColumn}
                                 enableShimmer={isLoading}
                             />

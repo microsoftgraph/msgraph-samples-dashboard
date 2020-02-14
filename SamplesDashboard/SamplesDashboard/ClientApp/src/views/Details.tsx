@@ -1,5 +1,7 @@
-﻿import * as React from 'react';
-import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
+﻿import { Fabric } from 'office-ui-fabric-react';
+import * as React from 'react';
+
+import PageTitle from '../components/layout/PageTitle';
 
 export default class SampleDependencies extends React.Component<any, any> {
 
@@ -23,7 +25,7 @@ export default class SampleDependencies extends React.Component<any, any> {
             repositoryDetails: {
                 name: repositoryName
             }
-        })
+        });
       }
 
     public render(): JSX.Element {
@@ -32,9 +34,7 @@ export default class SampleDependencies extends React.Component<any, any> {
         return (
             <Fabric>
                 <div>
-                    <h1>Samples Dashboard</h1>
-                    <br />
-                    <h3>{repositoryDetails.name}</h3>
+                    <PageTitle title={repositoryDetails.name} />    
                 </div>
             </Fabric>
         );

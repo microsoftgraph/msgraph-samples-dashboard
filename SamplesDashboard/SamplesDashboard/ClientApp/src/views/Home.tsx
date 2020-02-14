@@ -5,10 +5,6 @@ class Home extends Component {
     public render() {
         return (
             <div>
-                <h1> Samples Dashboard </h1>
-                <br/>
-                <h2> List of Samples </h2>
-                <br />
                 <SampleList />
             </div>
         );
