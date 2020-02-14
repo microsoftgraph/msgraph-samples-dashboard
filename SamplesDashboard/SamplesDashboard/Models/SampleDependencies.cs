@@ -9,6 +9,6 @@ namespace SamplesDashboard.Models
     {
         public string PackageManager { get; set; }
         public string PackageName { get; set; }
-        public int Requirements { get; set; }
+        public string Requirements { get; set; }
     }
 }

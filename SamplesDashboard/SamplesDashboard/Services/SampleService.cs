@@ -67,7 +67,7 @@ namespace SamplesDashboard.Services
         /// <param name="client"></param>
         /// <param name="sampleName"</param>
         /// <returns> A list of dependencies. </returns>
-        public static async Task<dynamic> GetDependencies(GraphQLClient client, string sampleName)
+        public static async Task<IEnumerable<List<DependenciesNode>>> GetDependencies(GraphQLClient client, string sampleName)
         {
             var request = new GraphQLRequest
             {
@@ -94,7 +94,9 @@ namespace SamplesDashboard.Services
             };
 
             var graphQLResponse = await client.PostAsync(request);
-            return graphQLResponse.Data.organization.repository.dependencyGraphManifests;            
+            var samples = graphQLResponse.GetDataFieldAs<Organization>("organization");
+            var dependencies = samples.repository.dependencyGraphManifests.nodes.Select(n => n.dependencies.nodes);
+            return dependencies;
         }
 
         /// <summary>

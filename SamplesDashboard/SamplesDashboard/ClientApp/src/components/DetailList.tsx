@@ -96,7 +96,7 @@ export default class SampleList extends React.Component<{}, IListDataState> {
     }
 
     public render(): JSX.Element {
-        const { columns, items, selectionDetails, announcedMessage } = this.state;
+        const { columns, items, selectionDetails} = this.state;
 
         return (
             <Fabric>
@@ -111,7 +111,6 @@ export default class SampleList extends React.Component<{}, IListDataState> {
                                 styles={{ root: { maxWidth: '300px' } }}
                             />
                         </Sticky>
-                        {announcedMessage ? <Announced message={announcedMessage} /> : undefined}
                         <MarqueeSelection selection={this._selection} data-is-scrollable={true}>
                             <DetailsList
                                 items={items}
