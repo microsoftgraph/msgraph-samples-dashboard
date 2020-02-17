@@ -7,7 +7,7 @@ import { ISampleItem } from '../types/samples';
 
 initializeIcons();
 
-export default class SampleDependencies extends React.Component<any, any> {
+export default class Details extends React.Component<any, any> {
     private allItems: ISampleItem[];
 
     constructor(props: {}) {
