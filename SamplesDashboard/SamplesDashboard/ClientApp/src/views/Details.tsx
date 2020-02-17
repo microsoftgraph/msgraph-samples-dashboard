@@ -1,23 +1,25 @@
-﻿import { DetailsList, DetailsListLayoutMode, Fabric, IColumn, 
+import { DetailsList, DetailsListLayoutMode, Fabric, IColumn, 
     initializeIcons, SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
-import { ISampleItem } from '../types/samples';
+import { IDetailsItem } from '../types/samples';
 
 initializeIcons();
 
 export default class SampleDependencies extends React.Component<any, any> {
-    private allItems: ISampleItem[];
+    private allItems: IDetailsItem[];
 
     constructor(props: {}) {
         super(props);
 
         this.allItems = [];
         const columns: IColumn[] = [
-            { key: 'library', name: 'Library', fieldName: 'library', minWidth: 200, maxWidth: 300, isRowHeader: true, 
+            {
+                key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 200, maxWidth: 300, isRowHeader: true, 
                 isResizable: true, isSorted: true, isSortedDescending: false },
-            { key: 'sampleVersion', name: 'Sample Version', fieldName: 'sampleVersion', minWidth: 200, maxWidth: 300, 
+            {
+                key: 'requirements', name: 'Sample Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
                 isResizable: true },
             { key: 'currentVersion', name: 'Current Version', fieldName: 'currentVersion', minWidth: 200, 
                 maxWidth: 300, isResizable: true },
