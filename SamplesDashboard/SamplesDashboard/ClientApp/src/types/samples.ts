@@ -12,6 +12,12 @@ export interface ISampleItem {
     featureArea: string;
     securityAlerts: string;
 }
+export interface IDetailsItem {
+    packageName: string;
+    requirements: string;
+    currentVersion: string;
+    status: string;
+}
 
 export interface ISamplesState {
     columns: IColumn[];

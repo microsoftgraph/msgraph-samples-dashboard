@@ -56,9 +56,9 @@ namespace SamplesDashboard.Services
                         }
                 }"
             };
-                var graphQLResponse = await client.PostAsync(request);
-                var samples = graphQLResponse.GetDataFieldAs<Repositories>("search");
-                return samples.nodes;
+            var graphQLResponse = await client.PostAsync(request);
+            var samples = graphQLResponse.GetDataFieldAs<Repositories>("search");
+            return samples.nodes;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace SamplesDashboard.Services
         /// <param name="client"></param>
         /// <param name="sampleName"</param>
         /// <returns> A list of dependencies. </returns>
-        public static async Task<IEnumerable<List<DependenciesNode>>> GetDependencies(GraphQLClient client, string sampleName)
+        public static async Task<IEnumerable<DependenciesNode>> GetDependencies(GraphQLClient client, string sampleName)
         {
             var request = new GraphQLRequest
             {
@@ -83,7 +83,6 @@ namespace SamplesDashboard.Services
                                                 packageName
                                                 requirements
                                             }
-                                            totalCount
                                         }
                                     }
                                 }
@@ -95,7 +94,7 @@ namespace SamplesDashboard.Services
 
             var graphQLResponse = await client.PostAsync(request);
             var samples = graphQLResponse.GetDataFieldAs<Organization>("organization");
-            var dependencies = samples.repository.dependencyGraphManifests.nodes.Select(n => n.dependencies.nodes);
+            var dependencies = samples.repository.dependencyGraphManifests.nodes.SelectMany(n => n.dependencies.nodes);
             return dependencies;
         }
 
@@ -139,8 +138,8 @@ namespace SamplesDashboard.Services
         private static async Task<string> GetYamlHeader(string sampleName)
         {
             HttpClient httpClient = new HttpClient();
-            HttpResponseMessage responseMessage  = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
-            
+            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
+
             if (responseMessage.StatusCode.ToString().Equals("NotFound"))
                 responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/README.md"));
 
@@ -152,7 +151,7 @@ namespace SamplesDashboard.Services
                 if (parts.Length > 1)
                 {
                     return parts[0];
-                }                
+                }
             }
             return "";
         }

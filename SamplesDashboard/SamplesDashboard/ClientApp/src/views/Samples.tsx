@@ -77,7 +77,6 @@ export default class SampleList extends React.Component<{}, ISamplesState> {
         this.setState({ isLoading: true });
         const response = await fetch('api/samples');
         const data = await response.json();
-        this.allItems = data;
         this.setState(
             {
                 items: data,
