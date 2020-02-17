@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import SampleList from './Samples';
+import Samples from './Samples';
 
 class Home extends Component {          
     public render() {
         return (
             <div>
-                <SampleList />
+                <Samples />
             </div>
         );
     }

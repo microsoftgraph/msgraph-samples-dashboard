@@ -1,4 +1,4 @@
-import {  DetailsListLayoutMode, IColumn, Label,
+import {  DetailsListLayoutMode, IColumn,
     SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -33,7 +33,7 @@ const classNames = mergeStyleSets({
     }
 });
 
-export default class SampleList extends React.Component<{}, ISamplesState> {
+export default class Samples extends React.Component<{}, ISamplesState> {
     private allItems: ISampleItem[];
 
     constructor(props: {}) {

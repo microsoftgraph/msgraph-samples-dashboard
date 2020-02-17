@@ -1,13 +1,13 @@
-import { DetailsList, DetailsListLayoutMode, Fabric, IColumn, 
-    initializeIcons, SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
+import {
+    DetailsListLayoutMode, Fabric, IColumn,
+    SelectionMode, ShimmeredDetailsList
+} from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
 
-initializeIcons();
-
-export default class SampleDependencies extends React.Component<any, any> {
+export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
 
     constructor(props: {}) {
@@ -16,15 +16,21 @@ export default class SampleDependencies extends React.Component<any, any> {
         this.allItems = [];
         const columns: IColumn[] = [
             {
-                key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 200, maxWidth: 300, isRowHeader: true, 
-                isResizable: true, isSorted: true, isSortedDescending: false },
+                key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 200, maxWidth: 300, isRowHeader: true,
+                isResizable: true, isSorted: true, isSortedDescending: false
+            },
             {
-                key: 'requirements', name: 'Sample Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
-                isResizable: true },
-            { key: 'currentVersion', name: 'Current Version', fieldName: 'currentVersion', minWidth: 200, 
-                maxWidth: 300, isResizable: true },
-            { key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300, 
-                isResizable: true },         
+                key: 'requirements', name: 'Sample Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300,
+                isResizable: true
+            },
+            {
+                key: 'currentVersion', name: 'Current Version', fieldName: 'currentVersion', minWidth: 200,
+                maxWidth: 300, isResizable: true
+            },
+            {
+                key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300,
+                isResizable: true
+            },
         ];
 
         this.state = {
@@ -47,7 +53,7 @@ export default class SampleDependencies extends React.Component<any, any> {
                 name: repositoryName
             }
         });
-      }
+    }
 
     public render(): JSX.Element {
         const { columns, items, repositoryDetails } = this.state;
