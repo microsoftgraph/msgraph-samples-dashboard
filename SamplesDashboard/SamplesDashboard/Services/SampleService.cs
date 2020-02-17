@@ -1,8 +1,4 @@
-﻿// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
-
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using SamplesDashboard.Models;
@@ -10,7 +6,6 @@ using System.Net.Http;
 using System;
 using GraphQL.Client;
 using GraphQL.Common.Request;
-using Newtonsoft.Json;
 
 namespace SamplesDashboard.Services
 {
@@ -27,6 +22,7 @@ namespace SamplesDashboard.Services
         /// <returns> A list of samples.</returns>
         public static async Task<List<Repo>> GetSamples(GraphQLClient client)
         {
+            //run query
             var request = new GraphQLRequest
             {
                 Query = @"
@@ -59,44 +55,6 @@ namespace SamplesDashboard.Services
                 var graphQLResponse = await client.PostAsync(request);
                 var samples = graphQLResponse.GetDataFieldAs<Repositories>("search");
                 return samples.nodes;
-        }
-
-        /// <summary>
-        /// Uses client object and sampleName passed inthe url to return the sample's dependencies
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="sampleName"</param>
-        /// <returns> A list of dependencies. </returns>
-        public static async Task<IEnumerable<List<DependenciesNode>>> GetDependencies(GraphQLClient client, string sampleName)
-        {
-            var request = new GraphQLRequest
-            {
-                Query = @"query Sample($sample: String!){
-                        organization(login: ""microsoftgraph"") {
-                            repository(name: $sample){
-                                dependencyGraphManifests(withDependencies: true) {
-                                    nodes {
-                                        filename
-                                        dependencies(first: 10) {
-                                            nodes {
-                                                packageManager
-                                                packageName
-                                                requirements
-                                            }
-                                            totalCount
-                                        }
-                                    }
-                                }
-                            }                        
-                    }
-                }",
-                Variables = new { sample = sampleName }
-            };
-
-            var graphQLResponse = await client.PostAsync(request);
-            var samples = graphQLResponse.GetDataFieldAs<Organization>("organization");
-            var dependencies = samples.repository.dependencyGraphManifests.nodes.Select(n => n.dependencies.nodes);
-            return dependencies;
         }
 
         /// <summary>
