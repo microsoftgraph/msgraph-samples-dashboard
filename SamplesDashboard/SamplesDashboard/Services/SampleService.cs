@@ -5,12 +5,10 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using SamplesDashboard.Models;
 using System.Net.Http;
 using System;
-using GraphQL.Client;
-using GraphQL.Common.Request;
-using Newtonsoft.Json;
+using GraphQL;
+using GraphQL.Client.Http;
 
 namespace SamplesDashboard.Services
 {
@@ -25,7 +23,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="client"></param>
         /// <returns> A list of samples.</returns>
-        public static async Task<List<Repo>> GetSamples(GraphQLClient client)
+        public static async Task<List<Node>> GetSamples(GraphQLHttpClient client)
         {
             var request = new GraphQLRequest
             {
@@ -56,9 +54,8 @@ namespace SamplesDashboard.Services
                         }
                 }"
             };
-            var graphQLResponse = await client.PostAsync(request);
-            var samples = graphQLResponse.GetDataFieldAs<Repositories>("search");
-            return samples.nodes;
+            var graphQLResponse = await client.SendQueryAsync<Data>(request);
+            return graphQLResponse?.Data?.Search.Nodes;
         }
 
         /// <summary>
@@ -67,7 +64,7 @@ namespace SamplesDashboard.Services
         /// <param name="client"></param>
         /// <param name="sampleName"</param>
         /// <returns> A list of dependencies. </returns>
-        public static async Task<IEnumerable<DependenciesNode>> GetDependencies(GraphQLClient client, string sampleName)
+        public static async Task<IEnumerable<DependenciesNode>> GetDependencies(GraphQLHttpClient client, string sampleName)
         {
             var request = new GraphQLRequest
             {
@@ -92,9 +89,8 @@ namespace SamplesDashboard.Services
                 Variables = new { sample = sampleName }
             };
 
-            var graphQLResponse = await client.PostAsync(request);
-            var samples = graphQLResponse.GetDataFieldAs<Organization>("organization");
-            var dependencies = samples.repository.dependencyGraphManifests.nodes.SelectMany(n => n.dependencies.nodes);
+            var graphQLResponse = await client.SendQueryAsync<Data>(request);
+            var dependencies = graphQLResponse.Data.organization.repository.dependencyGraphManifests.nodes.SelectMany(n => n.dependencies.nodes);
             return dependencies;
         }
 

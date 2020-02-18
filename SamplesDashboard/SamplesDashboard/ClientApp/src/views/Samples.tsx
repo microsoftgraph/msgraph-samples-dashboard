@@ -49,15 +49,16 @@ export default class SampleList extends React.Component<{}, ISamplesState> {
                 isResizable: true, onColumnClick: this.onColumnClick },
             { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 150, 
                 isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'pullRequestCount', name: 'Open Pull Requests', fieldName: 'pullRequestCount', minWidth: 100, 
+            { key: 'pullRequestCount', name: 'Open Pull Requests', fieldName: 'totalCount', minWidth: 100, 
                 maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'issueCount', name: 'Open Issues', fieldName: 'issueCount', minWidth: 100, maxWidth: 150, 
+            {
+                key: 'issueCount', name: 'Open Issues', fieldName: 'totalCount', minWidth: 100, maxWidth: 150, 
                 isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'starsCount', name: 'Stars', fieldName: 'starsCount', minWidth: 100, maxWidth: 100, 
+            { key: 'starsCount', name: 'Stars', fieldName: 'totalCount', minWidth: 100, maxWidth: 100, 
                 isResizable: true, onColumnClick: this.onColumnClick },
             { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 100, maxWidth: 200, 
                 isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'vulnerabilityAlertsCount', 
+            { key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'totalCount', 
                 minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick }
         ];
 
@@ -150,13 +151,13 @@ export default class SampleList extends React.Component<{}, ISamplesState> {
 // rendering the language and service component within the details list
 function renderItemColumn(item: ISampleItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
-    const sampleName = item[col.fieldName = 'name' as keyof ISampleItem] as string;
-    const owner = item[col.fieldName = 'login' as keyof ISampleItem] as string;
-    const status = item[col.fieldName = 'status' as keyof ISampleItem] as string;
-    const pullRequestCount = item[col.fieldName = 'pullRequestCount' as keyof ISampleItem] as string;
-    const issueCount = item[col.fieldName = 'issueCount' as keyof ISampleItem] as string;
-    const starsCount = item[col.fieldName = 'starsCount' as keyof ISampleItem] as string;
-    const vulnerabilityAlertsCount = item[col.fieldName = 'vulnerabilityAlertsCount' as keyof ISampleItem] as string;
+    const sampleName = item.name;   
+    const owner = item.owner.login;
+    const status = item.status;
+    const pullRequestCount = item.pullRequests.totalCount;
+    const issueCount = item.issues.totalCount;
+    const starsCount = item.stargazers.totalCount;
+    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;
 
     switch (col.name) {
         case 'Name':
