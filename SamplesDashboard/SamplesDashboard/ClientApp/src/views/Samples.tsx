@@ -33,7 +33,7 @@ const classNames = mergeStyleSets({
     }
 });
 
-export default class SampleList extends React.Component<{}, ISamplesState> {
+export default class Samples extends React.Component<{}, ISamplesState> {
     private allItems: ISampleItem[];
 
     constructor(props: {}) {

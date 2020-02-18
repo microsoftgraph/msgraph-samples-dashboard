@@ -6,8 +6,7 @@ import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
 
 initializeIcons();
-
-export default class SampleDependencies extends React.Component<any, any> {
+export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
 
     constructor(props: {}) {
