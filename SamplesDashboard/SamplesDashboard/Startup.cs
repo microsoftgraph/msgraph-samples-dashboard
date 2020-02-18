@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
+
+using System;
 using GraphQL.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -6,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using GraphQL.Client.Http;
 
 namespace SamplesDashboard
 {
@@ -17,19 +24,21 @@ namespace SamplesDashboard
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        } 
+        }
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            services.AddScoped(x =>
+            services.AddHttpClient<GraphQLHttpClient>(c =>
             {
-                GraphQLClient graphQlClient = new GraphQLClient("https://api.github.com/graphql");
-                graphQlClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("auth_token"));
-                graphQlClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.antiope-preview+json"));
-                graphQlClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json"));
-                graphQlClient.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
-                return graphQlClient;
+                c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("auth_token"));
+                c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.antiope-preview+json"));
+                c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json"));
+                c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
+            });
+            services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions()
+            {
+                EndPoint = new Uri("https://api.github.com/graphql"),
             });
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -50,11 +59,11 @@ namespace SamplesDashboard
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {           
+        {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-            }            
+            }
             else
             {
                 app.UseExceptionHandler("/Error");

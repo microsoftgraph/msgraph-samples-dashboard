@@ -1,11 +1,14 @@
-﻿using System.Linq;
+﻿// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
+
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using SamplesDashboard.Models;
 using System.Net.Http;
 using System;
-using GraphQL.Client;
-using GraphQL.Common.Request;
+using GraphQL;
+using GraphQL.Client.Http;
 
 namespace SamplesDashboard.Services
 {
@@ -20,9 +23,8 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="client"></param>
         /// <returns> A list of samples.</returns>
-        public static async Task<List<Repo>> GetSamples(GraphQLClient client)
+        public static async Task<List<Node>> GetSamples(GraphQLHttpClient client)
         {
-            //run query
             var request = new GraphQLRequest
             {
                 Query = @"
@@ -52,9 +54,44 @@ namespace SamplesDashboard.Services
                         }
                 }"
             };
-                var graphQLResponse = await client.PostAsync(request);
-                var samples = graphQLResponse.GetDataFieldAs<Repositories>("search");
-                return samples.nodes;
+            var graphQLResponse = await client.SendQueryAsync<Data>(request);
+            return graphQLResponse?.Data?.Search.Nodes;
+        }
+
+        /// <summary>
+        /// Uses client object and sampleName passed inthe url to return the sample's dependencies
+        /// </summary>
+        /// <param name="client"></param>
+        /// <param name="sampleName"</param>
+        /// <returns> A list of dependencies. </returns>
+        public static async Task<IEnumerable<DependenciesNode>> GetDependencies(GraphQLHttpClient client, string sampleName)
+        {
+            var request = new GraphQLRequest
+            {
+                Query = @"query Sample($sample: String!){
+                        organization(login: ""microsoftgraph"") {
+                            repository(name: $sample){
+                                dependencyGraphManifests(withDependencies: true) {
+                                    nodes {
+                                        filename
+                                        dependencies(first: 10) {
+                                            nodes {
+                                                packageManager
+                                                packageName
+                                                requirements
+                                            }
+                                        }
+                                    }
+                                }
+                            }                        
+                    }
+                }",
+                Variables = new { sample = sampleName }
+            };
+
+            var graphQLResponse = await client.SendQueryAsync<Data>(request);
+            var dependencies = graphQLResponse.Data.organization.repository.dependencyGraphManifests.nodes.SelectMany(n => n.dependencies.nodes);
+            return dependencies;
         }
 
         /// <summary>
@@ -97,8 +134,8 @@ namespace SamplesDashboard.Services
         private static async Task<string> GetYamlHeader(string sampleName)
         {
             HttpClient httpClient = new HttpClient();
-            HttpResponseMessage responseMessage  = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
-            
+            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
+
             if (responseMessage.StatusCode.ToString().Equals("NotFound"))
                 responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/README.md"));
 
@@ -110,7 +147,7 @@ namespace SamplesDashboard.Services
                 if (parts.Length > 1)
                 {
                     return parts[0];
-                }                
+                }
             }
             return "";
         }

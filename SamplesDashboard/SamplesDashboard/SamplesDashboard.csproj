@@ -11,7 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.Client" Version="1.0.3" />
+    <PackageReference Include="GraphQL.Client" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0">
@@ -35,12 +36,6 @@
     <None Remove="ClientApp\src\components\Language.tsx" />
     <None Remove="ClientApp\src\components\Samples.tsx" />
     <None Remove="ClientApp\src\components\Service.tsx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <TypeScriptCompile Include="ClientApp\src\components\Language.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\Samples.tsx" />
-    <TypeScriptCompile Include="ClientApp\src\components\Service.tsx" />
   </ItemGroup>
 
   <ItemGroup>

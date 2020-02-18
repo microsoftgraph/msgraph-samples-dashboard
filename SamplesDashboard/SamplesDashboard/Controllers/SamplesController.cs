@@ -1,18 +1,20 @@
-﻿using System.Collections.Generic;
+﻿// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using GraphQL.Client;
+using GraphQL.Client.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using SamplesDashboard.Models;
 using SamplesDashboard.Services;
 namespace SamplesDashboard.Controllers
 {
     [ApiController]
     public class SamplesController : Controller
     {
-        private readonly GraphQLClient client;
+        private readonly GraphQLHttpClient client;
 
-        public SamplesController(GraphQLClient client)
+        public SamplesController(GraphQLHttpClient client)
         {
             this.client = client;
         }
@@ -22,8 +24,16 @@ namespace SamplesDashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            List<Repo> samples = await SampleService.GetSamples(this.client);
+            var samples = await SampleService.GetSamples(this.client);
             return Ok(samples);
+        }
+
+        [Produces("application/json")]
+        [Route("api/[controller]/{id}")]
+        public async Task<IActionResult> GetDependenciesAsync(string id)
+        {
+            var dependencies = await SampleService.GetDependencies(this.client, id);
+            return Ok(dependencies);
         }
 
         [Produces("application/json")]

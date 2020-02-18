@@ -3,14 +3,20 @@ import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 export interface ISampleItem {
     key: number;
     name: string;
-    owner: string;
+    owner: any;
     status: string;
     language: string;
-    pullRequests: number;
-    issues: number;
-    stars: number;
+    pullRequests: any;
+    issues: any;
+    stargazers: any;
     featureArea: string;
-    securityAlerts: string;
+    vulnerabilityAlerts: any;
+}
+export interface IDetailsItem {
+    packageName: string;
+    requirements: string;
+    currentVersion: string;
+    status: string;
 }
 
 export interface ISamplesState {
