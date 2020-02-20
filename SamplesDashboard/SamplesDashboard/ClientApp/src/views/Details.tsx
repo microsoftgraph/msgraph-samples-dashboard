@@ -42,9 +42,9 @@ export default class Details extends React.Component<any, any> {
         const repositoryName = params.name;
         const response = await fetch('api/samples/' + repositoryName);
         const data = await response.json();
-
+        this.allItems = data;
         this.setState({
-            items: data,
+            items: this.allItems,
             repositoryDetails: {
                 name: repositoryName
             },
@@ -75,10 +75,10 @@ export default class Details extends React.Component<any, any> {
     }
 } function renderItemColumn(item: IDetailsItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
-    const packageName = item[col.fieldName = 'packageName' as keyof IDetailsItem] as string;
-    const version = item[col.fieldName = 'requirements' as keyof IDetailsItem] as string;
-    const currentVersion = item[col.fieldName = 'currentVersion' as keyof IDetailsItem] as string;
-    const status = item[col.fieldName = 'status' as keyof IDetailsItem] as string;
+    const packageName = item.packageName;
+    const version = item.requirements;
+    const currentVersion = item.currentVersion;
+    const status = item.status;
     
     const requirements = version.slice(2);
     switch (col.name) {
