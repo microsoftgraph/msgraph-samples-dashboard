@@ -13,7 +13,7 @@ using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Client.Http;
-
+using SamplesDashboard.Services;
 namespace SamplesDashboard
 {
 
@@ -36,10 +36,11 @@ namespace SamplesDashboard
                 c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json"));
                 c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
             });
-            services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions()
+            services.AddSingleton(provider => new GraphQLHttpClientOptions()
             {
                 EndPoint = new Uri("https://api.github.com/graphql"),
             });
+            services.AddSingleton<SampleService>();
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
