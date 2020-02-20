@@ -1,4 +1,4 @@
-﻿import { DetailsListLayoutMode, Fabric, IColumn, 
+import { DetailsListLayoutMode, Fabric, IColumn, 
     initializeIcons, SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import * as React from 'react';
 
@@ -28,6 +28,7 @@ export default class Details extends React.Component<any, any> {
             columns,
             items: this.allItems,
             repositoryDetails: {},
+            isLoading: false
         };
     }
 
@@ -36,6 +37,7 @@ export default class Details extends React.Component<any, any> {
     }
         // do the fetch 
     public fetchData = async () => {
+        this.setState({ isLoading: true });
         const { match: { params } } = this.props;
         const repositoryName = params.name;
         const response = await fetch('api/samples/' + repositoryName);
@@ -45,13 +47,14 @@ export default class Details extends React.Component<any, any> {
             items: data,
             repositoryDetails: {
                 name: repositoryName
-            }
+            },
+            isLoading: false
         });
     }    
     
 
     public render(): JSX.Element {
-        const { columns, items, repositoryDetails } = this.state;
+        const { columns, items, repositoryDetails,isLoading } = this.state;
 
         return (
             <Fabric>
@@ -64,6 +67,7 @@ export default class Details extends React.Component<any, any> {
                         layoutMode={DetailsListLayoutMode.justified}
                         onRenderItemColumn={renderItemColumn}
                         isHeaderVisible={true}
+                        enableShimmer={isLoading}
                     />
                 </div>
             </Fabric>
