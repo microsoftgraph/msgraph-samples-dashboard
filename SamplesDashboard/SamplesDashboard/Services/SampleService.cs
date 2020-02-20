@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System;
+using System.Text;
 using GraphQL;
 using GraphQL.Client.Http;
+using Newtonsoft.Json;
 
 namespace SamplesDashboard.Services
 {
@@ -21,20 +23,23 @@ namespace SamplesDashboard.Services
 
         public SampleService(GraphQLHttpClient client)
         {
-            _client = client;
+            this._client = client;
         }
+
         /// <summary>
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
         /// <param name="client"></param>
         /// <returns> A list of samples.</returns>
         public async Task<List<Node>> GetSamples()
-        {
+        { 
+            //#TODO: Pass how many items to get at a time.
+            //#TODO: Compose Query to fetch Samples (Dependencies) 
             var request = new GraphQLRequest
             {
                 Query = @"
-                  {
-                    search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100) {
+	            {
+                  search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100) {
                         nodes {
                                 ... on Repository {
                                     id
@@ -84,15 +89,6 @@ namespace SamplesDashboard.Services
                                                 packageManager
                                                 packageName
                                                 requirements
-                                                repository{
-                                                  name
-                                                  releases(last: 1){
-                                                      nodes{
-                                                          name
-                                                          tagName
-                                                      }
-                                                  }                  
-                                              }
                                             }
                                         }
                                     }
@@ -104,10 +100,16 @@ namespace SamplesDashboard.Services
             };
 
             var graphQLResponse = await _client.SendQueryAsync<Data>(request);
-            var dependencies = graphQLResponse.Data.organization.repository.dependencyGraphManifests.nodes.SelectMany(c => c.dependencies.nodes.Select
-            (r => new
-            { r.packageName, r.requirements, r.repository.releases.nodes }));
-            return dependencies;
+
+            if (graphQLResponse.Data.Organization.Repository != null)
+            {
+                var dependencies =
+                    graphQLResponse.Data.Organization.Repository.DependencyGraphManifests.Nodes.SelectMany(n =>
+                        n.Dependencies.Nodes);
+                return dependencies;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -117,6 +119,7 @@ namespace SamplesDashboard.Services
         /// <returns> A new list of languages after parsing the yaml header.</returns>
         public async Task<List<String>> GetLanguages(string sampleName)
         {
+            //#TODO: Get YAML Header only Once.
             string header = await GetYamlHeader(sampleName);
             if (!string.IsNullOrEmpty(header))
             {

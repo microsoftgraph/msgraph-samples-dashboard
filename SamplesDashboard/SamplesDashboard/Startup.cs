@@ -14,6 +14,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using SamplesDashboard.Services;
+
 namespace SamplesDashboard
 {
 
@@ -36,7 +37,7 @@ namespace SamplesDashboard
                 c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json"));
                 c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
             });
-            services.AddSingleton(provider => new GraphQLHttpClientOptions()
+            services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions()
             {
                 EndPoint = new Uri("https://api.github.com/graphql"),
             });
@@ -46,16 +47,6 @@ namespace SamplesDashboard
             {
                 configuration.RootPath = "ClientApp/build";
             });
-        }
-        public Startup(IWebHostEnvironment env)
-        {
-            var builder = new ConfigurationBuilder()
-              .SetBasePath(env.ContentRootPath)
-              .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-              .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-              .AddEnvironmentVariables();
-
-            Configuration = builder.Build();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
