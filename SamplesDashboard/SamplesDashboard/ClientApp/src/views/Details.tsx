@@ -75,10 +75,9 @@ export default class Details extends React.Component<any, any> {
     const col = column as IColumn;
     const packageName = item.packageName;
     const version = item.requirements;
-    const currentVersionObject = item.repository.releases.nodes[0];
     let currentVersion = "Unknown";
-    if (currentVersionObject) {
-        currentVersion = currentVersionObject.tagName;
+    if (item.repository && item.repository.releases && item.repository.releases.nodes[0]) {
+        currentVersion = item.repository.releases.nodes[0].tagName;
     }
 
     const status = item.status;
