@@ -1,11 +1,10 @@
 ﻿import { DetailsListLayoutMode, Fabric, IColumn, 
-    initializeIcons, SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
+    SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
 
-initializeIcons();
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
 
