@@ -1,4 +1,4 @@
-import { DetailsListLayoutMode, Fabric, IColumn, 
+﻿import { DetailsListLayoutMode, Fabric, IColumn, 
     initializeIcons, SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import * as React from 'react';
 
@@ -18,7 +18,7 @@ export default class Details extends React.Component<any, any> {
                 isResizable: true, isSorted: true, isSortedDescending: false },
             { key: 'requirements', name: 'Sample Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
                 isResizable: true },
-            { key: 'currentVersion', name: 'Current Version', fieldName: 'currentVersion', minWidth: 200, 
+            { key: 'currentVersion', name: 'Current Version', fieldName: 'tagName', minWidth: 200, 
                 maxWidth: 300, isResizable: true },
             { key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300, 
                 isResizable: true },         
@@ -55,7 +55,6 @@ export default class Details extends React.Component<any, any> {
 
     public render(): JSX.Element {
         const { columns, items, repositoryDetails,isLoading } = this.state;
-
         return (
             <Fabric>
                 <div>
@@ -77,9 +76,13 @@ export default class Details extends React.Component<any, any> {
     const col = column as IColumn;
     const packageName = item.packageName;
     const version = item.requirements;
-    const currentVersion = item.currentVersion;
+    const currentVersionObject = item.repository.releases.nodes[0];
+    let currentVersion = "Unknown";
+    if (currentVersionObject) {
+        currentVersion = currentVersionObject.tagName;
+    }
+
     const status = item.status;
-    
     const requirements = version.slice(2);
     switch (col.name) {
        

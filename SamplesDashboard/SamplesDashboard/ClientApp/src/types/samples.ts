@@ -13,9 +13,10 @@ export interface ISampleItem {
     vulnerabilityAlerts: any;
 }
 export interface IDetailsItem {
+    repository: any;
     packageName: string;
     requirements: string;
-    currentVersion: string;
+    currentVersion: any;
     status: string;
 }
 

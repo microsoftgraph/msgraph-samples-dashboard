@@ -84,6 +84,26 @@ namespace SamplesDashboard
         public string packageManager { get; set; }
         public string packageName { get; set; }
         public string requirements { get; set; }
+        public Packages repository { get; set; }
+        
     }
 
+    public class Packages
+    {
+        public string name { get; set; }
+
+        public Releases releases { get; set; }
+
+    }
+
+    public class Releases
+    {
+        public List<ReleasesNode> nodes { get; set; }
+    }
+
+    public class ReleasesNode
+    {
+        public string name { get; set; }
+        public string tagName { get; set; }
+    }
 }
