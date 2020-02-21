@@ -52,27 +52,7 @@ namespace SamplesDashboard.Controllers
             List<string> languages = await _sampleService.GetLanguages(id);
             return Ok(languages);
         }
-        //Gert all Samples and their dependencies in batch
-        //[Produces("application/json")]
-        //[Route("api/[controller]/{count}")]
-        //public async Task<IActionResult> Get(int count)
-        //{
-        //    var samples = await _sampleService.GetSamples(count);
-        //    var data = new List<Dto>();
-        //    foreach (var sample in samples)
-        //    {
-        //        var dependencies = await _sampleService.GetDependencies(sample.Name);
-        //        var languages = await _sampleService.GetLanguages(sample.Name);
-        //        var featureArea = await _sampleService.GetFeatures(sample.Name);
-        //        data.Add(new Dto()
-        //        {
-        //            Sample = sample,
-        //            Dependencies = dependencies.ToList(),
-        //            Languages = languages,
-        //            FeatureArea = featureArea
-        //        });
-        //    }
-        //    return Ok(data);
+      
     }
     public class Dto
     {
