@@ -23,7 +23,7 @@ namespace SamplesDashboard.Services
 
         public SampleService(GraphQLHttpClient client)
         {
-            this._client = client;
+            _client = client;
         }
 
         /// <summary>
@@ -89,6 +89,15 @@ namespace SamplesDashboard.Services
                                                 packageManager
                                                 packageName
                                                 requirements
+                                                repository{
+                                                  name
+                                                  releases(last: 1){
+                                                      nodes{
+                                                          name
+                                                          tagName
+                                                      }
+                                                  }                 
+                                                }
                                             }
                                         }
                                     }
