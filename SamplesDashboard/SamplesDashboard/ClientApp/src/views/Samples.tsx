@@ -1,4 +1,4 @@
-﻿import {  DetailsListLayoutMode, IColumn, Label,
+﻿import {  DetailsListLayoutMode, IColumn,
     SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -78,9 +78,10 @@ export default class Samples extends React.Component<{}, ISamplesState> {
         this.setState({ isLoading: true });
         const response = await fetch('api/samples');
         const data = await response.json();
+        this.allItems = data;
         this.setState(
             {
-                items: data,
+                items: this.allItems,
                 isLoading: false
             });
     }
@@ -120,10 +121,9 @@ export default class Samples extends React.Component<{}, ISamplesState> {
         return item.key;
     }
 
-    private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, 
-        text?: string | undefined): void => {
-            this.setState({
-                items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems
+    private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: string | undefined): void => {
+        this.setState({
+            items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems
             });
     };
 
