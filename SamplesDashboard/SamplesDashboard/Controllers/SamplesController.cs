@@ -3,6 +3,7 @@
 // ------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using GraphQL.Client.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,11 @@ namespace SamplesDashboard.Controllers
     [ApiController]
     public class SamplesController : Controller
     {
-        private readonly GraphQLHttpClient client;
+        private readonly SampleService _sampleService;
 
-        public SamplesController(GraphQLHttpClient client)
+        public SamplesController(SampleService sampleService)
         {
-            this.client = client;
+            _sampleService = sampleService;
         }
 
         [Produces("application/json")]
@@ -24,7 +25,7 @@ namespace SamplesDashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            var samples = await SampleService.GetSamples(this.client);
+            var samples = await _sampleService.GetSamples();
             return Ok(samples);
         }
 
@@ -32,7 +33,7 @@ namespace SamplesDashboard.Controllers
         [Route("api/[controller]/{id}")]
         public async Task<IActionResult> GetDependenciesAsync(string id)
         {
-            var dependencies = await SampleService.GetDependencies(this.client, id);
+            var dependencies = await _sampleService.GetDependencies(id);
             return Ok(dependencies);
         }
 
@@ -40,7 +41,7 @@ namespace SamplesDashboard.Controllers
         [Route("/feature/{id}")]
         public async Task<IActionResult> GetFeatureAreaAsync(string id)
         {
-            List<string> ServicesList = await SampleService.GetFeatures(id);
+            List<string> ServicesList = await _sampleService.GetFeatures(id);
             return Ok(ServicesList);
         }
 
@@ -48,8 +49,22 @@ namespace SamplesDashboard.Controllers
         [Route("/language/{id}")]
         public async Task<IActionResult> GetLanguageAsync(string id)
         {
-            List<string> languages = await SampleService.GetLanguages(id);
+            List<string> languages = await _sampleService.GetLanguages(id);
             return Ok(languages);
         }
+      
+    }
+    public class Dto
+    {
+        public Dto()
+        {
+            this.Dependencies = new List<DependenciesNode>();
+            Languages = new List<string>();
+            FeatureArea = new List<string>();
+        }
+        public Node Sample { get; set; }
+        public List<DependenciesNode> Dependencies { get; set; }
+        public List<string> Languages { get; set; }
+        public List<string> FeatureArea { get; set; }
     }
 }

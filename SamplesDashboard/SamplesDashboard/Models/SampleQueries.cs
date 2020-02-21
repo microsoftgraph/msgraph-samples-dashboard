@@ -7,9 +7,15 @@ using System.Collections.Generic;
 
 namespace SamplesDashboard
 {
+    public partial class Welcome
+    {
+        [JsonProperty("data")]
+        public Data Data { get; set; }
+    }
     public class Data
     {
-        public Organization organization { get; set; }
+        [JsonProperty("organization")]
+        public Organization Organization { get; set; }
         [JsonProperty("search")]
         public Search Search { get; set; }
     }
@@ -54,25 +60,35 @@ namespace SamplesDashboard
     }
     public class Organization
     {
-        public Repository repository { get; set; }
+        [JsonProperty("repository")]
+        public Repository Repository { get; set; }
     }
 
     public class Repository
     {
-        public DependencyGraphManifests dependencyGraphManifests { get; set; }
+        [JsonProperty("dependencyGraphManifests")]
+        public DependencyGraphManifests DependencyGraphManifests { get; set; }
     }
 
     public class DependencyGraphManifests
     {
-        public List<DependencyGraphManifestsNode> nodes { get; set; }
+        [JsonProperty("nodes")]
+        public DependencyGraphManifestsNode[] Nodes { get; set; }
     }
 
     public class DependencyGraphManifestsNode
     {
-        public string filename { get; set; }
-        public Samples dependencies { get; set; }
-    }
+        [JsonProperty("filename")]
+        public string Filename { get; set; }
 
+        [JsonProperty("dependencies")]
+        public Dependencies Dependencies { get; set; }
+    }
+    public partial class Dependencies
+    {
+        [JsonProperty("nodes")]
+        public DependenciesNode[] Nodes { get; set; }
+    }
     public class Samples
     {
         public List<DependenciesNode> nodes { get; set; }

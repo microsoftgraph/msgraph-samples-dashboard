@@ -2,16 +2,27 @@
 //  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
 // ------------------------------------------------------------------------------
 
+using Microsoft.Extensions.DependencyInjection;
 using SamplesDashboard.Services;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
+using SamplesDashboardTests.Factories;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace SamplesDashboardTests
 {
-    public class SampleServiceTests
+    public class SampleServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
     {
+        private readonly ITestOutputHelper _helper;
+        private readonly SampleService _sampleService;
+
+        public SampleServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
+        {
+            _helper = helper;
+            _sampleService = applicationFactory.Services.GetService<SampleService>();
+        }
+
         [Fact]
         public async Task ShouldGetSampleLanguagesAsync()
         {
@@ -19,11 +30,13 @@ namespace SamplesDashboardTests
             var sampleName = "powershell-intune-samples";
 
             //Act
-            var languages = await SampleService.GetLanguages(sampleName);
+
+            var languages = await _sampleService.GetLanguages(sampleName);
 
             //Assert
             Assert.NotNull(languages);
             Assert.Equal("powershell", languages.First());
+            _helper.WriteLine(string.Join("\n", languages));
         }
 
         [Fact]
@@ -33,7 +46,7 @@ namespace SamplesDashboardTests
             var sampleName = "powershell-intune-samples";
 
             //Act
-            var services = await SampleService.GetFeatures(sampleName);
+            var services = await _sampleService.GetFeatures(sampleName);
 
             //Assert
             Assert.NotNull(services);
@@ -47,7 +60,7 @@ namespace SamplesDashboardTests
             var sampleName = "msgraph-training-aspnetmvcapp";
 
             //Act
-            var languages = await SampleService.GetLanguages(sampleName);
+            var languages = await _sampleService.GetLanguages(sampleName);
 
             //Assert
             Assert.Empty(languages);
@@ -60,7 +73,7 @@ namespace SamplesDashboardTests
             var sampleName = "msgraph-training-aspnetmvcapp";
 
             //Act
-            var services = await SampleService.GetFeatures(sampleName);
+            var services = await _sampleService.GetFeatures(sampleName);
 
             //Assert
             Assert.Empty(services);

@@ -231,4 +231,3 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
-SamplesDashboard/SamplesDashboard/ClientApp/package-lock.json

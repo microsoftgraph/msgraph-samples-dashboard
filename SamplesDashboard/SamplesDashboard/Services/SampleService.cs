@@ -7,24 +7,34 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System;
+using System.Text;
 using GraphQL;
 using GraphQL.Client.Http;
+using Newtonsoft.Json;
 
 namespace SamplesDashboard.Services
 {
     /// <summary>
     ///  This class contains samples query services and functions to be used by the samples API
     /// </summary>
-    public static class SampleService
+    public class SampleService
     {
+        private readonly GraphQLHttpClient _client;
+
+        public SampleService(GraphQLHttpClient client)
+        {
+            _client = client;
+        }
 
         /// <summary>
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
         /// <param name="client"></param>
         /// <returns> A list of samples.</returns>
-        public static async Task<List<Node>> GetSamples(GraphQLHttpClient client)
-        {
+        public async Task<List<Node>> GetSamples()
+        { 
+            //#TODO: Pass how many items to get at a time.
+            //#TODO: Compose Query to fetch Samples (Dependencies) 
             var request = new GraphQLRequest
             {
                 Query = @"
@@ -54,7 +64,7 @@ namespace SamplesDashboard.Services
                         }
                 }"
             };
-            var graphQLResponse = await client.SendQueryAsync<Data>(request);
+            var graphQLResponse = await _client.SendQueryAsync<Data>(request);
             return graphQLResponse?.Data?.Search.Nodes;
         }
 
@@ -64,7 +74,7 @@ namespace SamplesDashboard.Services
         /// <param name="client"></param>
         /// <param name="sampleName"</param>
         /// <returns> A list of dependencies. </returns>
-        public static async Task<IEnumerable<DependenciesNode>> GetDependencies(GraphQLHttpClient client, string sampleName)
+        public async Task<IEnumerable<DependenciesNode>> GetDependencies(string sampleName)
         {
             var request = new GraphQLRequest
             {
@@ -98,9 +108,17 @@ namespace SamplesDashboard.Services
                 Variables = new { sample = sampleName }
             };
 
-            var graphQLResponse = await client.SendQueryAsync<Data>(request);
-            var dependencies = graphQLResponse.Data.organization.repository.dependencyGraphManifests.nodes.SelectMany(n => n.dependencies.nodes);
-            return dependencies;
+            var graphQLResponse = await _client.SendQueryAsync<Data>(request);
+
+            if (graphQLResponse.Data.Organization.Repository != null)
+            {
+                var dependencies =
+                    graphQLResponse.Data.Organization.Repository.DependencyGraphManifests.Nodes.SelectMany(n =>
+                        n.Dependencies.Nodes);
+                return dependencies;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -108,8 +126,9 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="sampleName"></param>
         /// <returns> A new list of languages after parsing the yaml header.</returns>
-        public static async Task<List<String>> GetLanguages(string sampleName)
+        public async Task<List<String>> GetLanguages(string sampleName)
         {
+            //#TODO: Get YAML Header only Once.
             string header = await GetYamlHeader(sampleName);
             if (!string.IsNullOrEmpty(header))
             {
@@ -124,7 +143,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="sampleName"></param>
         /// <returns> A new list of services in the yaml header after parsing it.</returns>
-        public static async Task<List<string>> GetFeatures(string sampleName)
+        public async Task<List<string>> GetFeatures(string sampleName)
         {
             string header = await GetYamlHeader(sampleName);
             if (!string.IsNullOrEmpty(header))
@@ -140,7 +159,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="sampleName"></param>
         /// <returns> The yaml header. </returns>
-        private static async Task<string> GetYamlHeader(string sampleName)
+        private async Task<string> GetYamlHeader(string sampleName)
         {
             HttpClient httpClient = new HttpClient();
             HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
@@ -167,7 +186,7 @@ namespace SamplesDashboard.Services
         /// <param name="term"></param>
         /// <param name="lines"></param>
         /// <returns>A list of the searchterm specified.</returns>
-        private static List<string> SearchTerm(string term, string[] lines)
+        private List<string> SearchTerm(string term, string[] lines)
         {
             bool foundHeader = false;
             List<string> myList = new List<string>();
