@@ -79,6 +79,15 @@ namespace SamplesDashboard.Services
                                                 packageManager
                                                 packageName
                                                 requirements
+                                                repository{
+                                                  name
+                                                  releases(last: 1){
+                                                      nodes{
+                                                          name
+                                                          tagName
+                                                      }
+                                                  }                 
+                                                }
                                             }
                                         }
                                     }

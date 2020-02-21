@@ -1,11 +1,10 @@
 ﻿import { DetailsListLayoutMode, Fabric, IColumn, 
-    initializeIcons, SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
+    SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
 
-initializeIcons();
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
 
@@ -18,7 +17,7 @@ export default class Details extends React.Component<any, any> {
                 isResizable: true, isSorted: true, isSortedDescending: false },
             { key: 'requirements', name: 'Sample Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
                 isResizable: true },
-            { key: 'currentVersion', name: 'Current Version', fieldName: 'currentVersion', minWidth: 200, 
+            { key: 'currentVersion', name: 'Current Version', fieldName: 'tagName', minWidth: 200, 
                 maxWidth: 300, isResizable: true },
             { key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300, 
                 isResizable: true },         
@@ -28,6 +27,7 @@ export default class Details extends React.Component<any, any> {
             columns,
             items: this.allItems,
             repositoryDetails: {},
+            isLoading: false
         };
     }
 
@@ -36,23 +36,24 @@ export default class Details extends React.Component<any, any> {
     }
         // do the fetch 
     public fetchData = async () => {
+        this.setState({ isLoading: true });
         const { match: { params } } = this.props;
         const repositoryName = params.name;
         const response = await fetch('api/samples/' + repositoryName);
         const data = await response.json();
-
+        this.allItems = data;
         this.setState({
-            items: data,
+            items: this.allItems,
             repositoryDetails: {
                 name: repositoryName
-            }
+            },
+            isLoading: false
         });
     }    
     
 
     public render(): JSX.Element {
-        const { columns, items, repositoryDetails } = this.state;
-
+        const { columns, items, repositoryDetails,isLoading } = this.state;
         return (
             <Fabric>
                 <div>
@@ -64,6 +65,7 @@ export default class Details extends React.Component<any, any> {
                         layoutMode={DetailsListLayoutMode.justified}
                         onRenderItemColumn={renderItemColumn}
                         isHeaderVisible={true}
+                        enableShimmer={isLoading}
                     />
                 </div>
             </Fabric>
@@ -71,11 +73,14 @@ export default class Details extends React.Component<any, any> {
     }
 } function renderItemColumn(item: IDetailsItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
-    const packageName = item[col.fieldName = 'packageName' as keyof IDetailsItem] as string;
-    const version = item[col.fieldName = 'requirements' as keyof IDetailsItem] as string;
-    const currentVersion = item[col.fieldName = 'currentVersion' as keyof IDetailsItem] as string;
-    const status = item[col.fieldName = 'status' as keyof IDetailsItem] as string;
-    
+    const packageName = item.packageName;
+    const version = item.requirements;
+    let currentVersion = "Unknown";
+    if (item.repository && item.repository.releases && item.repository.releases.nodes[0]) {
+        currentVersion = item.repository.releases.nodes[0].tagName;
+    }
+
+    const status = item.status;
     const requirements = version.slice(2);
     switch (col.name) {
        
