@@ -23,21 +23,21 @@ namespace SamplesDashboardTests
             _sampleService = applicationFactory.Services.GetService<SampleService>();
         }
 
-        [Fact]
-        public async Task ShouldGetSampleLanguagesAsync()
-        {
-            //Arrange
-            var sampleName = "powershell-intune-samples";
+        //[Fact]
+        //public async Task ShouldGetSampleLanguagesAsync()
+        //{
+        //    //Arrange
+        //    var sampleName = "powershell-intune-samples";
 
-            //Act
+        //    //Act
 
-            var languages = await _sampleService.GetLanguages(sampleName);
+        //    var languages = await _sampleService.GetLanguages(sampleName);
 
-            //Assert
-            Assert.NotNull(languages);
-            Assert.Equal("powershell", languages.First());
-            _helper.WriteLine(string.Join("\n", languages));
-        }
+        //    //Assert
+        //    Assert.NotNull(languages);
+        //    Assert.Equal("powershell", languages.First());
+        //    _helper.WriteLine(string.Join("\n", languages));
+        //}
 
         [Fact]
         public async Task ShouldGetSampleFeaturesAsync()
@@ -53,18 +53,18 @@ namespace SamplesDashboardTests
             Assert.Equal("Intune", services.First());
         }
 
-        [Fact]
-        public async Task ShouldGetNullSampleLanguageAsync()
-        {
-            //Arrange
-            var sampleName = "msgraph-training-aspnetmvcapp";
+        //[Fact]
+        //public async Task ShouldGetNullSampleLanguageAsync()
+        //{
+        //    //Arrange
+        //    var sampleName = "msgraph-training-aspnetmvcapp";
 
-            //Act
-            var languages = await _sampleService.GetLanguages(sampleName);
+        //    //Act
+        //    var languages = await _sampleService.GetLanguages(sampleName);
 
-            //Assert
-            Assert.Empty(languages);
-        }
+        //    //Assert
+        //    Assert.Empty(languages);
+        //}
 
         [Fact]
         public async Task ShouldGetNullSampleFeaturesAsync()

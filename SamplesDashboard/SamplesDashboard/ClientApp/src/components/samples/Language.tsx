@@ -17,8 +17,9 @@ export default class Language extends React.Component<{ sampleName: string }, IS
 
     //fetching the data from the api
     fetchData = async () => {
-        const response = await fetch('/language/' + this.props.sampleName);
+        const response = await fetch('/features/' + this.props.sampleName);
         const data = await response.json();
+        console.log(data);
         this.setState(
             {
                 language: data
@@ -26,7 +27,7 @@ export default class Language extends React.Component<{ sampleName: string }, IS
     }
 
     public render() {
-        const languages = this.state.language.map((lang: string) => { return lang; }).join(", ");
+        const languages = this.state.language.languages.map((lang: string) => { return lang; }).join(", ");
         return (languages);              
     }
 }

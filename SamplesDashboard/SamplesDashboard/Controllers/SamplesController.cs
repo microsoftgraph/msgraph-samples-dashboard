@@ -38,22 +38,14 @@ namespace SamplesDashboard.Controllers
         }
 
         [Produces("application/json")]
-        [Route("/feature/{id}")]
-        public async Task<IActionResult> GetFeatureAreaAsync(string id)
+        [Route("/features/{id}")]
+        public async Task<IActionResult> GetLanguagesAndFeatureAreaAsync(string id)
         {
-            List<string> ServicesList = await _sampleService.GetFeatures(id);
+            Dictionary<string,string> ServicesList = await _sampleService.GetHeaderDetails(id);
             return Ok(ServicesList);
-        }
-
-        [Produces("application/json")]
-        [Route("/language/{id}")]
-        public async Task<IActionResult> GetLanguageAsync(string id)
-        {
-            List<string> languages = await _sampleService.GetLanguages(id);
-            return Ok(languages);
-        }
-      
+        }      
     }
+
     public class Dto
     {
         public Dto()

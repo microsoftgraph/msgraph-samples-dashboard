@@ -172,7 +172,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <span>{status} </span>;
 
         case 'Language':
-            return <span><Language sampleName={sampleName} /></span>;
+            return <span>{item.language}</span>;
 
         case 'Open Pull Requests':
             return <span>{pullRequestCount} </span>;
@@ -184,7 +184,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <span>{starsCount} </span>;
 
         case 'Feature Area':
-            return <span><Service sampleName={sampleName} /></span>;
+            return <span> {item.featureArea} </span>;
 
         case 'Security Alerts':
             return <span>{vulnerabilityAlertsCount} </span>;

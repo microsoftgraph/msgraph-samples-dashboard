@@ -65,7 +65,22 @@ namespace SamplesDashboard.Services
                 }"
             };
             var graphQLResponse = await _client.SendQueryAsync<Data>(request);
+            List<Task> TaskList = new List<Task>();
+            foreach (var sampleItem in graphQLResponse?.Data?.Search.Nodes)
+            {
+                Task headerTask = setHeaders(sampleItem);
+                TaskList.Add(headerTask);
+            }
+
+            await Task.WhenAll(TaskList);
             return graphQLResponse?.Data?.Search.Nodes;
+        }
+
+        private async Task setHeaders(Node sampleItem) 
+        {
+            var headerDetails = await GetHeaderDetails(sampleItem.Name);
+            sampleItem.Language = headerDetails.GetValueOrDefault("languages");
+            sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
         }
 
         /// <summary>
@@ -119,39 +134,31 @@ namespace SamplesDashboard.Services
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Gets languages list from parsed yaml header
-        /// </summary>
-        /// <param name="sampleName"></param>
-        /// <returns> A new list of languages after parsing the yaml header.</returns>
-        public async Task<List<String>> GetLanguages(string sampleName)
-        {
-            //#TODO: Get YAML Header only Once.
-            string header = await GetYamlHeader(sampleName);
-            if (!string.IsNullOrEmpty(header))
-            {
-                string[] lines = header.Split("\r\n");
-                return SearchTerm("languages", lines);
-            }
-            return new List<string>();
-        }
+        }       
 
         /// <summary>
         /// Get services list from the parsed yaml header
         /// </summary>
         /// <param name="sampleName"></param>
         /// <returns> A new list of services in the yaml header after parsing it.</returns>
-        public async Task<List<string>> GetFeatures(string sampleName)
+        public async Task<Dictionary<string,string>> GetHeaderDetails(string sampleName)
         {
             string header = await GetYamlHeader(sampleName);
             if (!string.IsNullOrEmpty(header))
             {
                 string[] lines = header.Split("\r\n");
-                return SearchTerm("services", lines);
+                string[] details = new string[] { "languages", "services" };
+
+                Dictionary<string, string> keyValuePairs = new Dictionary<string,string>();
+                for (int i = 0; i < details.Length; i++)
+                {
+                    var res = SearchTerm(details[i], lines);
+                    var stringList = string.Join(',', res);
+                    keyValuePairs.Add(details[i], stringList);
+                }
+                return keyValuePairs;
             }
-            return new List<string>();
+            return new Dictionary<string, string>();
         }
 
         /// <summary>
