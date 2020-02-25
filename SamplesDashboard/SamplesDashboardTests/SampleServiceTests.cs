@@ -20,8 +20,8 @@ namespace SamplesDashboardTests
         {
             _helper = helper;
             _sampleService = applicationFactory.Services.GetService<SampleService>();
-        }
 
+        }
 
         [Fact]
         public async Task ShouldGetHeaderDetailsAsync()

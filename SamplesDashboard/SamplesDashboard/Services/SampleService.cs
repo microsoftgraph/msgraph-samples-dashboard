@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System;
+using System.Text;
 using GraphQL;
 using GraphQL.Client.Http;
+using Newtonsoft.Json;
 
 namespace SamplesDashboard.Services
 {
@@ -32,6 +34,7 @@ namespace SamplesDashboard.Services
         public async Task<List<Node>> GetSamples()
         { 
             // Request to fetch the list of samples for graph
+
             var request = new GraphQLRequest
             {
                 Query = @"
@@ -129,7 +132,7 @@ namespace SamplesDashboard.Services
             };
 
             var graphQLResponse = await _client.SendQueryAsync<Data>(request);
-
+          
             if (graphQLResponse.Data.Organization.Repository != null)
             {
                 var dependencies =
