@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System;
-using System.Text;
 using GraphQL;
 using GraphQL.Client.Http;
-using Newtonsoft.Json;
 
 namespace SamplesDashboard.Services
 {
@@ -68,7 +66,7 @@ namespace SamplesDashboard.Services
             List<Task> TaskList = new List<Task>();
             foreach (var sampleItem in graphQLResponse?.Data?.Search.Nodes)
             {
-                Task headerTask = setHeaders(sampleItem);
+                Task headerTask = SetHeaders(sampleItem);
                 TaskList.Add(headerTask);
             }
 
@@ -76,7 +74,7 @@ namespace SamplesDashboard.Services
             return graphQLResponse?.Data?.Search.Nodes;
         }
 
-        private async Task setHeaders(Node sampleItem) 
+        private async Task SetHeaders(Node sampleItem) 
         {
             var headerDetails = await GetHeaderDetails(sampleItem.Name);
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");

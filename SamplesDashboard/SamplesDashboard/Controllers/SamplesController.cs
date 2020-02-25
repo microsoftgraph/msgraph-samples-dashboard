@@ -3,9 +3,7 @@
 // ------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using GraphQL.Client.Http;
 using Microsoft.AspNetCore.Mvc;
 using SamplesDashboard.Services;
 namespace SamplesDashboard.Controllers
@@ -51,12 +49,11 @@ namespace SamplesDashboard.Controllers
         public Dto()
         {
             this.Dependencies = new List<DependenciesNode>();
-            Languages = new List<string>();
-            FeatureArea = new List<string>();
+            Features = new List<string>();
+           
         }
         public Node Sample { get; set; }
         public List<DependenciesNode> Dependencies { get; set; }
-        public List<string> Languages { get; set; }
-        public List<string> FeatureArea { get; set; }
+        public List<string> Features { get; set; }
     }
 }

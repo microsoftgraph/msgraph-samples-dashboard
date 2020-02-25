@@ -10,8 +10,6 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import PageTitle from '../components/layout/PageTitle';
-import Language from '../components/samples/Language';
-import Service from '../components/samples/Service';
 import { ISampleItem, ISamplesState } from '../types/samples';
 
 initializeIcons();
