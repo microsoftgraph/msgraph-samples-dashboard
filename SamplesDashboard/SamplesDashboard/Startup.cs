@@ -32,6 +32,7 @@ namespace SamplesDashboard
         public virtual void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddMemoryCache();
             services.AddHttpClient<GraphQLHttpClient>(c =>
             {
                 c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));

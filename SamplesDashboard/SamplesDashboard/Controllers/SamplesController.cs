@@ -2,20 +2,29 @@
 //  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
 // ------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Services;
+
 namespace SamplesDashboard.Controllers
 {
     [ApiController]
     public class SamplesController : Controller
     {
         private readonly SampleService _sampleService;
+        private IMemoryCache _cache;
+        private readonly IConfiguration _config;
 
-        public SamplesController(SampleService sampleService)
+        public SamplesController(SampleService sampleService, IMemoryCache memoryCache, IConfiguration config)
         {
             _sampleService = sampleService;
+            _cache = memoryCache;
+            _config = config;
+
         }
 
         [Produces("application/json")]
@@ -23,7 +32,18 @@ namespace SamplesDashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            var samples = await _sampleService.GetSamples();
+            List<Node> samples;            
+            if (!_cache.TryGetValue("samples", out samples))
+            {
+                samples = await _sampleService.GetSamples();
+
+                //TODO read from config file the timeout
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+
+                // Save data in cache.
+                _cache.Set("samples", samples, cacheEntryOptions);
+            }
+                
             return Ok(samples);
         }
 
@@ -31,17 +51,16 @@ namespace SamplesDashboard.Controllers
         [Route("api/[controller]/{id}")]
         public async Task<IActionResult> GetDependenciesAsync(string id)
         {
-            var dependencies = await _sampleService.GetDependencies(id);
+            IEnumerable<DependenciesNode> dependencies;
+            if (!_cache.TryGetValue(id, out dependencies))
+            {
+                dependencies = await _sampleService.GetDependencies(id);
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                _cache.Set(id, dependencies, cacheEntryOptions);
+            }
+            
             return Ok(dependencies);
-        }
-
-        [Produces("application/json")]
-        [Route("/features/{id}")]
-        public async Task<IActionResult> GetLanguagesAndFeatureAreaAsync(string id)
-        {
-            Dictionary<string,string> ServicesList = await _sampleService.GetHeaderDetails(id);
-            return Ok(ServicesList);
-        }      
+        }              
     }
 
     public class Dto
