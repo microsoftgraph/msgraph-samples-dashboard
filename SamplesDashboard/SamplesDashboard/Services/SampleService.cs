@@ -27,12 +27,11 @@ namespace SamplesDashboard.Services
         /// <summary>
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
-        /// <param name="client"></param>
+        /// <param name="client">The GraphQLHttpClient</param>
         /// <returns> A list of samples.</returns>
         public async Task<List<Node>> GetSamples()
         { 
-            //#TODO: Pass how many items to get at a time.
-            //#TODO: Compose Query to fetch Samples (Dependencies) 
+            // Request to fetch the list of samples for graph
             var request = new GraphQLRequest
             {
                 Query = @"
@@ -63,6 +62,8 @@ namespace SamplesDashboard.Services
                 }"
             };
             var graphQLResponse = await _client.SendQueryAsync<Data>(request);
+
+            // Fetch yaml headers and compute header values in parallel
             List<Task> TaskList = new List<Task>();
             foreach (var sampleItem in graphQLResponse?.Data?.Search.Nodes)
             {
@@ -74,6 +75,11 @@ namespace SamplesDashboard.Services
             return graphQLResponse?.Data?.Search.Nodes;
         }
 
+        /// <summary>
+        ///Getting header details and setting the language and featureArea items        
+        /// </summary>
+        /// <param name="sampleItem">A specific sample item from the samples list</param>
+        /// <returns> A list of samples.</returns>
         private async Task SetHeaders(Node sampleItem) 
         {
             var headerDetails = await GetHeaderDetails(sampleItem.Name);
@@ -84,8 +90,8 @@ namespace SamplesDashboard.Services
         /// <summary>
         /// Uses client object and sampleName passed inthe url to return the sample's dependencies
         /// </summary>
-        /// <param name="client"></param>
-        /// <param name="sampleName"</param>
+        /// <param name="client">The GraphQLHttpClient</param>
+        /// <param name="sampleName">The name of that sample</param>
         /// <returns> A list of dependencies. </returns>
         public async Task<IEnumerable<DependenciesNode>> GetDependencies(string sampleName)
         {
@@ -135,9 +141,9 @@ namespace SamplesDashboard.Services
         }       
 
         /// <summary>
-        /// Get services list from the parsed yaml header
+        /// Get header details list from the parsed yaml header
         /// </summary>
-        /// <param name="sampleName"></param>
+        /// <param name="sampleName">The name of each sample</param>
         /// <returns> A new list of services in the yaml header after parsing it.</returns>
         public async Task<Dictionary<string,string>> GetHeaderDetails(string sampleName)
         {
@@ -162,7 +168,7 @@ namespace SamplesDashboard.Services
         /// <summary>
         /// fetch yaml header from sample repo and parse it
         /// </summary>
-        /// <param name="sampleName"></param>
+        /// <param name="sampleName">The name of each sample</param>
         /// <returns> The yaml header. </returns>
         private async Task<string> GetYamlHeader(string sampleName)
         {
@@ -188,8 +194,8 @@ namespace SamplesDashboard.Services
         /// <summary>
         /// Gets the searchterm and gets related entries.
         /// </summary>
-        /// <param name="term"></param>
-        /// <param name="lines"></param>
+        /// <param name="term">The header details we're parsing</param>
+        /// <param name="lines">The header lines after splitting</param>
         /// <returns>A list of the searchterm specified.</returns>
         private List<string> SearchTerm(string term, string[] lines)
         {

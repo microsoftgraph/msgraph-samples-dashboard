@@ -4,12 +4,10 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using SamplesDashboard.Services;
-using System.Linq;
 using System.Threading.Tasks;
 using SamplesDashboardTests.Factories;
 using Xunit;
 using Xunit.Abstractions;
-using System.Collections.Generic;
 
 namespace SamplesDashboardTests
 {
@@ -40,7 +38,41 @@ namespace SamplesDashboardTests
             Assert.True(headerDetails["services"] == "Intune");
             _helper.WriteLine(string.Join("\n", headerDetails));
 
-        }       
+        }
+
+        [Fact]
+        public async Task ShouldGetHeaderDetailsAsync2()
+        {
+            //Arrange
+            var sampleName = "uwp-csharp-excel-snippets-rest-sample";
+
+            //Act
+            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
+
+            //Assert
+            Assert.NotNull(headerDetails);
+            Assert.True(headerDetails["languages"] == "csharp,uwp");
+            Assert.True(headerDetails["services"] == "Excel");
+            _helper.WriteLine(string.Join("\n", headerDetails));
+
+        }
+
+        [Fact]
+        public async Task ShouldGetHeaderDetailsAsync3()
+        {
+            //Arrange
+            var sampleName = "ios-swift-faceapi-sample";
+
+            //Act
+            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
+
+            //Assert
+            Assert.NotNull(headerDetails);
+            Assert.True(headerDetails["languages"] == "swift");
+            Assert.True(headerDetails["services"] == "Office 365,Users");
+            _helper.WriteLine(string.Join("\n", headerDetails));
+
+        }
     }
 }
  
