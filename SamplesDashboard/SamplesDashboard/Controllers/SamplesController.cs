@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -24,7 +25,6 @@ namespace SamplesDashboard.Controllers
             _sampleService = sampleService;
             _cache = memoryCache;
             _config = config;
-
         }
 
         [Produces("application/json")]
@@ -42,8 +42,8 @@ namespace SamplesDashboard.Controllers
 
                 // Save data in cache.
                 _cache.Set("samples", samples, cacheEntryOptions);
-            }
-                
+            }              
+
             return Ok(samples);
         }
 
@@ -68,11 +68,12 @@ namespace SamplesDashboard.Controllers
         public Dto()
         {
             this.Dependencies = new List<DependenciesNode>();
-            Features = new List<string>();
-           
+            Features = new List<string>();           
         }
+      
         public Node Sample { get; set; }
         public List<DependenciesNode> Dependencies { get; set; }
         public List<string> Features { get; set; }
+
     }
 }
