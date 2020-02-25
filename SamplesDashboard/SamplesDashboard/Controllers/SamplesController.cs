@@ -37,7 +37,7 @@ namespace SamplesDashboard.Controllers
             {
                 samples = await _sampleService.GetSamples();
 
-                //TODO read from config file the timeout
+                //Read timeout from config file 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
 
                 // Save data in cache.

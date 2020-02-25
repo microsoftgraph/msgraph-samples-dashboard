@@ -95,6 +95,7 @@ namespace SamplesDashboard.Services
         /// <returns> A list of dependencies. </returns>
         public async Task<IEnumerable<DependenciesNode>> GetDependencies(string sampleName)
         {
+            //request to fetch sample dependencies
             var request = new GraphQLRequest
             {
                 Query = @"query Sample($sample: String!){
@@ -173,6 +174,8 @@ namespace SamplesDashboard.Services
         private async Task<string> GetYamlHeader(string sampleName)
         {
             HttpClient httpClient = new HttpClient();
+
+            //downloading the yaml file
             HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
 
             if (responseMessage.StatusCode.ToString().Equals("NotFound"))
