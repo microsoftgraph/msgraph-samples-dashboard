@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using SamplesDashboardTests.Factories;
 using Xunit;
 using Xunit.Abstractions;
+using System.Collections.Generic;
 
 namespace SamplesDashboardTests
 {
@@ -23,60 +24,23 @@ namespace SamplesDashboardTests
             _sampleService = applicationFactory.Services.GetService<SampleService>();
         }
 
-        //[Fact]
-        //public async Task ShouldGetSampleLanguagesAsync()
-        //{
-        //    //Arrange
-        //    var sampleName = "powershell-intune-samples";
-
-        //    //Act
-
-        //    var languages = await _sampleService.GetLanguages(sampleName);
-
-        //    //Assert
-        //    Assert.NotNull(languages);
-        //    Assert.Equal("powershell", languages.First());
-        //    _helper.WriteLine(string.Join("\n", languages));
-        //}
 
         [Fact]
-        public async Task ShouldGetSampleFeaturesAsync()
+        public async Task ShouldGetHeaderDetailsAsync()
         {
             //Arrange
             var sampleName = "powershell-intune-samples";
 
             //Act
-            var services = await _sampleService.GetFeatures(sampleName);
+            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
 
             //Assert
-            Assert.NotNull(services);
-            Assert.Equal("Intune", services.First());
-        }
+            Assert.NotNull(headerDetails);
+            Assert.True(headerDetails["languages"] == "powershell");
+            Assert.True(headerDetails["services"] == "Intune");
+            _helper.WriteLine(string.Join("\n", headerDetails));
 
-        //[Fact]
-        //public async Task ShouldGetNullSampleLanguageAsync()
-        //{
-        //    //Arrange
-        //    var sampleName = "msgraph-training-aspnetmvcapp";
-
-        //    //Act
-        //    var languages = await _sampleService.GetLanguages(sampleName);
-
-        //    //Assert
-        //    Assert.Empty(languages);
-        //}
-
-        [Fact]
-        public async Task ShouldGetNullSampleFeaturesAsync()
-        {
-            //Arrange
-            var sampleName = "msgraph-training-aspnetmvcapp";
-
-            //Act
-            var services = await _sampleService.GetFeatures(sampleName);
-
-            //Assert
-            Assert.Empty(services);
-        }
+        }       
     }
 }
+ 
