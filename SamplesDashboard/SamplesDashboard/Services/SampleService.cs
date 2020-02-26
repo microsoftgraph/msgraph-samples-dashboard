@@ -59,6 +59,7 @@ namespace SamplesDashboard.Services
                                     stargazers {
                                         totalCount
                                     }
+                                    url
                                 }
                             }
                         }

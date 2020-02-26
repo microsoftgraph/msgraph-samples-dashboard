@@ -72,7 +72,7 @@ namespace SamplesDashboardTests
             Assert.True(headerDetails["services"] == "Office 365,Users");
             _helper.WriteLine(string.Join("\n", headerDetails));
 
-        }
+        }       
     }
 }
  
