@@ -76,7 +76,6 @@ export default class Samples extends React.Component<{}, ISamplesState> {
         const response = await fetch('api/samples');
         const data = await response.json();
         this.allItems = data;
-        console.log(data);
         this.setState(
             {
                 items: this.allItems,
