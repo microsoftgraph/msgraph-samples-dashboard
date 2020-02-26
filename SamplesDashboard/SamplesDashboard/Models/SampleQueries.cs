@@ -46,6 +46,8 @@ namespace SamplesDashboard
 
         [JsonProperty("stargazers")]
         public Issues Stargazers { get; set; }
+        public string Language { get; internal set; }
+        public string FeatureArea { get; internal set; }
     }
     public partial class Issues
     {

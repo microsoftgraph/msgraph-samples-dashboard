@@ -4,7 +4,6 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using SamplesDashboard.Services;
-using System.Linq;
 using System.Threading.Tasks;
 using SamplesDashboardTests.Factories;
 using Xunit;
@@ -21,62 +20,59 @@ namespace SamplesDashboardTests
         {
             _helper = helper;
             _sampleService = applicationFactory.Services.GetService<SampleService>();
+
         }
 
         [Fact]
-        public async Task ShouldGetSampleLanguagesAsync()
+        public async Task ShouldGetHeaderDetailsAsync()
         {
             //Arrange
             var sampleName = "powershell-intune-samples";
 
             //Act
-
-            var languages = await _sampleService.GetLanguages(sampleName);
+            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
 
             //Assert
-            Assert.NotNull(languages);
-            Assert.Equal("powershell", languages.First());
-            _helper.WriteLine(string.Join("\n", languages));
+            Assert.NotNull(headerDetails);
+            Assert.True(headerDetails["languages"] == "powershell");
+            Assert.True(headerDetails["services"] == "Intune");
+            _helper.WriteLine(string.Join("\n", headerDetails));
+
         }
 
         [Fact]
-        public async Task ShouldGetSampleFeaturesAsync()
+        public async Task ShouldGetHeaderDetailsAsync2()
         {
             //Arrange
-            var sampleName = "powershell-intune-samples";
+            var sampleName = "uwp-csharp-excel-snippets-rest-sample";
 
             //Act
-            var services = await _sampleService.GetFeatures(sampleName);
+            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
 
             //Assert
-            Assert.NotNull(services);
-            Assert.Equal("Intune", services.First());
+            Assert.NotNull(headerDetails);
+            Assert.True(headerDetails["languages"] == "csharp,uwp");
+            Assert.True(headerDetails["services"] == "Excel");
+            _helper.WriteLine(string.Join("\n", headerDetails));
+
         }
 
         [Fact]
-        public async Task ShouldGetNullSampleLanguageAsync()
+        public async Task ShouldGetHeaderDetailsAsync3()
         {
             //Arrange
-            var sampleName = "msgraph-training-aspnetmvcapp";
+            var sampleName = "ios-swift-faceapi-sample";
 
             //Act
-            var languages = await _sampleService.GetLanguages(sampleName);
+            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
 
             //Assert
-            Assert.Empty(languages);
-        }
+            Assert.NotNull(headerDetails);
+            Assert.True(headerDetails["languages"] == "swift");
+            Assert.True(headerDetails["services"] == "Office 365,Users");
+            _helper.WriteLine(string.Join("\n", headerDetails));
 
-        [Fact]
-        public async Task ShouldGetNullSampleFeaturesAsync()
-        {
-            //Arrange
-            var sampleName = "msgraph-training-aspnetmvcapp";
-
-            //Act
-            var services = await _sampleService.GetFeatures(sampleName);
-
-            //Assert
-            Assert.Empty(services);
         }
     }
 }
+ 

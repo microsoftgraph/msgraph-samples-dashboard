@@ -10,8 +10,6 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import PageTitle from '../components/layout/PageTitle';
-import Language from '../components/samples/Language';
-import Service from '../components/samples/Service';
 import { ISampleItem, ISamplesState } from '../types/samples';
 
 initializeIcons();
@@ -51,8 +49,7 @@ export default class Samples extends React.Component<{}, ISamplesState> {
                 isResizable: true, onColumnClick: this.onColumnClick },
             { key: 'pullRequestCount', name: 'Open Pull Requests', fieldName: 'totalCount', minWidth: 100, 
                 maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick },
-            {
-                key: 'issueCount', name: 'Open Issues', fieldName: 'totalCount', minWidth: 100, maxWidth: 150, 
+            { key: 'issueCount', name: 'Open Issues', fieldName: 'totalCount', minWidth: 100, maxWidth: 150, 
                 isResizable: true, onColumnClick: this.onColumnClick },
             { key: 'starsCount', name: 'Stars', fieldName: 'totalCount', minWidth: 100, maxWidth: 100, 
                 isResizable: true, onColumnClick: this.onColumnClick },
@@ -154,9 +151,11 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
     const sampleName = item.name;   
     const owner = item.owner.login;
     const status = item.status;
+    const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
     const issueCount = item.issues.totalCount;
     const starsCount = item.stargazers.totalCount;
+    const featureArea = item.featureArea;
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;
 
     switch (col.name) {
@@ -172,7 +171,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <span>{status} </span>;
 
         case 'Language':
-            return <span><Language sampleName={sampleName} /></span>;
+            return <span>{language}</span>;
 
         case 'Open Pull Requests':
             return <span>{pullRequestCount} </span>;
@@ -184,7 +183,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <span>{starsCount} </span>;
 
         case 'Feature Area':
-            return <span><Service sampleName={sampleName} /></span>;
+            return <span> {featureArea} </span>;
 
         case 'Security Alerts':
             return <span>{vulnerabilityAlertsCount} </span>;
