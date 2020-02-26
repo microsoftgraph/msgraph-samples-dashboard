@@ -53,7 +53,7 @@ export default class Samples extends React.Component<{}, ISamplesState> {
                 isResizable: true, onColumnClick: this.onColumnClick },
             { key: 'starsCount', name: 'Stars', fieldName: 'totalCount', minWidth: 100, maxWidth: 100, 
                 isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 100, maxWidth: 200, 
+            { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300, 
                 isResizable: true, onColumnClick: this.onColumnClick },
             { key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'totalCount', 
                 minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick }
@@ -76,6 +76,7 @@ export default class Samples extends React.Component<{}, ISamplesState> {
         const response = await fetch('api/samples');
         const data = await response.json();
         this.allItems = data;
+        console.log(data);
         this.setState(
             {
                 items: this.allItems,
@@ -155,6 +156,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
     const pullRequestCount = item.pullRequests.totalCount;
     const issueCount = item.issues.totalCount;
     const starsCount = item.stargazers.totalCount;
+    const url = item.url;
     const featureArea = item.featureArea;
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;
 
@@ -163,7 +165,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <div>
                 <Link to={`/samples/${sampleName}`} ><span>{sampleName} </ span></Link>
             </div>;
-
+        
         case 'Owner':
             return <span>{owner} </span>;
 
@@ -174,18 +176,21 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <span>{language}</span>;
 
         case 'Open Pull Requests':
-            return <span>{pullRequestCount} </span>;
+            return <a href={`${url}/pulls`} target="_blank"> <span>{pullRequestCount} </span></a>
 
         case 'Open Issues':
-            return <span>{issueCount}</span>;
+            return <a href={`${url}/issues`} target="_blank"> <span>{issueCount}</span></a>
 
         case 'Stars':
-            return <span>{starsCount} </span>;
+            return <a href={`${url}`} target="_blank"> <span>{starsCount} </span></a>;
 
         case 'Feature Area':
             return <span> {featureArea} </span>;
 
         case 'Security Alerts':
+            if (vulnerabilityAlertsCount > 0) {
+                return <a href={`${url}/network/alerts`} target="_blank"> <span>{vulnerabilityAlertsCount} </span></a>;
+            }
             return <span>{vulnerabilityAlertsCount} </span>;
 
     }

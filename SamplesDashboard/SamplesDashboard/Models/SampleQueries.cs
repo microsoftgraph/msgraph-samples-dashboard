@@ -3,6 +3,7 @@
 // ------------------------------------------------------------------------------
 
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace SamplesDashboard
@@ -46,6 +47,8 @@ namespace SamplesDashboard
 
         [JsonProperty("stargazers")]
         public Issues Stargazers { get; set; }
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
         public string Language { get; internal set; }
         public string FeatureArea { get; internal set; }
     }
