@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
-import { url } from 'inspector';
 
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
