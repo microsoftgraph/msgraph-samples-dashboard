@@ -51,15 +51,15 @@ namespace SamplesDashboard.Controllers
         [Route("api/[controller]/{id}")]
         public async Task<IActionResult> GetDependenciesAsync(string id)
         {
-            IEnumerable<DependenciesNode> dependencies;
-            if (!_cache.TryGetValue(id, out dependencies))
+            Repository repository;
+            if (!_cache.TryGetValue(id, out repository))
             {
-                dependencies = await _sampleService.GetDependencies(id);
+                repository = await _sampleService.GetDependencies(id);
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
-                _cache.Set(id, dependencies, cacheEntryOptions);
+                _cache.Set(id, repository, cacheEntryOptions);
             }
             
-            return Ok(dependencies);
+            return Ok(repository);
         }              
     }
 

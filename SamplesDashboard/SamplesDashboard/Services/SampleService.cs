@@ -97,7 +97,7 @@ namespace SamplesDashboard.Services
         /// <param name="client">The GraphQLHttpClient</param>
         /// <param name="sampleName">The name of that sample</param>
         /// <returns> A list of dependencies. </returns>
-        public async Task<IEnumerable<DependenciesNode>> GetDependencies(string sampleName)
+        public async Task<Repository> GetDependencies(string sampleName)
         {
             //request to fetch sample dependencies
             var request = new GraphQLRequest
@@ -105,6 +105,7 @@ namespace SamplesDashboard.Services
                 Query = @"query Sample($sample: String!){
                         organization(login: ""microsoftgraph"") {
                             repository(name: $sample){
+                                url
                                 dependencyGraphManifests(withDependencies: true) {
                                     nodes {
                                         filename
@@ -136,10 +137,7 @@ namespace SamplesDashboard.Services
           
             if (graphQLResponse.Data.Organization.Repository != null)
             {
-                var dependencies =
-                    graphQLResponse.Data.Organization.Repository.DependencyGraphManifests.Nodes.SelectMany(n =>
-                        n.Dependencies.Nodes);
-                return dependencies;
+                return graphQLResponse.Data.Organization.Repository;
             }
 
             return null;
