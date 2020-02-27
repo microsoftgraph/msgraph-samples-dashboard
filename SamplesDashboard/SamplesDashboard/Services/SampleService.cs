@@ -89,11 +89,10 @@ namespace SamplesDashboard.Services
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");
             sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
         }
-
+        
         /// <summary>
         /// Uses client object and sampleName passed inthe url to return the sample's dependencies
         /// </summary>
-        /// <param name="client">The GraphQLHttpClient</param>
         /// <param name="sampleName">The name of that sample</param>
         /// <returns> A list of dependencies. </returns>
         public async Task<IEnumerable<DependenciesNode>> GetDependencies(string sampleName)
@@ -143,6 +142,23 @@ namespace SamplesDashboard.Services
 
             return null;
         }       
+
+        /// <summary>
+        /// Calulate the status of a sample
+        /// </summary>
+        /// <param name="dependenciesNode"></param>
+        /// <returns>a list of integer values </returns>
+        public async Task<int> CalculateStatus(DependenciesNode dependenciesNode)
+        {
+            var sampleVersion = dependenciesNode.requirements;
+            var currentVersion = dependenciesNode.repository.releases.nodes.FirstOrDefault().tagName;
+
+            Version v1 = new Version(sampleVersion);
+            Version v2 = new Version(currentVersion);
+            int status = v1.CompareTo(v2);
+            return status;
+
+        }
 
         /// <summary>
         /// Get header details list from the parsed yaml header
