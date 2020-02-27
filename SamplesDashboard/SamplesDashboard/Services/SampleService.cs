@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System;
-using System.Text;
 using GraphQL;
 using GraphQL.Client.Http;
-using Newtonsoft.Json;
 
 namespace SamplesDashboard.Services
 {
@@ -19,11 +17,13 @@ namespace SamplesDashboard.Services
     /// </summary>
     public class SampleService
     {
-        private readonly GraphQLHttpClient _client;
+        private readonly GraphQLHttpClient _graphQlClient;
+        private readonly IHttpClientFactory _clientFactory;
 
-        public SampleService(GraphQLHttpClient client)
+        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory)
         {
-            _client = client;
+            _graphQlClient = graphQlClient;
+            _clientFactory = clientFactory;
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace SamplesDashboard.Services
                         }
                 }"
             };
-            var graphQLResponse = await _client.SendQueryAsync<Data>(request);
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
 
             // Fetch yaml headers and compute header values in parallel
             List<Task> TaskList = new List<Task>();
@@ -132,7 +132,7 @@ namespace SamplesDashboard.Services
                 Variables = new { sample = sampleName }
             };
 
-            var graphQLResponse = await _client.SendQueryAsync<Data>(request);
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
           
             if (graphQLResponse.Data.Organization.Repository != null)
             {
@@ -177,9 +177,8 @@ namespace SamplesDashboard.Services
         /// <returns> The yaml header. </returns>
         private async Task<string> GetYamlHeader(string sampleName)
         {
-            HttpClient httpClient = new HttpClient();
-
             //downloading the yaml file
+            var httpClient = _clientFactory.CreateClient();
             HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
 
             if (responseMessage.StatusCode.ToString().Equals("NotFound"))
