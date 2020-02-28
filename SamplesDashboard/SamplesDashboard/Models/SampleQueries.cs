@@ -71,6 +71,9 @@ namespace SamplesDashboard
 
     public class Repository
     {
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
+
         [JsonProperty("dependencyGraphManifests")]
         public DependencyGraphManifests DependencyGraphManifests { get; set; }
     }

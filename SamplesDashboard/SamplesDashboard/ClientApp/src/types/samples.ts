@@ -21,6 +21,7 @@ export interface IDetailsItem {
     releases: any;
     nodes:any;
     status: string;
+    url: string;
 }
 
 export interface ISamplesState {

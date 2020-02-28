@@ -29,7 +29,6 @@ namespace SamplesDashboard.Services
         /// <summary>
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
-        /// <param name="client">The GraphQLHttpClient</param>
         /// <returns> A list of samples.</returns>
         public async Task<List<Node>> GetSamples()
         { 
@@ -94,10 +93,9 @@ namespace SamplesDashboard.Services
         /// <summary>
         /// Uses client object and sampleName passed inthe url to return the sample's dependencies
         /// </summary>
-        /// <param name="client">The GraphQLHttpClient</param>
         /// <param name="sampleName">The name of that sample</param>
         /// <returns> A list of dependencies. </returns>
-        public async Task<IEnumerable<DependenciesNode>> GetDependencies(string sampleName)
+        public async Task<Repository> GetRepository(string sampleName)
         {
             //request to fetch sample dependencies
             var request = new GraphQLRequest
@@ -105,6 +103,7 @@ namespace SamplesDashboard.Services
                 Query = @"query Sample($sample: String!){
                         organization(login: ""microsoftgraph"") {
                             repository(name: $sample){
+                                url
                                 dependencyGraphManifests(withDependencies: true) {
                                     nodes {
                                         filename
@@ -132,17 +131,9 @@ namespace SamplesDashboard.Services
                 Variables = new { sample = sampleName }
             };
 
-            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);          
+            return graphQLResponse.Data.Organization.Repository;
           
-            if (graphQLResponse.Data.Organization.Repository != null)
-            {
-                var dependencies =
-                    graphQLResponse.Data.Organization.Repository.DependencyGraphManifests.Nodes.SelectMany(n =>
-                        n.Dependencies.Nodes);
-                return dependencies;
-            }
-
-            return null;
         }       
 
         /// <summary>
