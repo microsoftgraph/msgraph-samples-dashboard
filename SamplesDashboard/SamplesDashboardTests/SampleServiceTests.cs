@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using SamplesDashboardTests.Factories;
 using Xunit;
 using Xunit.Abstractions;
+using SamplesDashboard.Models;
 
 namespace SamplesDashboardTests
 {
@@ -72,7 +73,32 @@ namespace SamplesDashboardTests
             Assert.True(headerDetails["services"] == "Office 365,Users");
             _helper.WriteLine(string.Join("\n", headerDetails));
 
-        }       
+        }
+
+        [Theory]
+        [InlineData("1.2.3", "1.2.3", PackageStatus.UpToDate)]
+        [InlineData("1.2.1", "1.3.1", PackageStatus.Update)]
+        [InlineData("2.2.1", "3.0.0", PackageStatus.Update)]
+        [InlineData("1.2.0", "1.2.1", PackageStatus.UrgentUpdate)]
+        [InlineData("1.2.0", "v1.2.1", PackageStatus.UrgentUpdate)]
+        [InlineData("v1.2.0", "v1.2.1", PackageStatus.UrgentUpdate)]
+        [InlineData("1.2.0", "2.1.0-Preview.1", PackageStatus.Update)]
+        [InlineData("1.2.0", "2.1.0-alpha.1", PackageStatus.Update)]
+        [InlineData("2.1.0", "2.1.0-Preview.1", PackageStatus.UrgentUpdate)]
+        [InlineData("2.1.0", "2.1.0-2", PackageStatus.UrgentUpdate)]
+        [InlineData("2.1.0", "3.1.0-2", PackageStatus.Update)]
+        [InlineData("2.1.0", "1.8<2.1", PackageStatus.Unknown)]
+        [InlineData("2.1.0", "Unknown", PackageStatus.Unknown)]
+        [InlineData("2.1.0", "", PackageStatus.Unknown)]
+        [InlineData("2.1.0", null, PackageStatus.Unknown)]
+        public void ShouldDetermineStatusFromVersion(string sampleVersion, string latestVersion, PackageStatus expectedStatus)
+        {
+            // Act
+            var sampleStatus = _sampleService.CalculateStatus(sampleVersion, latestVersion);
+
+            // Assert
+            Assert.Equal(expectedStatus, sampleStatus);
+        }
     }
 }
  

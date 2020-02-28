@@ -9,6 +9,8 @@ using System.Net.Http;
 using System;
 using GraphQL;
 using GraphQL.Client.Http;
+using SamplesDashboard.Models;
+using Semver;
 
 namespace SamplesDashboard.Services
 {
@@ -131,26 +133,91 @@ namespace SamplesDashboard.Services
                 Variables = new { sample = sampleName }
             };
 
-            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);          
-            return graphQLResponse.Data.Organization.Repository;
-          
-        }       
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
+            var repository = UpdateRepositoryStatus(graphQLResponse.Data.Organization.Repository);
+            return repository;
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="repository"></param>
+        /// <returns></returns>
+        private Repository UpdateRepositoryStatus(Repository repository)
+        {
+            var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
+            if (dependencyGraphManifests == null) 
+                return repository;
+            
+            // Go throught the various dependency manifests in the repo
+            foreach (var dependencyManifest in dependencyGraphManifests)
+            {
+                var dependencies = dependencyManifest?.Dependencies?.Nodes;
+                if (dependencies == null) 
+                    continue;
+
+                // Go through each dependency in the dependency manifest
+                foreach (var dependency in dependencies)
+                {
+                    var currentVersion = dependency.requirements;
+                    var latesttVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                    // Update the status and calculate it 
+                    dependency.status = CalculateStatus(currentVersion.Substring(2), latesttVersion);
+                }
+            }
+            
+            return repository;
+        }
         /// <summary>
         /// Calulate the status of a sample
         /// </summary>
-        /// <param name="dependenciesNode"></param>
-        /// <returns>a list of integer values </returns>
-        public async Task<int> CalculateStatus(DependenciesNode dependenciesNode)
+        /// <param name="sampleVersion">The current version of thr sample</param>
+        /// <param name="latestVersion">The latest version of the sample</param>
+        /// <returns><see cref="PackageStatus"/> of the sample Version </returns>
+        public PackageStatus CalculateStatus(string sampleVersion, string latestVersion)
         {
-            var sampleVersion = dependenciesNode.requirements;
-            var currentVersion = dependenciesNode.repository.releases.nodes.FirstOrDefault().tagName;
+            if (string.IsNullOrEmpty(sampleVersion) || string.IsNullOrEmpty(latestVersion))
+                return PackageStatus.Unknown;
 
-            Version v1 = new Version(sampleVersion);
-            Version v2 = new Version(currentVersion);
-            int status = v1.CompareTo(v2);
-            return status;
+            if (sampleVersion.StartsWith("v"))
+            {
+                sampleVersion = sampleVersion.Substring(1);
+            }
+            if (latestVersion.StartsWith("v"))
+            {
+                latestVersion = latestVersion.Substring(1);
+            }
 
+            // Try to parse the versions into SemVersion objects
+            if (!SemVersion.TryParse(sampleVersion.Trim(), out SemVersion sample) ||
+                !SemVersion.TryParse(latestVersion.Trim(), out SemVersion latest)) 
+            {
+                //Unable to determine the versions
+                return PackageStatus.Unknown;
+            }
+
+            int status = sample.CompareTo(latest);
+
+            if (status == 0)
+            {
+                //Version objects are the same so packages are upto date
+                return PackageStatus.UpToDate;
+            }
+            else if (sample.Major == latest.Major && sample.Minor == latest.Minor)
+            {
+                //Difference is only in the build version therefore package requires an urgent update 
+                return PackageStatus.UrgentUpdate;
+            }
+            else if (status < 0)
+            {
+                //Difference is in the major and/or minor version and the sample version is behind the latest version
+                return PackageStatus.Update;
+            }
+            else
+            {
+                //Unable to determine the versions
+                return PackageStatus.Unknown;
+            }
         }
 
         /// <summary>

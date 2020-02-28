@@ -105,9 +105,22 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
             return <span>{currentVersion} </span>;
 
         case 'Status':
-            return <span>{status} </span>;
+            switch (status)
+            {
+                case 0:
+                    return <span> Unknown </span>;
 
+                case 1:
+                    return <span> Up To Date </span>;
+
+                case 2:
+                    return <span> Update </span>;
+
+                case 3:
+                    return <span> Urgent Update </span>;
+            }
     }
+
 
 }
 
