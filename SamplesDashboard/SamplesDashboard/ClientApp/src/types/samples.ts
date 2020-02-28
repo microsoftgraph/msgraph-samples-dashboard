@@ -9,6 +9,7 @@ export interface ISampleItem {
     pullRequests: any;
     issues: any;
     stargazers: any;
+    url: string;
     featureArea: string;
     vulnerabilityAlerts: any;
 }
@@ -20,6 +21,7 @@ export interface IDetailsItem {
     releases: any;
     nodes:any;
     status: string;
+    url: string;
 }
 
 export interface ISamplesState {

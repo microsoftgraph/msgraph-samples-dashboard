@@ -1,5 +1,5 @@
 ﻿import { DetailsListLayoutMode, Fabric, IColumn, 
-    SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
+    SelectionMode, ShimmeredDetailsList, PrimaryButton } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
@@ -12,6 +12,7 @@ export default class Details extends React.Component<any, any> {
         super(props);
 
         this.allItems = [];
+
         const columns: IColumn[] = [
             { key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 300, maxWidth: 400, isRowHeader: true, 
                 isResizable: true, isSorted: true, isSortedDescending: false },
@@ -41,11 +42,14 @@ export default class Details extends React.Component<any, any> {
         const repositoryName = params.name;
         const response = await fetch('api/samples/' + repositoryName);
         const data = await response.json();
-        this.allItems = data;
+        if (data.dependencyGraphManifests.nodes[0]) {
+            this.allItems = data.dependencyGraphManifests.nodes[0].dependencies.nodes;
+        }
         this.setState({
             items: this.allItems,
             repositoryDetails: {
-                name: repositoryName
+                name: repositoryName,
+                url: data.url
             },
             isLoading: false
         });
@@ -53,11 +57,16 @@ export default class Details extends React.Component<any, any> {
     
 
     public render(): JSX.Element {
-        const { columns, items, repositoryDetails,isLoading } = this.state;
+        const { columns, items, repositoryDetails, isLoading } = this.state;
+        
         return (
             <Fabric>
                 <div>
                     <PageTitle title={repositoryDetails.name} />
+                    { isLoading ?
+                        <div /> :
+                        <PrimaryButton href={repositoryDetails.url} target="_blank" > Go to Repository </PrimaryButton> 
+                    }
                     <ShimmeredDetailsList
                         items={items}
                         columns={columns}
@@ -71,7 +80,9 @@ export default class Details extends React.Component<any, any> {
             </Fabric>
         );
     }
-} function renderItemColumn(item: IDetailsItem, index: number | undefined, column: IColumn | undefined) {
+}
+
+function renderItemColumn(item: IDetailsItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const packageName = item.packageName;
     const version = item.requirements;
@@ -79,7 +90,7 @@ export default class Details extends React.Component<any, any> {
     if (item.repository && item.repository.releases && item.repository.releases.nodes[0]) {
         currentVersion = item.repository.releases.nodes[0].tagName;
     }
-
+ 
     const status = item.status;
     const requirements = version.slice(2);
     switch (col.name) {
@@ -97,6 +108,7 @@ export default class Details extends React.Component<any, any> {
             return <span>{status} </span>;
 
     }
+
 }
 
 
