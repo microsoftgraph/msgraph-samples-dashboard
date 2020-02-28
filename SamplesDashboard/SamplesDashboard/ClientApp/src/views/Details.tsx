@@ -58,12 +58,11 @@ export default class Details extends React.Component<any, any> {
 
     public render(): JSX.Element {
         const { columns, items, repositoryDetails, isLoading } = this.state;
-        const repoName = repositoryDetails.name;
         
         return (
             <Fabric>
                 <div>
-                    <PageTitle title={repoName} />
+                    <PageTitle title={repositoryDetails.name} />
                     { isLoading ?
                         <div /> :
                         <PrimaryButton href={repositoryDetails.url} target="_blank" > Go to Repository </PrimaryButton> 

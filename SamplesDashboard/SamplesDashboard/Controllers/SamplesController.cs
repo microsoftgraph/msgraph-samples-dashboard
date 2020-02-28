@@ -49,12 +49,12 @@ namespace SamplesDashboard.Controllers
 
         [Produces("application/json")]
         [Route("api/[controller]/{id}")]
-        public async Task<IActionResult> GetDependenciesAsync(string id)
+        public async Task<IActionResult> GetRepositoriesAsync(string id)
         {
             Repository repository;
             if (!_cache.TryGetValue(id, out repository))
             {
-                repository = await _sampleService.GetDependencies(id);
+                repository = await _sampleService.GetRepository(id);
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
                 _cache.Set(id, repository, cacheEntryOptions);
             }
