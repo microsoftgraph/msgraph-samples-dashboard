@@ -139,17 +139,17 @@ namespace SamplesDashboard.Services
         }
 
         /// <summary>
-        /// 
+        /// Gets the repository's details and updates the status field in the dependencies
         /// </summary>
-        /// <param name="repository"></param>
-        /// <returns></returns>
+        /// <param name="repository"> A Repository object</param>
+        /// <returns>An updated repository object with the status field.</returns>
         private Repository UpdateRepositoryStatus(Repository repository)
         {
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
             if (dependencyGraphManifests == null) 
                 return repository;
             
-            // Go throught the various dependency manifests in the repo
+            // Go through the various dependency manifests in the repo
             foreach (var dependencyManifest in dependencyGraphManifests)
             {
                 var dependencies = dependencyManifest?.Dependencies?.Nodes;
@@ -169,7 +169,7 @@ namespace SamplesDashboard.Services
             return repository;
         }
         /// <summary>
-        /// Calulate the status of a sample
+        /// Calculate the status of a sample
         /// </summary>
         /// <param name="sampleVersion">The current version of thr sample</param>
         /// <param name="latestVersion">The latest version of the sample</param>
@@ -179,6 +179,7 @@ namespace SamplesDashboard.Services
             if (string.IsNullOrEmpty(sampleVersion) || string.IsNullOrEmpty(latestVersion))
                 return PackageStatus.Unknown;
 
+            // Dropping any 'v's that occur before the version
             if (sampleVersion.StartsWith("v"))
             {
                 sampleVersion = sampleVersion.Substring(1);
