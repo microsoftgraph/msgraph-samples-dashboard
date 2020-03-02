@@ -1,5 +1,5 @@
 ﻿import {  DetailsListLayoutMode, IColumn,
-    SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
+    SelectionMode, ShimmeredDetailsList, FontIcon } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
@@ -28,7 +28,12 @@ const classNames = mergeStyleSets({
     },
     pageTitle: {
         fontSize: FontSizes.large
-    }
+    },
+    yellow: {
+        color: '#ffaa44',
+        marginRight: '5px'
+    },
+    red: { color: '#d13438' }
 });
 
 export default class Samples extends React.Component<{}, ISamplesState> {
@@ -181,14 +186,14 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <a href={`${url}/issues`} target="_blank"> <span>{issueCount}</span></a>
 
         case 'Stars':
-            return <a href={`${url}`} target="_blank"> <span>{starsCount} </span></a>;
+            return <a href={`${url}`} target="_blank"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
 
         case 'Feature Area':
             return <span> {featureArea} </span>;
 
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
-                return <a href={`${url}/network/alerts`} target="_blank"> <span>{vulnerabilityAlertsCount} </span></a>;
+                return <a href={`${url}/network/alerts`} target="_blank"> <FontIcon iconName="StatusErrorFull" className={classNames.red} /> <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;
 
