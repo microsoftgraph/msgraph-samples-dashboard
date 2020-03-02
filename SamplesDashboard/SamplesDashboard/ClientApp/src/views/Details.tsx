@@ -1,10 +1,22 @@
 ﻿import { DetailsListLayoutMode, Fabric, IColumn, 
-    SelectionMode, ShimmeredDetailsList, PrimaryButton } from 'office-ui-fabric-react';
+    SelectionMode, ShimmeredDetailsList, PrimaryButton, FontIcon, mergeStyleSets, mergeStyles } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
 
+const iconClass = mergeStyles({
+    fontSize: 15,
+    height: 15,
+    width: 15,
+    margin: '0 5px'
+});
+const classNames = mergeStyleSets({
+    yellow: [{ color: '#ffaa44' }, iconClass],
+    green: [{ color: '#498205' }, iconClass],
+    red: [{ color: '#d13438' }, iconClass],
+    blue: [{ color: '#0078d4' }, iconClass]
+});
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
 
@@ -65,7 +77,7 @@ export default class Details extends React.Component<any, any> {
                     <PageTitle title={repositoryDetails.name} />
                     { isLoading ?
                         <div /> :
-                        <PrimaryButton href={repositoryDetails.url} target="_blank" > Go to Repository </PrimaryButton> 
+                        <PrimaryButton href={repositoryDetails.url} target="_blank" > <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository </PrimaryButton> 
                     }
                     <ShimmeredDetailsList
                         items={items}
@@ -105,10 +117,25 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
             return <span>{currentVersion} </span>;
 
         case 'Status':
-            return <span>{status} </span>;
-
+            return checkStatus(status);
     }
+}
 
+function checkStatus(status: number)
+{
+    switch (status) {
+        case 0:
+            return <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>;
+
+        case 1:
+            return <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>;
+
+        case 2:
+            return <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>;
+
+        case 3:
+            return <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>;
+    }
 }
 
 

@@ -19,8 +19,8 @@ export interface IDetailsItem {
     requirements: string;
     currentVersion: any;
     releases: any;
-    nodes:any;
-    status: string;
+    nodes: any;
+    status: number;
     url: string;
 }
 

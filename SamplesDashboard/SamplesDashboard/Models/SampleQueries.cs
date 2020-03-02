@@ -3,6 +3,7 @@
 // ------------------------------------------------------------------------------
 
 using Newtonsoft.Json;
+using SamplesDashboard.Models;
 using System;
 using System.Collections.Generic;
 
@@ -105,6 +106,8 @@ namespace SamplesDashboard
 
     public class DependenciesNode
     {
+        [JsonProperty("status")]
+        public PackageStatus status { get; set; }
         public string packageManager { get; set; }
         public string packageName { get; set; }
         public string requirements { get; set; }
