@@ -117,23 +117,25 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
             return <span>{currentVersion} </span>;
 
         case 'Status':
-            switch (status)
-            {
-                case 0:
-                    return <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>;
-
-                case 1:
-                    return <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>;
-
-                case 2:
-                    return <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>;
-
-                case 3:
-                    return <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>;
-            }
+            return checkStatus(status);
     }
+}
 
+function checkStatus(status: number)
+{
+    switch (status) {
+        case 0:
+            return <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>;
 
+        case 1:
+            return <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>;
+
+        case 2:
+            return <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>;
+
+        case 3:
+            return <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>;
+    }
 }
 
 
