@@ -136,6 +136,7 @@ function checkStatus(status: number)
         case 3:
             return <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>;
     }
+
 }
 
 

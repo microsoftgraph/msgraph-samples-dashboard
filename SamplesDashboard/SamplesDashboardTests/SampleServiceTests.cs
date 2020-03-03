@@ -9,6 +9,10 @@ using SamplesDashboardTests.Factories;
 using Xunit;
 using Xunit.Abstractions;
 using SamplesDashboard.Models;
+using System.Collections.Generic;
+using SamplesDashboard;
+using System.Linq;
+using System;
 
 namespace SamplesDashboardTests
 {
@@ -21,7 +25,6 @@ namespace SamplesDashboardTests
         {
             _helper = helper;
             _sampleService = applicationFactory.Services.GetService<SampleService>();
-
         }
 
         [Fact]
@@ -37,8 +40,6 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "powershell");
             Assert.True(headerDetails["services"] == "Intune");
-            _helper.WriteLine(string.Join("\n", headerDetails));
-
         }
 
         [Fact]
@@ -54,8 +55,6 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "csharp,uwp");
             Assert.True(headerDetails["services"] == "Excel");
-            _helper.WriteLine(string.Join("\n", headerDetails));
-
         }
 
         [Fact]
@@ -71,8 +70,88 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "swift");
             Assert.True(headerDetails["services"] == "Office 365,Users");
-            _helper.WriteLine(string.Join("\n", headerDetails));
+        }
+        [Fact]
+        public async Task ShouldGetSamples()
+        {
+            // Arrange
+            var sampleName = "msgraph-training-aspnetmvcapp";
 
+            // Act
+            var samples = await _sampleService.GetSamples();
+            var exampleSample = samples.Find((node) => node.Name.Equals(sampleName));
+
+            Assert.NotEmpty(samples);
+            Assert.Equal(100, samples.Count);
+            Assert.IsType<List<Node>>(samples);
+            Assert.NotNull(exampleSample);
+            Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
+        }
+
+        [Fact]
+        public async Task ShouldGetDependencies()
+        {
+            //Arrange
+            var name = "msgraph-training-aspnetmvcapp";
+            var packageManager = "NUGET";
+
+            //Act
+            var dependencies = await _sampleService.GetRepository(name);
+            var res = dependencies.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
+            var library = dependencies.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageName)).Contains("Microsoft.Graph");
+
+            //Assert
+            Assert.NotNull(dependencies);
+            Assert.True(library);
+            Assert.Equal(packageManager, res.FirstOrDefault());
+            Assert.IsType<Repository>(dependencies);
+
+        }
+
+        [Fact]
+        public async Task ShouldGetNullDependencies()
+        {
+            //Arrange
+            var name = "powershell-intune-samples";
+
+            //Act
+            var dependencies = await _sampleService.GetRepository(name);
+            var nodes = dependencies.DependencyGraphManifests.Nodes.Select(n => n.Dependencies.Nodes);
+
+            //Assert
+            Assert.NotNull(dependencies);
+            Assert.Empty(nodes);
+        } 
+     
+        [Fact]
+        public async Task ShouldGetSampleAndTrainingRepositories()
+        {
+            //Act
+            var samples = await _sampleService.GetSamples();
+            var sampleList = samples.Select(n => n.Name);
+
+            //Assert
+            foreach(string sample in sampleList)
+            {
+                Assert.True(sample.Contains("sample",StringComparison.OrdinalIgnoreCase) || sample.Contains("training", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+         [Fact]
+        public async Task ShouldGetMicrosoftGraphSamples()
+        {
+            //Arrange
+            var samples = await _sampleService.GetSamples();
+            var expected = "microsoftgraph";
+
+            //Act
+            var owner = samples.Select(n => n.Owner.Login);
+
+            //Assert    
+            foreach(string name in owner)
+            {
+                Assert.Equal(expected, name.Trim());
+            }
         }
 
         [Theory]
