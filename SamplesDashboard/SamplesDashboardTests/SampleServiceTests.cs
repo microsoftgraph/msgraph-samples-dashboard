@@ -83,7 +83,7 @@ namespace SamplesDashboardTests
 
             Assert.NotEmpty(samples);
             Assert.Equal(100, samples.Count);
-
+            Assert.IsType<List<Node>>(samples);
             Assert.NotNull(exampleSample);
             Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
         }
@@ -103,7 +103,9 @@ namespace SamplesDashboardTests
             //Assert
             Assert.NotNull(dependencies);
             Assert.True(library);
-            Assert.Equal(packageManager, res.FirstOrDefault());        
+            Assert.Equal(packageManager, res.FirstOrDefault());
+            Assert.IsType<Repository>(dependencies);
+
         }
 
         [Fact]
@@ -119,31 +121,8 @@ namespace SamplesDashboardTests
             //Assert
             Assert.NotNull(dependencies);
             Assert.Empty(nodes);
-        }
-
-        [Fact]
-        public async Task ShouldGetSampleReturnType()
-        {
-            //Act
-            var samples = await _sampleService.GetSamples();
-
-            //Assert
-            Assert.IsType<List<Node>>(samples);
-        }
-
-        [Fact]
-        public async Task ShouldGetRepositoryReturnType()
-        {
-            //Arrange
-            var name = "msgraph-training-aspnetmvcapp";
-
-            //Act
-            var dependencies = await _sampleService.GetRepository(name);
-
-            //Assert
-            Assert.IsType<Repository>(dependencies);
-        }
-
+        } 
+     
         [Fact]
         public async Task ShouldGetSampleAndTrainingRepositories()
         {
