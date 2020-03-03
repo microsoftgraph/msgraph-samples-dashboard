@@ -9,6 +9,8 @@ using System.Net.Http;
 using System;
 using GraphQL;
 using GraphQL.Client.Http;
+using SamplesDashboard.Models;
+using Semver;
 
 namespace SamplesDashboard.Services
 {
@@ -29,7 +31,6 @@ namespace SamplesDashboard.Services
         /// <summary>
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
-        /// <param name="client">The GraphQLHttpClient</param>
         /// <returns> A list of samples.</returns>
         public async Task<List<Node>> GetSamples()
         { 
@@ -90,14 +91,13 @@ namespace SamplesDashboard.Services
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");
             sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
         }
-
+        
         /// <summary>
         /// Uses client object and sampleName passed inthe url to return the sample's dependencies
         /// </summary>
-        /// <param name="client">The GraphQLHttpClient</param>
         /// <param name="sampleName">The name of that sample</param>
         /// <returns> A list of dependencies. </returns>
-        public async Task<Repository> GetDependencies(string sampleName)
+        public async Task<Repository> GetRepository(string sampleName)
         {
             //request to fetch sample dependencies
             var request = new GraphQLRequest
@@ -134,14 +134,92 @@ namespace SamplesDashboard.Services
             };
 
             var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
-          
-            if (graphQLResponse.Data.Organization.Repository != null)
+            var repository = UpdateRepositoryStatus(graphQLResponse.Data.Organization.Repository);
+            return repository;
+        }
+
+        /// <summary>
+        /// Gets the repository's details and updates the status field in the dependencies
+        /// </summary>
+        /// <param name="repository"> A Repository object</param>
+        /// <returns>An updated repository object with the status field.</returns>
+        private Repository UpdateRepositoryStatus(Repository repository)
+        {
+            var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
+            if (dependencyGraphManifests == null) 
+                return repository;
+            
+            // Go through the various dependency manifests in the repo
+            foreach (var dependencyManifest in dependencyGraphManifests)
             {
-                return graphQLResponse.Data.Organization.Repository;
+                var dependencies = dependencyManifest?.Dependencies?.Nodes;
+                if (dependencies == null) 
+                    continue;
+
+                // Go through each dependency in the dependency manifest
+                foreach (var dependency in dependencies)
+                {
+                    var currentVersion = dependency.requirements;
+                    var latesttVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                    // Update the status and calculate it 
+                    dependency.status = CalculateStatus(currentVersion.Substring(2), latesttVersion);
+                }
+            }
+            
+            return repository;
+        }
+        /// <summary>
+        /// Calculate the status of a sample
+        /// </summary>
+        /// <param name="sampleVersion">The current version of thr sample</param>
+        /// <param name="latestVersion">The latest version of the sample</param>
+        /// <returns><see cref="PackageStatus"/> of the sample Version </returns>
+        public PackageStatus CalculateStatus(string sampleVersion, string latestVersion)
+        {
+            if (string.IsNullOrEmpty(sampleVersion) || string.IsNullOrEmpty(latestVersion))
+                return PackageStatus.Unknown;
+
+            // Dropping any 'v's that occur before the version
+            if (sampleVersion.StartsWith("v"))
+            {
+                sampleVersion = sampleVersion.Substring(1);
+            }
+            if (latestVersion.StartsWith("v"))
+            {
+                latestVersion = latestVersion.Substring(1);
             }
 
-            return null;
-        }       
+            // Try to parse the versions into SemVersion objects
+            if (!SemVersion.TryParse(sampleVersion.Trim(), out SemVersion sample) ||
+                !SemVersion.TryParse(latestVersion.Trim(), out SemVersion latest)) 
+            {
+                //Unable to determine the versions
+                return PackageStatus.Unknown;
+            }
+
+            int status = sample.CompareTo(latest);
+
+            if (status == 0)
+            {
+                //Version objects are the same so packages are upto date
+                return PackageStatus.UpToDate;
+            }
+            else if (sample.Major == latest.Major && sample.Minor == latest.Minor)
+            {
+                //Difference is only in the build version therefore package requires an urgent update 
+                return PackageStatus.UrgentUpdate;
+            }
+            else if (status < 0)
+            {
+                //Difference is in the major and/or minor version and the sample version is behind the latest version
+                return PackageStatus.Update;
+            }
+            else
+            {
+                //Unable to determine the versions
+                return PackageStatus.Unknown;
+            }
+        }
 
         /// <summary>
         /// Get header details list from the parsed yaml header
