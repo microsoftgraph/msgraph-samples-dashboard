@@ -5,7 +5,7 @@ class Home extends Component {
     public render() {
         return (
             <div>
-                <Samples />
+                <Samples isAuthenticated={false} />
             </div>
         );
     }

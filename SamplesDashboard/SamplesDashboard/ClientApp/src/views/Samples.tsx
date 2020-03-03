@@ -1,4 +1,4 @@
-﻿import {  DetailsListLayoutMode, IColumn,
+import {  DetailsListLayoutMode, IColumn,
     SelectionMode, ShimmeredDetailsList, FontIcon } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -32,14 +32,14 @@ const classNames = mergeStyleSets({
     yellow: {
         color: '#ffaa44',
         marginRight: '5px'
-    },
+    }
     red: { color: '#d13438' }
 });
 
-export default class Samples extends React.Component<{}, ISamplesState> {
+export default class Samples extends React.Component<{ isAuthenticated: boolean }, ISamplesState> {
     private allItems: ISampleItem[];
 
-    constructor(props: {}) {
+    constructor(props: { isAuthenticated: boolean }) {
         super(props);
 
         this.allItems = [];
@@ -63,6 +63,13 @@ export default class Samples extends React.Component<{}, ISamplesState> {
             { key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'totalCount', 
                 minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick }
         ];
+
+        if (this.props.isAuthenticated) {
+            columns.push({
+                key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'totalCount',
+                minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick
+            });
+        }
 
         this.state = {
             columns,
@@ -193,7 +200,8 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
 
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
-                return <a href={`${url}/network/alerts`} target="_blank"> <FontIcon iconName="StatusErrorFull" className={classNames.red} /> <span>{vulnerabilityAlertsCount} </span></a>;
+                return <a href={`${url}/network/alerts`} target="_blank">
+                    <FontIcon iconName="WarningSolid" className={classNames.yellow} /> <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;
 
