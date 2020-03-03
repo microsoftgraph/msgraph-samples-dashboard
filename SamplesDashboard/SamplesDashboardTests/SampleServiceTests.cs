@@ -25,7 +25,6 @@ namespace SamplesDashboardTests
         {
             _helper = helper;
             _sampleService = applicationFactory.Services.GetService<SampleService>();
-
         }
 
         [Fact]
@@ -41,8 +40,6 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "powershell");
             Assert.True(headerDetails["services"] == "Intune");
-            _helper.WriteLine(string.Join("\n", headerDetails));
-
         }
 
         [Fact]
@@ -58,8 +55,6 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "csharp,uwp");
             Assert.True(headerDetails["services"] == "Excel");
-            _helper.WriteLine(string.Join("\n", headerDetails));
-
         }
 
         [Fact]
@@ -75,8 +70,6 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "swift");
             Assert.True(headerDetails["services"] == "Office 365,Users");
-            _helper.WriteLine(string.Join("\n", headerDetails));
-
         }
         [Fact]
         public async Task ShouldGetSamples()
@@ -110,8 +103,7 @@ namespace SamplesDashboardTests
             //Assert
             Assert.NotNull(dependencies);
             Assert.True(library);
-            Assert.Equal(packageManager, res.FirstOrDefault());           
-
+            Assert.Equal(packageManager, res.FirstOrDefault());        
         }
 
         [Fact]
@@ -137,7 +129,6 @@ namespace SamplesDashboardTests
 
             //Assert
             Assert.IsType<List<Node>>(samples);
-
         }
 
         [Fact]
@@ -151,7 +142,6 @@ namespace SamplesDashboardTests
 
             //Assert
             Assert.IsType<Repository>(dependencies);
-
         }
 
         [Fact]
@@ -183,7 +173,6 @@ namespace SamplesDashboardTests
             {
                 Assert.Equal(expected, name.Trim());
             }
-
         }
 
         [Theory]
