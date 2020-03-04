@@ -163,6 +163,7 @@ namespace SamplesDashboard.Services
                 foreach (var dependency in dependencies)
                 {
                     var currentVersion = dependency.requirements;
+                    if (string.IsNullOrEmpty(currentVersion)) continue;
                     var latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
                     // Update the status and calculate it 
                     dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
@@ -173,7 +174,6 @@ namespace SamplesDashboard.Services
                     }
 
                     dependency.latestVersion = latestVersion;
-                    
                 }
             }            
             return repository;
