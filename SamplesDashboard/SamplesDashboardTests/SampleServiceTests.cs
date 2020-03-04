@@ -156,6 +156,7 @@ namespace SamplesDashboardTests
 
         [Theory]
         [InlineData("1.2.3", "1.2.3", PackageStatus.UpToDate)]
+        [InlineData("1.2.3.4", "1.2.3.4", PackageStatus.UpToDate)]
         [InlineData("1.2.1", "1.3.1", PackageStatus.Update)]
         [InlineData("2.2.1", "3.0.0", PackageStatus.Update)]
         [InlineData("1.2.0", "1.2.1", PackageStatus.UrgentUpdate)]

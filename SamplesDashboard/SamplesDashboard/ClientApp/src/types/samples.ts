@@ -22,6 +22,7 @@ export interface IDetailsItem {
     nodes: any;
     status: number;
     url: string;
+    latestVersion: string;
 }
 
 export interface ISamplesState {
