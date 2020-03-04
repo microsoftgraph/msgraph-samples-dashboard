@@ -1,5 +1,5 @@
-﻿import {  DetailsListLayoutMode, IColumn,
-    SelectionMode, ShimmeredDetailsList } from 'office-ui-fabric-react';
+import {  DetailsListLayoutMode, IColumn,
+    SelectionMode, ShimmeredDetailsList, FontIcon } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
@@ -28,13 +28,17 @@ const classNames = mergeStyleSets({
     },
     pageTitle: {
         fontSize: FontSizes.large
+    },
+    yellow: {
+        color: '#ffaa44',
+        marginRight: '5px'
     }
 });
 
-export default class Samples extends React.Component<{}, ISamplesState> {
+export default class Samples extends React.Component<{ isAuthenticated: boolean }, ISamplesState> {
     private allItems: ISampleItem[];
 
-    constructor(props: {}) {
+    constructor(props: { isAuthenticated: boolean }) {
         super(props);
 
         this.allItems = [];
@@ -54,10 +58,15 @@ export default class Samples extends React.Component<{}, ISamplesState> {
             { key: 'starsCount', name: 'Stars', fieldName: 'totalCount', minWidth: 100, maxWidth: 100, 
                 isResizable: true, onColumnClick: this.onColumnClick },
             { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300, 
-                isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'totalCount', 
-                minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick }
+                isResizable: true, onColumnClick: this.onColumnClick }
         ];
+
+        if (this.props.isAuthenticated) {
+            columns.push({
+                key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'totalCount',
+                minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick
+            });
+        }
 
         this.state = {
             columns,
@@ -181,14 +190,15 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <a href={`${url}/issues`} target="_blank"> <span>{issueCount}</span></a>
 
         case 'Stars':
-            return <a href={`${url}`} target="_blank"> <span>{starsCount} </span></a>;
+            return <a href={`${url}`} target="_blank"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
 
         case 'Feature Area':
             return <span> {featureArea} </span>;
 
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
-                return <a href={`${url}/network/alerts`} target="_blank"> <span>{vulnerabilityAlertsCount} </span></a>;
+                return <a href={`${url}/network/alerts`} target="_blank">
+                    <FontIcon iconName="WarningSolid" className={classNames.yellow} /> <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;
 
