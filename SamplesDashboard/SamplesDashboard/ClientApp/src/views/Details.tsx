@@ -98,13 +98,10 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
     const col = column as IColumn;
     const packageName = item.packageName;
     const version = item.requirements;
-    let currentVersion = "Unknown";
-    if (item.repository && item.repository.releases && item.repository.releases.nodes[0]) {
-        currentVersion = item.repository.releases.nodes[0].tagName;
-    }
- 
+    let currentVersion = item.latestVersion;
     const status = item.status;
     const requirements = version.slice(2);
+
     switch (col.name) {
        
         case 'Library':

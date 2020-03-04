@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
 // ------------------------------------------------------------------------------
 
@@ -11,6 +11,13 @@ using GraphQL;
 using GraphQL.Client.Http;
 using SamplesDashboard.Models;
 using Semver;
+using NuGet.Protocol.Core.Types;
+using NuGet.Protocol;
+using NugetRepository = NuGet.Protocol.Core.Types.Repository;
+using System.Threading;
+using NuGet.Common;
+using NuGet.Versioning;
+
 
 namespace SamplesDashboard.Services
 {
@@ -134,7 +141,7 @@ namespace SamplesDashboard.Services
             };
 
             var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
-            var repository = UpdateRepositoryStatus(graphQLResponse.Data.Organization.Repository);
+            var repository =await UpdateRepositoryStatus(graphQLResponse.Data.Organization.Repository);
             return repository;
         }
 
@@ -143,7 +150,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="repository"> A Repository object</param>
         /// <returns>An updated repository object with the status field.</returns>
-        private Repository UpdateRepositoryStatus(Repository repository)
+        private async Task<Repository> UpdateRepositoryStatus(Repository repository)
         {
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
             if (dependencyGraphManifests == null) 
@@ -160,12 +167,27 @@ namespace SamplesDashboard.Services
                 foreach (var dependency in dependencies)
                 {
                     var currentVersion = dependency.requirements;
-                    var latesttVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                    var latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
                     // Update the status and calculate it 
-                    dependency.status = CalculateStatus(currentVersion.Substring(2), latesttVersion);
+                    dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                    if(dependency.status == PackageStatus.Unknown && dependency.packageManager == "NUGET")
+                    {
+                        ILogger logger = NullLogger.Instance;
+                        CancellationToken cancellationToken = CancellationToken.None;
+
+                        SourceCacheContext cache = new SourceCacheContext();
+                        SourceRepository nugetRepository = NugetRepository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
+                        FindPackageByIdResource resource = await nugetRepository.GetResourceAsync<FindPackageByIdResource>();
+                        IEnumerable<NuGetVersion> versions = await resource.GetAllVersionsAsync(dependency.packageName, cache, logger, cancellationToken);
+
+                        latestVersion = versions.LastOrDefault().ToString();
+                        dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                    }
+
+                    dependency.latestVersion = latestVersion;
+                    
                 }
-            }
-            
+            }            
             return repository;
         }
         /// <summary>
@@ -188,6 +210,9 @@ namespace SamplesDashboard.Services
             {
                 latestVersion = latestVersion.Substring(1);
             }
+
+            if (sampleVersion.Equals(latestVersion))
+                return PackageStatus.UpToDate;
 
             // Try to parse the versions into SemVersion objects
             if (!SemVersion.TryParse(sampleVersion.Trim(), out SemVersion sample) ||
