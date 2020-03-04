@@ -12,12 +12,17 @@ namespace SamplesDashboard.Services
 {
     public class NugetService
     {
+        private readonly SourceRepository _nugetRepository;
+
+        public NugetService()
+        {
+            _nugetRepository = NugetRepository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
+        }
         public async Task<string> GetLatestPackageVersion(string packageName)
         {
             using (SourceCacheContext cache = new SourceCacheContext())
             {
-                SourceRepository nugetRepository = NugetRepository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
-                FindPackageByIdResource resource = await nugetRepository.GetResourceAsync<FindPackageByIdResource>();
+                FindPackageByIdResource resource = await _nugetRepository.GetResourceAsync<FindPackageByIdResource>();
                 IEnumerable<NuGetVersion> versions = await resource.GetAllVersionsAsync(packageName, cache, NullLogger.Instance, CancellationToken.None);
 
                 return versions.LastOrDefault()?.ToString();
