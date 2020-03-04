@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NuGet.Protocol.Core.Types;
@@ -15,12 +14,14 @@ namespace SamplesDashboard.Services
     {
         public async Task<string> GetLatestPackageVersion(string packageName)
         {
-            SourceCacheContext cache = new SourceCacheContext();
-            SourceRepository nugetRepository = NugetRepository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
-            FindPackageByIdResource resource = await nugetRepository.GetResourceAsync<FindPackageByIdResource>();
-            IEnumerable<NuGetVersion> versions = await resource.GetAllVersionsAsync(packageName, cache, NullLogger.Instance, CancellationToken.None);
+            using (SourceCacheContext cache = new SourceCacheContext())
+            {
+                SourceRepository nugetRepository = NugetRepository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
+                FindPackageByIdResource resource = await nugetRepository.GetResourceAsync<FindPackageByIdResource>();
+                IEnumerable<NuGetVersion> versions = await resource.GetAllVersionsAsync(packageName, cache, NullLogger.Instance, CancellationToken.None);
 
-            return versions.LastOrDefault().ToString();
+                return versions.LastOrDefault()?.ToString();
+            }          
         }
     }
 }

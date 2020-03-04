@@ -11,12 +11,6 @@ using GraphQL;
 using GraphQL.Client.Http;
 using SamplesDashboard.Models;
 using Semver;
-using NuGet.Protocol.Core.Types;
-using NuGet.Protocol;
-using NugetRepository = NuGet.Protocol.Core.Types.Repository;
-using System.Threading;
-using NuGet.Common;
-using NuGet.Versioning;
 
 
 namespace SamplesDashboard.Services
@@ -205,6 +199,7 @@ namespace SamplesDashboard.Services
                 latestVersion = latestVersion.Substring(1);
             }
 
+            //If version strings are equal, they are upto date
             if (sampleVersion.Equals(latestVersion))
                 return PackageStatus.UpToDate;
 
