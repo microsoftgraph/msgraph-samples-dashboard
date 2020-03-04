@@ -33,7 +33,6 @@ const classNames = mergeStyleSets({
         color: '#ffaa44',
         marginRight: '5px'
     }
-    red: { color: '#d13438' }
 });
 
 export default class Samples extends React.Component<{ isAuthenticated: boolean }, ISamplesState> {
@@ -59,9 +58,7 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
             { key: 'starsCount', name: 'Stars', fieldName: 'totalCount', minWidth: 100, maxWidth: 100, 
                 isResizable: true, onColumnClick: this.onColumnClick },
             { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300, 
-                isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'totalCount', 
-                minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick }
+                isResizable: true, onColumnClick: this.onColumnClick }
         ];
 
         if (this.props.isAuthenticated) {
