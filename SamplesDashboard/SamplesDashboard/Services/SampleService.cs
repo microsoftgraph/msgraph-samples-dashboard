@@ -28,11 +28,13 @@ namespace SamplesDashboard.Services
     {
         private readonly GraphQLHttpClient _graphQlClient;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly NugetService _nugetService;
 
-        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory)
+        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory, NugetService nugetService)
         {
             _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
+            _nugetService = nugetService;
         }
 
         /// <summary>
@@ -172,15 +174,7 @@ namespace SamplesDashboard.Services
                     dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                     if(dependency.status == PackageStatus.Unknown && dependency.packageManager == "NUGET")
                     {
-                        ILogger logger = NullLogger.Instance;
-                        CancellationToken cancellationToken = CancellationToken.None;
-
-                        SourceCacheContext cache = new SourceCacheContext();
-                        SourceRepository nugetRepository = NugetRepository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
-                        FindPackageByIdResource resource = await nugetRepository.GetResourceAsync<FindPackageByIdResource>();
-                        IEnumerable<NuGetVersion> versions = await resource.GetAllVersionsAsync(dependency.packageName, cache, logger, cancellationToken);
-
-                        latestVersion = versions.LastOrDefault().ToString();
+                        latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
                         dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                     }
 
