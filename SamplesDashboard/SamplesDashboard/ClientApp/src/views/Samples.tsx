@@ -69,7 +69,8 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
                 key: 'issueCount', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
-            {   key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 100, maxWidth: 100,
+            {
+                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 100, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
