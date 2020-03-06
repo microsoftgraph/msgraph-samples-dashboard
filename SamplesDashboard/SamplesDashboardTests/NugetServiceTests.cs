@@ -29,8 +29,7 @@ namespace SamplesDashboardTests
 
             //Assert
             Assert.NotNull(latestVersion);
-        }
-
+        }    
 
     }
 }

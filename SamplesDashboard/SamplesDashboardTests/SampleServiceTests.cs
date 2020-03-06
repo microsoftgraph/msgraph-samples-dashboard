@@ -179,6 +179,19 @@ namespace SamplesDashboardTests
             // Assert
             Assert.Equal(expectedStatus, sampleStatus);
         }
+
+        [Fact]
+        public async Task ShouldSetCurrentVersionOnEmptyStrings()
+        {
+            //Arrange
+            var sample = "msgraph-training-phpapp";
+
+            //Act 
+            var dependency = await _sampleService.GetRepository(sample);
+            var latestVersion = _sampleService.UpdateRepositoryStatus(dependency).ToString();
+
+            Assert.NotNull(latestVersion);
+        }
     }
 }
  

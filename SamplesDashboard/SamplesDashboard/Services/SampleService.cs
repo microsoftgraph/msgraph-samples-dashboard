@@ -12,12 +12,12 @@ using GraphQL.Client.Http;
 using SamplesDashboard.Models;
 using Semver;
 
-
 namespace SamplesDashboard.Services
 {
     /// <summary>
     ///  This class contains samples query services and functions to be used by the samples API
     /// </summary>
+    
     public class SampleService
     {
         private readonly GraphQLHttpClient _graphQlClient;
@@ -146,7 +146,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="repository"> A Repository object</param>
         /// <returns>An updated repository object with the status field.</returns>
-        private async Task<Repository> UpdateRepositoryStatus(Repository repository)
+        internal async Task<Repository> UpdateRepositoryStatus(Repository repository)
         {
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
             if (dependencyGraphManifests == null) 
@@ -184,7 +184,7 @@ namespace SamplesDashboard.Services
         /// <param name="sampleVersion">The current version of thr sample</param>
         /// <param name="latestVersion">The latest version of the sample</param>
         /// <returns><see cref="PackageStatus"/> of the sample Version </returns>
-        public PackageStatus CalculateStatus(string sampleVersion, string latestVersion)
+        internal PackageStatus CalculateStatus(string sampleVersion, string latestVersion)
         {
             if (string.IsNullOrEmpty(sampleVersion) || string.IsNullOrEmpty(latestVersion))
                 return PackageStatus.Unknown;
@@ -240,7 +240,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="sampleName">The name of each sample</param>
         /// <returns> A new list of services in the yaml header after parsing it.</returns>
-        public async Task<Dictionary<string,string>> GetHeaderDetails(string sampleName)
+        internal async Task<Dictionary<string,string>> GetHeaderDetails(string sampleName)
         {
             string header = await GetYamlHeader(sampleName);
             if (!string.IsNullOrEmpty(header))
