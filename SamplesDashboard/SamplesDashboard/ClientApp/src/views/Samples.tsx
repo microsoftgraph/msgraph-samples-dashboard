@@ -1,6 +1,6 @@
 import {
     DetailsListLayoutMode, IColumn,
-    SelectionMode, ShimmeredDetailsList, FontIcon
+    SelectionMode, ShimmeredDetailsList, FontIcon, IRenderFunction, IDetailsHeaderProps, IDetailsColumnRenderTooltipProps, TooltipHost
 } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -33,7 +33,7 @@ const classNames = mergeStyleSets({
     },
     yellow: {
         color: '#ffaa44',
-        marginRight: '5px'
+        paddingRight: '5px'
     }
 });
 
@@ -75,7 +75,7 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
             },
             {
                 key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300,
-                isResizable: true, onColumnClick: this.onColumnClick
+                isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             }
         ];
 
@@ -134,6 +134,7 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
                             isHeaderVisible={true}
                             onRenderItemColumn={renderItemColumn}
                             enableShimmer={isLoading}
+                            onRenderDetailsHeader={onRenderDetailsHeader}
                         />
                     </ScrollablePane>
                 </div>
@@ -172,6 +173,25 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
     };
 }
 
+const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
+    if (!props) {
+        return null;
+    }
+
+    const onRenderColumnHeaderTooltip: IRenderFunction<IDetailsColumnRenderTooltipProps> = tooltipHostProps => (
+        <TooltipHost {...tooltipHostProps} />
+    );
+
+    return (
+        <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced={true}>
+            {defaultRender!({
+                ...props,
+                onRenderColumnHeaderTooltip
+            })}
+        </Sticky>
+    );
+};
+
 // rendering the language and service component within the details list
 function renderItemColumn(item: ISampleItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
@@ -202,20 +222,20 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <span>{language}</span>;
 
         case 'Open Pull Requests':
-            return <a href={`${url}/pulls`} target="_blank"> <span>{pullRequestCount} </span></a>
+            return <a href={`${url}/pulls`} target="_blank" rel="noopener noreferrer"> <span>{pullRequestCount} </span></a>
 
         case 'Open Issues':
-            return <a href={`${url}/issues`} target="_blank"> <span>{issueCount}</span></a>
+            return <a href={`${url}/issues`} target="_blank" rel="noopener noreferrer"> <span>{issueCount}</span></a>
 
         case 'Stars':
-            return <a href={`${url}`} target="_blank"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
+            return <a href={`${url}`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
 
         case 'Feature Area':
             return <span> {featureArea} </span>;
 
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
-                return <a href={`${url}/network/alerts`} target="_blank">
+                return <a href={`${url}/network/alerts`} target="_blank" rel="noopener noreferrer">
                     <FontIcon iconName="WarningSolid" className={classNames.yellow} /> <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;

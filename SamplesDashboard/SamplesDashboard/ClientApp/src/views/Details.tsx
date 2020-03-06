@@ -74,10 +74,10 @@ export default class Details extends React.Component<any, any> {
         return (
             <Fabric>
                 <div>
-                    <PageTitle title={repositoryDetails.name} />
+                    <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
                     { isLoading ?
                         <div /> :
-                        <PrimaryButton href={repositoryDetails.url} target="_blank" > <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository </PrimaryButton> 
+                        <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository </PrimaryButton> 
                     }
                     <ShimmeredDetailsList
                         items={items}
@@ -92,6 +92,8 @@ export default class Details extends React.Component<any, any> {
             </Fabric>
         );
     }
+
+
 }
 
 function renderItemColumn(item: IDetailsItem, index: number | undefined, column: IColumn | undefined) {
