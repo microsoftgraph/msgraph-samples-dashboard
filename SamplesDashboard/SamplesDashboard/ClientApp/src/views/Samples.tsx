@@ -1,5 +1,7 @@
-import {  DetailsListLayoutMode, IColumn,
-    SelectionMode, ShimmeredDetailsList, FontIcon } from 'office-ui-fabric-react';
+import {
+    DetailsListLayoutMode, IColumn,
+    SelectionMode, ShimmeredDetailsList, FontIcon
+} from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
@@ -43,27 +45,43 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
 
         this.allItems = [];
         const columns: IColumn[] = [
-            { key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true, 
-                isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this.onColumnClick },
-            { key: 'login', name: 'Owner', fieldName: 'login', minWidth: 100, maxWidth: 150, 
-                isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150, 
-                isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 150, 
-                isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'pullRequestCount', name: 'Open Pull Requests', fieldName: 'totalCount', minWidth: 100, 
-                maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'issueCount', name: 'Open Issues', fieldName: 'totalCount', minWidth: 100, maxWidth: 150, 
-                isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'starsCount', name: 'Stars', fieldName: 'totalCount', minWidth: 100, maxWidth: 100, 
-                isResizable: true, onColumnClick: this.onColumnClick },
-            { key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300, 
-                isResizable: true, onColumnClick: this.onColumnClick }
+            {
+                key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true,
+                isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'login', name: 'Owner', fieldName: 'login', minWidth: 100, maxWidth: 150,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 150,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'pullRequestCount', name: 'Open Pull Requests', fieldName: 'pullRequests', minWidth: 100,
+                maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'issueCount', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 150,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 100, maxWidth: 100,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300,
+                isResizable: true, onColumnClick: this.onColumnClick
+            }
         ];
 
         if (this.props.isAuthenticated) {
             columns.push({
-                key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'totalCount',
+                key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'vulnerabilityAlerts',
                 minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick
             });
         }
@@ -108,15 +126,15 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
                                 styles={{ root: { maxWidth: '300px' } }}
                             />
                         </Sticky>
-                            <ShimmeredDetailsList
-                                items={items}
-                                columns={columns}
-                                selectionMode={SelectionMode.none}
-                                layoutMode={DetailsListLayoutMode.justified}
-                                isHeaderVisible={true}
-                                onRenderItemColumn={renderItemColumn}
-                                enableShimmer={isLoading}
-                            />
+                        <ShimmeredDetailsList
+                            items={items}
+                            columns={columns}
+                            selectionMode={SelectionMode.none}
+                            layoutMode={DetailsListLayoutMode.justified}
+                            isHeaderVisible={true}
+                            onRenderItemColumn={renderItemColumn}
+                            enableShimmer={isLoading}
+                        />
                     </ScrollablePane>
                 </div>
             </Fabric>
@@ -130,7 +148,7 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
     private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: string | undefined): void => {
         this.setState({
             items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems
-            });
+        });
     };
 
     private onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
@@ -157,7 +175,7 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
 // rendering the language and service component within the details list
 function renderItemColumn(item: ISampleItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
-    const sampleName = item.name;   
+    const sampleName = item.name;
     const owner = item.owner.login;
     const status = item.status;
     const language = item.language;
@@ -173,7 +191,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <div>
                 <Link to={`/samples/${sampleName}`} ><span>{sampleName} </ span></Link>
             </div>;
-        
+
         case 'Owner':
             return <span>{owner} </span>;
 
@@ -206,5 +224,39 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
 }
 function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
     const key = columnKey as keyof T;
-    return items.slice(0).sort((a: T, b: T) => ((isSortedDescending ? a[key] < b[key] : a[key] > b[key]) ? 1 : -1));
+    let itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
+    return itemsSorted;
+}
+
+function compare(a: any, b: any, isSortedDescending?: boolean) {
+    // Handle the possible scenario of blank inputs 
+    // and keep them at the bottom of the lists
+    if (!a) return 1;
+    if (!b) return -1;
+
+    let valueA: any;
+    let valueB: any;
+    let comparison = 0;
+
+    if (typeof a === 'string' || a instanceof String) {
+        // Use toUpperCase() to ignore character casing
+        valueA = a.toUpperCase();
+        valueB = b.toUpperCase();;
+    } else {
+        // its an object which has a totalCount property
+        valueA = a.totalCount;
+        valueB = b.totalCount;
+    }
+
+    if (valueA > valueB) {
+        comparison = 1;
+    } else if (valueA < valueB) {
+        comparison = -1;
+    }
+
+    if (isSortedDescending) {
+        comparison = comparison * -1;
+    }
+
+    return comparison;
 }
