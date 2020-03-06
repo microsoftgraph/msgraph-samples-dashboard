@@ -48,10 +48,21 @@ namespace SamplesDashboard
 
         [JsonProperty("stargazers")]
         public Issues Stargazers { get; set; }
+
         [JsonProperty("url")]
         public Uri Url { get; set; }
+
+        [JsonProperty("forks")]
+        public Forks Forks { get; set; } 
+
         public string Language { get; internal set; }
+
         public string FeatureArea { get; internal set; }
+    }
+    public partial class Forks
+    {
+        [JsonProperty("totalCount")]
+        public long TotalCount { get; set; }
     }
     public partial class Issues
     {
