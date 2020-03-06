@@ -64,7 +64,9 @@ namespace SamplesDashboard.Services
                                         totalCount
                                     }
                                     url
-                                    forkCount
+                                    forks {
+                                        totalCount
+                                    }
                                 }
                             }
                         }

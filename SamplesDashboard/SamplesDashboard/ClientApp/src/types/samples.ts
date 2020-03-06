@@ -9,7 +9,7 @@ export interface ISampleItem {
     pullRequests: any;
     issues: any;
     stargazers: any;
-    forkCount: any;
+    forks: any;
     url: string;
     featureArea: string;
     vulnerabilityAlerts: any;

@@ -69,8 +69,9 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
                 key: 'issueCount', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
-            { key: 'forkCount', name: 'Forks', fieldName: 'forkCount', minWidth: 100, maxWidth: 100,
-                isResizable: true, onColumnClick: this.onColumnClick},
+            {   key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 100, maxWidth: 100,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
             {
                 key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 100, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
@@ -204,7 +205,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
     const pullRequestCount = item.pullRequests.totalCount;
     const issueCount = item.issues.totalCount;
     const starsCount = item.stargazers.totalCount;
-    const forkCount = item.forkCount;
+    const forkCount = item.forks.totalCount;
     const url = item.url;
     const featureArea = item.featureArea;
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;
@@ -231,7 +232,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <a href={`${url}/issues`} target="_blank" rel="noopener noreferrer"> <span>{issueCount}</span></a>
 
         case 'Forks':
-            return <a href={`${url}`} target="_blank"> <span>{forkCount} </span></a>;
+            return <a href={`${url}/network/members`} target="_blank" rel="noopener noreferrer"> <span>{forkCount} </span></a>;
 
         case 'Stars':
             return <a href={`${url}`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
