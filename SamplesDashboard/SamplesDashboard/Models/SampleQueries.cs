@@ -111,6 +111,7 @@ namespace SamplesDashboard
         public string packageManager { get; set; }
         public string packageName { get; set; }
         public string requirements { get; set; }
+        public string latestVersion { get; set; }
         public Packages repository { get; set; }
         
     }

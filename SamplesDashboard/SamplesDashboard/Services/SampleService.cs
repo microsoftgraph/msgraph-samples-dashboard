@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
 // ------------------------------------------------------------------------------
 
@@ -12,6 +12,7 @@ using GraphQL.Client.Http;
 using SamplesDashboard.Models;
 using Semver;
 
+
 namespace SamplesDashboard.Services
 {
     /// <summary>
@@ -21,11 +22,13 @@ namespace SamplesDashboard.Services
     {
         private readonly GraphQLHttpClient _graphQlClient;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly NugetService _nugetService;
 
-        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory)
+        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory, NugetService nugetService)
         {
             _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
+            _nugetService = nugetService;
         }
 
         /// <summary>
@@ -134,7 +137,7 @@ namespace SamplesDashboard.Services
             };
 
             var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
-            var repository = UpdateRepositoryStatus(graphQLResponse.Data.Organization.Repository);
+            var repository =await UpdateRepositoryStatus(graphQLResponse.Data.Organization.Repository);
             return repository;
         }
 
@@ -143,7 +146,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="repository"> A Repository object</param>
         /// <returns>An updated repository object with the status field.</returns>
-        private Repository UpdateRepositoryStatus(Repository repository)
+        private async Task<Repository> UpdateRepositoryStatus(Repository repository)
         {
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
             if (dependencyGraphManifests == null) 
@@ -160,12 +163,19 @@ namespace SamplesDashboard.Services
                 foreach (var dependency in dependencies)
                 {
                     var currentVersion = dependency.requirements;
-                    var latesttVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                    var latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
                     // Update the status and calculate it 
-                    dependency.status = CalculateStatus(currentVersion.Substring(2), latesttVersion);
+                    dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                    if(dependency.status == PackageStatus.Unknown && dependency.packageManager == "NUGET")
+                    {
+                        latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
+                        dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                    }
+
+                    dependency.latestVersion = latestVersion;
+                    
                 }
-            }
-            
+            }            
             return repository;
         }
         /// <summary>
@@ -188,6 +198,10 @@ namespace SamplesDashboard.Services
             {
                 latestVersion = latestVersion.Substring(1);
             }
+
+            //If version strings are equal, they are upto date
+            if (sampleVersion.Equals(latestVersion))
+                return PackageStatus.UpToDate;
 
             // Try to parse the versions into SemVersion objects
             if (!SemVersion.TryParse(sampleVersion.Trim(), out SemVersion sample) ||

@@ -46,6 +46,7 @@ namespace SamplesDashboard
                 EndPoint = new Uri("https://api.github.com/graphql"),
             });
             services.AddSingleton<SampleService>();
+            services.AddSingleton<NugetService>();
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
