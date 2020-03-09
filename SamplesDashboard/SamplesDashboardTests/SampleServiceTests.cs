@@ -58,20 +58,6 @@ namespace SamplesDashboardTests
         }
 
         [Fact]
-        public async Task ShouldGetHeaderDetailsAsync3()
-        {
-            //Arrange
-            var sampleName = "ios-swift-faceapi-sample";
-
-            //Act
-            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
-
-            //Assert
-            Assert.NotNull(headerDetails);
-            Assert.True(headerDetails["languages"] == "swift");
-            Assert.True(headerDetails["services"] == "Office 365,Users");
-        }
-        [Fact]
         public async Task ShouldGetSamples()
         {
             // Arrange
