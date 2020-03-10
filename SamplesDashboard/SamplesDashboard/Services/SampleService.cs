@@ -170,8 +170,8 @@ namespace SamplesDashboard.Services
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
 
-                    string latestVersion;
-                 
+                    //getting latest versions from the respective packagemanagers, and the default values from github
+                    string latestVersion;                    
                     switch (dependency.packageManager)
                     {
                         case "NUGET":
