@@ -4,6 +4,7 @@
 
 using Newtonsoft.Json;
 using SamplesDashboard.Models;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -33,9 +34,14 @@ namespace SamplesDashboard.Services
 
             if (responseMessage.IsSuccessStatusCode)
             {
-                string fileContents = await responseMessage.Content.ReadAsStringAsync();
-                var npmData = JsonConvert.DeserializeObject<NpmQuery>(fileContents);
-                return npmData.DistTags.Latest;
+                using (var stream = await responseMessage.Content.ReadAsStreamAsync())
+                using (var streamReader = new StreamReader(stream))
+                using (var jsonTextReader = new JsonTextReader(streamReader))
+                {
+                    var serializer = new JsonSerializer();
+                    var npmData = serializer.Deserialize<NpmQuery>(jsonTextReader);
+                    return npmData.DistTags.Latest;
+                }
             }
 
             return null;
