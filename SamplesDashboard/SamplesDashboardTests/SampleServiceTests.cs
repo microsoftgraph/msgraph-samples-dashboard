@@ -123,23 +123,6 @@ namespace SamplesDashboardTests
             }
         }
 
-         [Fact]
-        public async Task ShouldGetMicrosoftGraphSamples()
-        {
-            //Arrange
-            var samples = await _sampleService.GetSamples();
-            var expected = "microsoftgraph";
-
-            //Act
-            var owner = samples.Select(n => n.Owner.Login);
-
-            //Assert    
-            foreach(string name in owner)
-            {
-                Assert.Equal(expected, name.Trim());
-            }
-        }
-
         [Theory]
         [InlineData("1.2.3", "1.2.3", PackageStatus.UpToDate)]
         [InlineData("1.2.3.4", "1.2.3.4", PackageStatus.UpToDate)]

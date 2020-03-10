@@ -11,6 +11,8 @@ using GraphQL;
 using GraphQL.Client.Http;
 using SamplesDashboard.Models;
 using Semver;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 
 namespace SamplesDashboard.Services
 {
@@ -24,11 +26,20 @@ namespace SamplesDashboard.Services
         private readonly IHttpClientFactory _clientFactory;
         private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
+        private readonly IMemoryCache _cache;
+        private readonly IConfiguration _config;
 
-        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory, NugetService nugetService, NpmService npmService)
+        public SampleService(
+            GraphQLHttpClient graphQlClient, 
+            IHttpClientFactory clientFactory, IMemoryCache memoryCache, 
+            IConfiguration config, 
+            NugetService nugetService,
+            NpmService npmService)
         {
             _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
+            _cache = memoryCache;
+            _config = config;
             _nugetService = nugetService;
             _npmService = npmService;
         }
@@ -96,10 +107,17 @@ namespace SamplesDashboard.Services
         private async Task SetHeadersAndStatus(Node sampleItem) 
         {
             var headerDetails = await GetHeaderDetails(sampleItem.Name);
-            var repository = await GetRepository(sampleItem.Name);
-            sampleItem.SampleStatus = repository.highestStatus;
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");
             sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
+
+            if (!_cache.TryGetValue(sampleItem.Name, out Repository repository)) 
+            {
+                repository = await GetRepository(sampleItem.Name);
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                _cache.Set(sampleItem.Name, repository, cacheEntryOptions);
+            }
+            sampleItem.SampleStatus = repository.highestStatus;
+            
         }
         
         /// <summary>
