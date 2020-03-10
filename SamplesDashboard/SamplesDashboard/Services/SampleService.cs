@@ -169,21 +169,26 @@ namespace SamplesDashboard.Services
                 {
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
-                    var latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
-                    // Update the status and calculate it 
-                    dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
-                    if(dependency.packageManager == "NUGET")
+
+                    string latestVersion;
+                 
+                    switch (dependency.packageManager)
                     {
-                        latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
-                        dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
-                    }
-                    if(dependency.packageManager == "NPM")
-                    {
-                        latestVersion = await _npmService.GetLatestVersion(dependency.packageName);
-                        dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                        case "NUGET":
+                            latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
+                            break;
+
+                        case "NPM":
+                            latestVersion = await _npmService.GetLatestVersion(dependency.packageName);
+                            break;
+
+                        default:
+                            latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                            break;
                     }
 
                     dependency.latestVersion = latestVersion;
+                    dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                 }
             }            
             return repository;
