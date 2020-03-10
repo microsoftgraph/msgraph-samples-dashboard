@@ -108,6 +108,8 @@ namespace SamplesDashboard.Services
         private async Task SetHeaders(Node sampleItem) 
         {
             var headerDetails = await GetHeaderDetails(sampleItem.Name);
+            var repository = await GetRepository(sampleItem.Name);
+            sampleItem.SampleStatus = repository.highestStatus;
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");
             sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
         }
@@ -176,7 +178,7 @@ namespace SamplesDashboard.Services
                 var dependencies = dependencyManifest?.Dependencies?.Nodes;
                 if (dependencies == null) 
                     continue;
-
+                PackageStatus highestStatus = PackageStatus.Unknown;
                 // Go through each dependency in the dependency manifest
                 foreach (var dependency in dependencies)
                 {
@@ -203,13 +205,18 @@ namespace SamplesDashboard.Services
                     dependency.latestVersion = latestVersion;
                     dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                 }
-            }            
+                highestStatus = HighestStatus(dependencies);
+                if (highestStatus > repository.highestStatus)
+                {
+                    repository.highestStatus = highestStatus;
+                }
+            }
             return repository;
         }
         /// <summary>
         /// Calculate the status of a sample
         /// </summary>
-        /// <param name="sampleVersion">The current version of thr sample</param>
+        /// <param name="sampleVersion">The current version of the sample</param>
         /// <param name="latestVersion">The latest version of the sample</param>
         /// <returns><see cref="PackageStatus"/> of the sample Version </returns>
         internal PackageStatus CalculateStatus(string sampleVersion, string latestVersion)
@@ -262,7 +269,16 @@ namespace SamplesDashboard.Services
                 return PackageStatus.Unknown;
             }
         }
-
+        /// <summary>
+        /// Get dependency statuses from a sample and return the highest status
+        /// </summary>
+        /// <param name="dependencies"> Dependencies in a sample</param>
+        /// <returns><see cref="PackageStatus"/>The highest PackageStatus from dependencies</returns>
+        internal PackageStatus HighestStatus(DependenciesNode[] dependencies)
+        {
+                PackageStatus[] statuses = dependencies.Select(dependency => dependency.status).ToArray();
+                return statuses.Max();
+        }
         /// <summary>
         /// Get header details list from the parsed yaml header
         /// </summary>
