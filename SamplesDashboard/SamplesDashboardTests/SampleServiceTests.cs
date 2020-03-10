@@ -107,9 +107,9 @@ namespace SamplesDashboardTests
             //Assert
             Assert.NotNull(dependencies);
             Assert.Empty(nodes);
-        } 
-     
-        [Fact]
+        }
+
+        [Fact(Skip = "Need to throttle e2e test")]
         public async Task ShouldGetSampleAndTrainingRepositories()
         {
             //Act
@@ -120,23 +120,6 @@ namespace SamplesDashboardTests
             foreach(string sample in sampleList)
             {
                 Assert.True(sample.Contains("sample",StringComparison.OrdinalIgnoreCase) || sample.Contains("training", StringComparison.OrdinalIgnoreCase));
-            }
-        }
-
-         [Fact]
-        public async Task ShouldGetMicrosoftGraphSamples()
-        {
-            //Arrange
-            var samples = await _sampleService.GetSamples();
-            var expected = "microsoftgraph";
-
-            //Act
-            var owner = samples.Select(n => n.Owner.Login);
-
-            //Assert    
-            foreach(string name in owner)
-            {
-                Assert.Equal(expected, name.Trim());
             }
         }
 

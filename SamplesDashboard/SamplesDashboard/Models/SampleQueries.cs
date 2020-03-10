@@ -58,6 +58,7 @@ namespace SamplesDashboard
         public string Language { get; internal set; }
 
         public string FeatureArea { get; internal set; }
+        public PackageStatus SampleStatus { get; internal set; }
     }
     public partial class Forks
     {
@@ -88,6 +89,7 @@ namespace SamplesDashboard
 
         [JsonProperty("dependencyGraphManifests")]
         public DependencyGraphManifests DependencyGraphManifests { get; set; }
+        public PackageStatus highestStatus { get; set; }
     }
 
     public class DependencyGraphManifests
@@ -124,7 +126,7 @@ namespace SamplesDashboard
         public string requirements { get; set; }
         public string latestVersion { get; set; }
         public Packages repository { get; set; }
-        
+
     }
 
     public class Packages

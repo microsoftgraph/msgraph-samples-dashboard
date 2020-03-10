@@ -1,5 +1,6 @@
-﻿{
+{
   "GithubAuthenticationToken": "",
   "product": "",
-  "product_version": ""
+  "product_version": "",
+  "timeout": "3600"
 }

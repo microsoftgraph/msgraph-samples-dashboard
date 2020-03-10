@@ -11,6 +11,8 @@ using GraphQL;
 using GraphQL.Client.Http;
 using SamplesDashboard.Models;
 using Semver;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 
 namespace SamplesDashboard.Services
 {
@@ -24,11 +26,20 @@ namespace SamplesDashboard.Services
         private readonly IHttpClientFactory _clientFactory;
         private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
+        private readonly IMemoryCache _cache;
+        private readonly IConfiguration _config;
 
-        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory, NugetService nugetService, NpmService npmService)
+        public SampleService(
+            GraphQLHttpClient graphQlClient, 
+            IHttpClientFactory clientFactory, IMemoryCache memoryCache, 
+            IConfiguration config, 
+            NugetService nugetService,
+            NpmService npmService)
         {
             _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
+            _cache = memoryCache;
+            _config = config;
             _nugetService = nugetService;
             _npmService = npmService;
         }
@@ -80,7 +91,7 @@ namespace SamplesDashboard.Services
             List<Task> TaskList = new List<Task>();
             foreach (var sampleItem in graphQLResponse?.Data?.Search.Nodes)
             {
-                Task headerTask = SetHeaders(sampleItem);
+                Task headerTask = SetHeadersAndStatus(sampleItem);
                 TaskList.Add(headerTask);
             }
 
@@ -93,11 +104,20 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="sampleItem">A specific sample item from the samples list</param>
         /// <returns> A list of samples.</returns>
-        private async Task SetHeaders(Node sampleItem) 
+        private async Task SetHeadersAndStatus(Node sampleItem) 
         {
             var headerDetails = await GetHeaderDetails(sampleItem.Name);
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");
             sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
+
+            if (!_cache.TryGetValue(sampleItem.Name, out Repository repository)) 
+            {
+                repository = await GetRepository(sampleItem.Name);
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                _cache.Set(sampleItem.Name, repository, cacheEntryOptions);
+            }
+            sampleItem.SampleStatus = repository.highestStatus;
+            
         }
         
         /// <summary>
@@ -163,7 +183,7 @@ namespace SamplesDashboard.Services
                 var dependencies = dependencyManifest?.Dependencies?.Nodes;
                 if (dependencies == null) 
                     continue;
-
+                PackageStatus highestStatus = PackageStatus.Unknown;
                 // Go through each dependency in the dependency manifest
                 foreach (var dependency in dependencies)
                 {
@@ -190,13 +210,21 @@ namespace SamplesDashboard.Services
                     dependency.latestVersion = latestVersion;
                     dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                 }
-            }            
+                //getting the highest status from a dependency node
+                highestStatus = HighestStatus(dependencies);
+
+                //comparing the highest statuses from different nodes
+                if (highestStatus > repository.highestStatus)
+                {
+                    repository.highestStatus = highestStatus;
+                }
+            }
             return repository;
         }
         /// <summary>
         /// Calculate the status of a sample
         /// </summary>
-        /// <param name="sampleVersion">The current version of thr sample</param>
+        /// <param name="sampleVersion">The current version of the sample</param>
         /// <param name="latestVersion">The latest version of the sample</param>
         /// <returns><see cref="PackageStatus"/> of the sample Version </returns>
         internal PackageStatus CalculateStatus(string sampleVersion, string latestVersion)
@@ -249,7 +277,16 @@ namespace SamplesDashboard.Services
                 return PackageStatus.Unknown;
             }
         }
-
+        /// <summary>
+        /// Get dependency statuses from a sample and return the highest status
+        /// </summary>
+        /// <param name="dependencies"> Dependencies in a sample</param>
+        /// <returns><see cref="PackageStatus"/>The highest PackageStatus from dependencies</returns>
+        private PackageStatus HighestStatus(DependenciesNode[] dependencies)
+        {
+                PackageStatus[] statuses = dependencies.Select(dependency => dependency.status).ToArray();
+                return statuses.Max();
+        }
         /// <summary>
         /// Get header details list from the parsed yaml header
         /// </summary>

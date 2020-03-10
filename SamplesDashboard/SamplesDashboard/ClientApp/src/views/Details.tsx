@@ -55,7 +55,9 @@ export default class Details extends React.Component<any, any> {
         const response = await fetch('api/samples/' + repositoryName);
         const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
-            this.allItems = data.dependencyGraphManifests.nodes[0].dependencies.nodes;
+            for (let index = 0; index < data.dependencyGraphManifests.nodes.length; index++) {
+                data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) => this.allItems.push(element));
+            }
         }
         this.setState({
             items: this.allItems,
@@ -74,10 +76,13 @@ export default class Details extends React.Component<any, any> {
         return (
             <Fabric>
                 <div>
-                    <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
+                    
                     { isLoading ?
                         <div /> :
-                        <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository </PrimaryButton> 
+                        <div>
+                            <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
+                            <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository </PrimaryButton> 
+                        </div>
                     }
                     <ShimmeredDetailsList
                         items={items}
