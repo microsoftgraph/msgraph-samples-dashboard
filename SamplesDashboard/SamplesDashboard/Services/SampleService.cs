@@ -155,11 +155,7 @@ namespace SamplesDashboard.Services
 
             var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request); 
            
-            var repository = await UpdateRepositoryStatus(graphQLResponse.Data?.Organization.Repository);
-            //if (graphQLResponse.Data.Organization.Repository.DependencyGraphManifests.Nodes.Length == 0)
-            //{
-            //    return null;
-            //}
+            var repository = await UpdateRepositoryStatus(graphQLResponse.Data?.Organization.Repository);           
             return repository;
         }
 
