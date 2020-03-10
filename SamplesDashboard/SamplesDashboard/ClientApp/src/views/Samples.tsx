@@ -19,6 +19,14 @@ initializeIcons();
 const detailListClass = mergeStyles({
     display: 'block',
     marginBottom: '10px'
+
+});
+
+const iconClass = mergeStyles({
+    fontSize: 15,
+    height: 15,
+    width: 15,
+    margin: '0 5px'
 });
 
 const classNames = mergeStyleSets({
@@ -31,10 +39,13 @@ const classNames = mergeStyleSets({
     pageTitle: {
         fontSize: FontSizes.large
     },
-    yellow: {
+    yellow: [{
         color: '#ffaa44',
-        paddingRight: '5px'
-    }
+        marginRight: '5px'
+    }, iconClass],
+    green: [{ color: '#498205' }, iconClass],
+    red: [{ color: '#d13438' }, iconClass],
+    blue: [{ color: '#0078d4' }, iconClass]
 });
 
 export default class Samples extends React.Component<{ isAuthenticated: boolean }, ISamplesState> {
@@ -50,15 +61,15 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
                 isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
-                key: 'login', name: 'Owner', fieldName: 'login', minWidth: 100, maxWidth: 150,
+                key: 'login', name: 'Owner', fieldName: 'login', minWidth: 75, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'status', name: 'Status', fieldName: 'status', minWidth: 100, maxWidth: 150,
+                key: 'status', name: 'Status', fieldName: 'sampleStatus', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'language', name: 'Language', fieldName: 'language', minWidth: 100, maxWidth: 150,
+                key: 'language', name: 'Language', fieldName: 'language', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -66,15 +77,15 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
                 maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'issueCount', name: 'Open Issues', fieldName: 'issues', minWidth: 100, maxWidth: 150,
+                key: 'issueCount', name: 'Open Issues', fieldName: 'issues', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 100, maxWidth: 100,
+                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 100, maxWidth: 100,
+                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -86,7 +97,7 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
         if (this.props.isAuthenticated) {
             columns.push({
                 key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'vulnerabilityAlerts',
-                minWidth: 100, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick
+                minWidth: 75, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick
             });
         }
 
@@ -201,7 +212,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
     const col = column as IColumn;
     const sampleName = item.name;
     const owner = item.owner.login;
-    const status = item.status;
+    const status = item.sampleStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
     const issueCount = item.issues.totalCount;
@@ -221,7 +232,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <span>{owner} </span>;
 
         case 'Status':
-            return <span>{status} </span>;
+            return checkStatus(status);
 
         case 'Language':
             return <span>{language}</span>;
@@ -270,7 +281,10 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
         // Use toUpperCase() to ignore character casing
         valueA = a.toUpperCase();
         valueB = b.toUpperCase();;
-    } else {
+    } else if (typeof a == 'number' && typeof b == 'number') {
+        valueA = a;
+        valueB = b;
+    }else {
         // its an object which has a totalCount property
         valueA = a.totalCount;
         valueB = b.totalCount;
@@ -288,3 +302,22 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
 
     return comparison;
 }
+
+function checkStatus(status: number) {
+    switch (status) {
+        case 0:
+            return <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>;
+
+        case 1:
+            return <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>;
+
+        case 2:
+            return <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>;
+
+        case 3:
+            return <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>;
+    }
+
+}
+
+

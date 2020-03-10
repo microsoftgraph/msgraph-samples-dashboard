@@ -4,7 +4,7 @@ export interface ISampleItem {
     key: number;
     name: string;
     owner: any;
-    status: string;
+    sampleStatus: any;
     language: string;
     pullRequests: any;
     issues: any;
