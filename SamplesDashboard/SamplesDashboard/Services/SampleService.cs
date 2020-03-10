@@ -79,12 +79,24 @@ namespace SamplesDashboard.Services
             foreach (var sampleItem in graphQLResponse?.Data?.Search.Nodes)
             {
                 Task headerTask = SetHeaders(sampleItem);
+                Task checkDependencies = CheckDependencies(sampleItem);
                 TaskList.Add(headerTask);
+                TaskList.Add(checkDependencies);
             }
 
-            await Task.WhenAll(TaskList);
-            return graphQLResponse?.Data?.Search.Nodes;
+            await Task.WhenAll(TaskList);           
+            return graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
         }
+
+        private async Task CheckDependencies(Node sampleItem)
+        {
+            var repository = await GetRepository(sampleItem.Name);
+            if (repository.DependencyGraphManifests?.Nodes?.Length > 0)
+            {
+                sampleItem.HasDependendencies = true;
+            }
+        }
+
 
         /// <summary>
         ///Getting header details and setting the language and featureArea items        
@@ -139,8 +151,13 @@ namespace SamplesDashboard.Services
                 Variables = new { sample = sampleName }
             };
 
-            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
-            var repository =await UpdateRepositoryStatus(graphQLResponse.Data.Organization.Repository);
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request); 
+           
+            var repository = await UpdateRepositoryStatus(graphQLResponse.Data?.Organization.Repository);
+            //if (graphQLResponse.Data.Organization.Repository.DependencyGraphManifests.Nodes.Length == 0)
+            //{
+            //    return null;
+            //}
             return repository;
         }
 

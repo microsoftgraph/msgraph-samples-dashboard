@@ -58,6 +58,8 @@ namespace SamplesDashboard
         public string Language { get; internal set; }
 
         public string FeatureArea { get; internal set; }
+
+        public bool HasDependendencies { get; set; }
     }
     public partial class Forks
     {
