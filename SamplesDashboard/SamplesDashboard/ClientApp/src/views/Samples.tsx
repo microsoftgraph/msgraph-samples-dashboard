@@ -236,7 +236,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
             return <a href={`${url}/network/members`} target="_blank" rel="noopener noreferrer"> <span>{forkCount} </span></a>;
 
         case 'Stars':
-            return <a href={`${url}`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
+            return <a href={`${url}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
 
         case 'Feature Area':
             return <span> {featureArea} </span>;

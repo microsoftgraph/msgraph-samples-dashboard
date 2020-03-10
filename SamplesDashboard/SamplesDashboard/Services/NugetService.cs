@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
+
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NuGet.Protocol.Core.Types;
@@ -10,6 +14,9 @@ using NuGet.Versioning;
 
 namespace SamplesDashboard.Services
 {
+    /// <summary>
+    /// This class contains methods for querying npm to get the latest package release versions
+    /// </summary>
     public class NugetService
     {
         private readonly SourceRepository _nugetRepository;
@@ -18,6 +25,12 @@ namespace SamplesDashboard.Services
         {
             _nugetRepository = NugetRepository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
         }
+
+        /// <summary>
+        /// Accesses Nuget's registry via index.json file(entry point) and fetches latest package release versions
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <returns>Latest version</returns>
         public async Task<string> GetLatestPackageVersion(string packageName)
         {
             using (SourceCacheContext cache = new SourceCacheContext())

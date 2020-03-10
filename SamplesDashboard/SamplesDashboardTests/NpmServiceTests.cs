@@ -11,29 +11,30 @@ using Xunit.Abstractions;
 
 namespace SamplesDashboardTests
 {
-    public class NugetServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
+    public class NpmServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
     {
-        private readonly NugetService _nugetService;
+        private readonly NpmService _npmService;
         private readonly ITestOutputHelper _helper;
 
-        public NugetServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
+        public NpmServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
         {
             _helper = helper;
-            _nugetService = applicationFactory.Services.GetService<NugetService>();
+            _npmService = applicationFactory.Services.GetService<NpmService>();
         }
 
         [Fact]
-        public async Task ShouldGetNugetVersions()
+        public async Task ShouldGetNpmVersions()
         {
             // Arrange
-            var packageName = "jQuery";
+            var packageName = "@hapi/boom";
 
             // Act
-            var latestVersion = await _nugetService.GetLatestPackageVersion(packageName);
+            var latestVersion = await _npmService.GetLatestVersion(packageName);
 
             //Assert
             Assert.NotNull(latestVersion);
-        }    
+
+        }
 
     }
 }

@@ -47,6 +47,7 @@ namespace SamplesDashboard
             });
             services.AddSingleton<SampleService>();
             services.AddSingleton<NugetService>();
+            services.AddSingleton<NpmService>();
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {
