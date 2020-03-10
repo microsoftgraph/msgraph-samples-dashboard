@@ -23,12 +23,14 @@ namespace SamplesDashboard.Services
         private readonly GraphQLHttpClient _graphQlClient;
         private readonly IHttpClientFactory _clientFactory;
         private readonly NugetService _nugetService;
+        private readonly NpmService _npmService;
 
-        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory, NugetService nugetService)
+        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory, NugetService nugetService, NpmService npmService)
         {
             _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
             _nugetService = nugetService;
+            _npmService = npmService;
         }
 
         /// <summary>
@@ -167,16 +169,26 @@ namespace SamplesDashboard.Services
                 {
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
-                    var latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
-                    // Update the status and calculate it 
-                    dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
-                    if(dependency.status == PackageStatus.Unknown && dependency.packageManager == "NUGET")
+
+                    //getting latest versions from the respective packagemanagers, and the default values from github
+                    string latestVersion;                    
+                    switch (dependency.packageManager)
                     {
-                        latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
-                        dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                        case "NUGET":
+                            latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
+                            break;
+
+                        case "NPM":
+                            latestVersion = await _npmService.GetLatestVersion(dependency.packageName);
+                            break;
+
+                        default:
+                            latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                            break;
                     }
 
                     dependency.latestVersion = latestVersion;
+                    dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                 }
             }            
             return repository;
