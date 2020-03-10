@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace SamplesDashboard
 {
-    public partial class Welcome
+    public partial class SampleData
     {
         [JsonProperty("data")]
         public Data Data { get; set; }
