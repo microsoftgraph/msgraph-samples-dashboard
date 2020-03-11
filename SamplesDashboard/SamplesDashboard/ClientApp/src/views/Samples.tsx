@@ -280,7 +280,8 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
     if (typeof a === 'string' || a instanceof String) {
         // Use toUpperCase() to ignore character casing
         valueA = a.toUpperCase();
-        valueB = b.toUpperCase();;
+        valueB = b.toUpperCase();
+        // its an item of type number
     } else if (typeof a == 'number' && typeof b == 'number') {
         valueA = a;
         valueB = b;

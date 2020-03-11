@@ -40,6 +40,8 @@ namespace SamplesDashboard.Services
         {
             _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
+            _cache = memoryCache;
+            _config = config;
             _nugetService = nugetService;
             _npmService = npmService;
             _cache = memoryCache;
@@ -94,7 +96,7 @@ namespace SamplesDashboard.Services
             List<Task> TaskList = new List<Task>();
             foreach (var sampleItem in graphQLResponse?.Data?.Search.Nodes)
             {
-                Task headerTask = SetHeaders(sampleItem);
+                Task headerTask = SetHeadersAndStatus(sampleItem);
                 TaskList.Add(headerTask);
             }
 
@@ -107,7 +109,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="sampleItem">A specific sample item from the samples list</param>
         /// <returns> A list of samples.</returns>
-        private async Task SetHeaders(Node sampleItem) 
+        private async Task SetHeadersAndStatus(Node sampleItem) 
         {
             
             Repository repository;
@@ -128,6 +130,15 @@ namespace SamplesDashboard.Services
             var headerDetails = await GetHeaderDetails(sampleItem.Name);
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");
             sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
+
+            if (!_cache.TryGetValue(sampleItem.Name, out Repository repository)) 
+            {
+                repository = await GetRepository(sampleItem.Name);
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                _cache.Set(sampleItem.Name, repository, cacheEntryOptions);
+            }
+            sampleItem.SampleStatus = repository.highestStatus;
+            
         }
         
         /// <summary>
@@ -221,7 +232,10 @@ namespace SamplesDashboard.Services
                     dependency.latestVersion = latestVersion;
                     dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                 }
+                //getting the highest status from a dependency node
                 highestStatus = HighestStatus(dependencies);
+
+                //comparing the highest statuses from different nodes
                 if (highestStatus > repository.highestStatus)
                 {
                     repository.highestStatus = highestStatus;
@@ -290,7 +304,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="dependencies"> Dependencies in a sample</param>
         /// <returns><see cref="PackageStatus"/>The highest PackageStatus from dependencies</returns>
-        internal PackageStatus HighestStatus(DependenciesNode[] dependencies)
+        private PackageStatus HighestStatus(DependenciesNode[] dependencies)
         {
                 PackageStatus[] statuses = dependencies.Select(dependency => dependency.status).ToArray();
                 return statuses.Max();
