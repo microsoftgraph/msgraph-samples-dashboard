@@ -129,15 +129,7 @@ namespace SamplesDashboard.Services
             sampleItem.SampleStatus = repository.highestStatus;
             var headerDetails = await GetHeaderDetails(sampleItem.Name);
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");
-            sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
-
-            if (!_cache.TryGetValue(sampleItem.Name, out Repository repository)) 
-            {
-                repository = await GetRepository(sampleItem.Name);
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
-                _cache.Set(sampleItem.Name, repository, cacheEntryOptions);
-            }
-            sampleItem.SampleStatus = repository.highestStatus;
+            sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");          
             
         }
         
