@@ -18,15 +18,14 @@ namespace SamplesDashboard.Services
 {
     /// <summary>
     ///  This class contains samples query services and functions to be used by the samples API
-    /// </summary>
-    
+    /// </summary>    
     public class SampleService
     {
         private readonly GraphQLHttpClient _graphQlClient;
         private readonly IHttpClientFactory _clientFactory;
         private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         private readonly IConfiguration _config;
 
 
@@ -40,13 +39,10 @@ namespace SamplesDashboard.Services
         {
             _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
-            _cache = memoryCache;
-            _config = config;
             _nugetService = nugetService;
             _npmService = npmService;
             _cache = memoryCache;
             _config = config;
-
         }
 
         /// <summary>
@@ -100,7 +96,9 @@ namespace SamplesDashboard.Services
                 TaskList.Add(headerTask);
             }
 
-            await Task.WhenAll(TaskList);           
+            await Task.WhenAll(TaskList);
+
+            //returning a list of only samples with dependencies
             return graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
         }
 
@@ -126,10 +124,13 @@ namespace SamplesDashboard.Services
                 _cache.Set(sampleItem.Name, repository, cacheEntryOptions);
             }    
             
-            sampleItem.SampleStatus = repository.highestStatus;
-            var headerDetails = await GetHeaderDetails(sampleItem.Name);
-            sampleItem.Language = headerDetails.GetValueOrDefault("languages");
-            sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");          
+            if(sampleItem.HasDependendencies == true)
+            {
+                sampleItem.SampleStatus = repository.highestStatus;
+                var headerDetails = await GetHeaderDetails(sampleItem.Name);
+                sampleItem.Language = headerDetails.GetValueOrDefault("languages");
+                sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
+            }                 
             
         }
         
@@ -291,6 +292,7 @@ namespace SamplesDashboard.Services
                 return PackageStatus.Unknown;
             }
         }
+
         /// <summary>
         /// Get dependency statuses from a sample and return the highest status
         /// </summary>
@@ -298,9 +300,10 @@ namespace SamplesDashboard.Services
         /// <returns><see cref="PackageStatus"/>The highest PackageStatus from dependencies</returns>
         private PackageStatus HighestStatus(DependenciesNode[] dependencies)
         {
-                PackageStatus[] statuses = dependencies.Select(dependency => dependency.status).ToArray();
-                return statuses.Max();
+            PackageStatus[] statuses = dependencies.Select(dependency => dependency.status).ToArray();
+            return statuses.Max();
         }
+
         /// <summary>
         /// Get header details list from the parsed yaml header
         /// </summary>
