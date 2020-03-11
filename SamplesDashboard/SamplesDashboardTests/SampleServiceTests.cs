@@ -31,15 +31,16 @@ namespace SamplesDashboardTests
         public async Task ShouldGetHeaderDetailsAsync()
         {
             //Arrange
-            var sampleName = "powershell-intune-samples";
+            var sampleName = "aspnetcore-connect-sample";
 
             //Act
             var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
+            _helper.WriteLine(headerDetails["languages"]);
 
             //Assert
             Assert.NotNull(headerDetails);
-            Assert.True(headerDetails["languages"] == "powershell");
-            Assert.True(headerDetails["services"] == "Intune");
+            Assert.True(headerDetails["languages"] == "aspx,csharp");
+            Assert.True(headerDetails["services"] == "Microsoft identity platform");
         }
 
         [Fact]
@@ -68,7 +69,6 @@ namespace SamplesDashboardTests
             var exampleSample = samples.Find((node) => node.Name.Equals(sampleName));
 
             Assert.NotEmpty(samples);
-            Assert.Equal(100, samples.Count);
             Assert.IsType<List<Node>>(samples);
             Assert.NotNull(exampleSample);
             Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
@@ -109,7 +109,7 @@ namespace SamplesDashboardTests
             Assert.Empty(nodes);
         }
 
-        [Fact(Skip = "Need to throttle e2e test")]
+        [Fact]
         public async Task ShouldGetSampleAndTrainingRepositories()
         {
             //Act
