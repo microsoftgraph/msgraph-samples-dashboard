@@ -11,6 +11,8 @@ using GraphQL;
 using GraphQL.Client.Http;
 using SamplesDashboard.Models;
 using Semver;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 
 namespace SamplesDashboard.Services
 {
@@ -24,13 +26,25 @@ namespace SamplesDashboard.Services
         private readonly IHttpClientFactory _clientFactory;
         private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
+        private IMemoryCache _cache;
+        private readonly IConfiguration _config;
 
-        public SampleService(GraphQLHttpClient graphQlClient, IHttpClientFactory clientFactory, NugetService nugetService, NpmService npmService)
+
+        public SampleService(
+            GraphQLHttpClient graphQlClient,
+            IHttpClientFactory clientFactory, 
+            NugetService nugetService,
+            NpmService npmService, 
+            IMemoryCache memoryCache,
+            IConfiguration config)
         {
             _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
             _nugetService = nugetService;
             _npmService = npmService;
+            _cache = memoryCache;
+            _config = config;
+
         }
 
         /// <summary>
@@ -81,24 +95,12 @@ namespace SamplesDashboard.Services
             foreach (var sampleItem in graphQLResponse?.Data?.Search.Nodes)
             {
                 Task headerTask = SetHeaders(sampleItem);
-                Task checkDependencies = CheckDependencies(sampleItem);
                 TaskList.Add(headerTask);
-                TaskList.Add(checkDependencies);
             }
 
             await Task.WhenAll(TaskList);           
             return graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
         }
-
-        private async Task CheckDependencies(Node sampleItem)
-        {
-            var repository = await GetRepository(sampleItem.Name);
-            if (repository.DependencyGraphManifests?.Nodes?.Length > 0)
-            {
-                sampleItem.HasDependendencies = true;
-            }
-        }
-
 
         /// <summary>
         ///Getting header details and setting the language and featureArea items        
@@ -107,9 +109,23 @@ namespace SamplesDashboard.Services
         /// <returns> A list of samples.</returns>
         private async Task SetHeaders(Node sampleItem) 
         {
-            var headerDetails = await GetHeaderDetails(sampleItem.Name);
-            var repository = await GetRepository(sampleItem.Name);
+            
+            Repository repository;
+            if (!_cache.TryGetValue(sampleItem.Name, out repository))
+            {
+                repository = await GetRepository(sampleItem.Name);
+
+                if (repository.DependencyGraphManifests?.Nodes?.Length > 0)
+                {
+                    sampleItem.HasDependendencies = true;
+                }
+
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                _cache.Set(sampleItem.Name, repository, cacheEntryOptions);
+            }    
+            
             sampleItem.SampleStatus = repository.highestStatus;
+            var headerDetails = await GetHeaderDetails(sampleItem.Name);
             sampleItem.Language = headerDetails.GetValueOrDefault("languages");
             sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
         }
