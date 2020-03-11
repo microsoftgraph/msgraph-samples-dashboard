@@ -109,7 +109,7 @@ namespace SamplesDashboardTests
             Assert.Empty(nodes);
         }
 
-        [Fact(Skip = "Need to throttle e2e test")]
+        [Fact]
         public async Task ShouldGetSampleAndTrainingRepositories()
         {
             //Act
