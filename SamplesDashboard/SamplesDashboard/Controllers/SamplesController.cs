@@ -29,13 +29,13 @@ namespace SamplesDashboard.Controllers
         [Produces("application/json")]
         [Route("api/[controller]")]
         [HttpGet]
-        public async Task<IActionResult> GetSamplesListAsync(string endCursor)
+        public async Task<IActionResult> GetSamplesListAsync()
         {
             
             List<Node> samples;
             if (!_cache.TryGetValue("samples", out samples))
             {
-                samples = await _sampleService.GetSamples(endCursor);
+                samples = await _sampleService.GetSamples();
 
                 //Read timeout from config file 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));

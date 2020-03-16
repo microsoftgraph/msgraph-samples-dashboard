@@ -49,19 +49,22 @@ namespace SamplesDashboard.Services
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
         /// <returns> A list of samples.</returns>
-        public async Task<List<Node>> GetSamples(string endCursor)
+        public async Task<List<Node>> GetSamples(string endCursor = null)
         {
             // Request to fetch the list of samples for graph
+            string cursorString = "";
 
+            if (!string.IsNullOrEmpty(endCursor))
+            {
+                cursorString = $", after:{endCursor}";
+            }
             var request = new GraphQLRequest
             {
                 Query = @"
-	            {
-                query AllSamples($after : String!)
-                  {search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100 , after: $after) {
+	            {              
+                  search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100 "+ $"{cursorString}" + @" ) {
                         nodes {
                                 ... on Repository {
-                                    idh
                                     name
                                     owner {
                                         login
@@ -87,8 +90,7 @@ namespace SamplesDashboard.Services
                         pageInfo {
                               endCursor
                               hasNextPage
-                           }
-                       }
+                           }                       
                     }
                 }",
                 Variables = new {after = endCursor } 
@@ -107,20 +109,17 @@ namespace SamplesDashboard.Services
             //returning a list of only samples with dependencies
             var samples = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
 
-
-            //Taking the next 100 samples till all samples are retrieved(paginating using endCursor object)
+            //Taking the next 100 samples(paginating using endCursor object)
             var hasNextPage = graphQLResponse?.Data?.Search.PageInfo.HasNextPage;
             endCursor = graphQLResponse?.Data?.Search.PageInfo.EndCursor;
-            var allSamples = new List<Node>();
 
             if (hasNextPage == true)
             {
                 var nextSamples = await GetSamples(endCursor);
-                allSamples.AddRange(nextSamples);
+                samples.AddRange(nextSamples);
             }
 
-            allSamples.AddRange(samples);
-            return allSamples;
+            return samples;
             
         }      
 
