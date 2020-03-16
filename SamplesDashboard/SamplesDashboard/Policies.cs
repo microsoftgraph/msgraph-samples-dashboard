@@ -21,7 +21,7 @@ namespace SamplesDashboard
                 .HandleTransientHttpError()
                 .OrResult(msg =>
                     msg.StatusCode == HttpStatusCode.Forbidden)
-                .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2,
+                .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2,
                     retryAttempt)));
         }
     }

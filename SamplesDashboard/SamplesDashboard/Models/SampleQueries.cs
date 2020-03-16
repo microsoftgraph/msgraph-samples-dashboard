@@ -25,6 +25,9 @@ namespace SamplesDashboard
     {
         [JsonProperty("nodes")]
         public List<Node> Nodes { get; set; }
+
+        [JsonProperty("pageInfo")]
+        public PageInfo PageInfo { get; set; }
     }
     public partial class Node
     {
@@ -76,6 +79,14 @@ namespace SamplesDashboard
     {
         [JsonProperty("login")]
         public string Login { get; set; }
+    }
+    public partial class PageInfo
+    {
+        [JsonProperty("endCursor")]
+        public string EndCursor { get; set; }
+
+        [JsonProperty("hasNextPage")]
+        public bool HasNextPage { get; set; }
     }
     public class Organization
     {

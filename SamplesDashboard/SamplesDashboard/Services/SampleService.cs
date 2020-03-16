@@ -31,9 +31,9 @@ namespace SamplesDashboard.Services
 
         public SampleService(
             GraphQLHttpClient graphQlClient,
-            IHttpClientFactory clientFactory, 
+            IHttpClientFactory clientFactory,
             NugetService nugetService,
-            NpmService npmService, 
+            NpmService npmService,
             IMemoryCache memoryCache,
             IConfiguration config)
         {
@@ -49,18 +49,19 @@ namespace SamplesDashboard.Services
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
         /// <returns> A list of samples.</returns>
-        public async Task<List<Node>> GetSamples()
-        { 
+        public async Task<List<Node>> GetSamples(string endCursor)
+        {
             // Request to fetch the list of samples for graph
 
             var request = new GraphQLRequest
             {
                 Query = @"
 	            {
-                  search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100) {
+                query AllSamples($after : String!)
+                  {search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100 , after: $after) {
                         nodes {
                                 ... on Repository {
-                                    id
+                                    idh
                                     name
                                     owner {
                                         login
@@ -83,10 +84,16 @@ namespace SamplesDashboard.Services
                                     }
                                 }
                             }
-                        }
-                }"
+                        pageInfo {
+                              endCursor
+                              hasNextPage
+                           }
+                       }
+                    }
+                }",
+                Variables = new {after = endCursor } 
             };
-            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);          
 
             // Fetch yaml headers and compute header values in parallel
             List<Task> TaskList = new List<Task>();
@@ -94,13 +101,28 @@ namespace SamplesDashboard.Services
             {
                 Task headerTask = SetHeadersAndStatus(sampleItem);
                 TaskList.Add(headerTask);
-            }
+            } 
 
             await Task.WhenAll(TaskList);
-
             //returning a list of only samples with dependencies
-            return graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
-        }
+            var samples = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
+
+
+            //Taking the next 100 samples till all samples are retrieved(paginating using endCursor object)
+            var hasNextPage = graphQLResponse?.Data?.Search.PageInfo.HasNextPage;
+            endCursor = graphQLResponse?.Data?.Search.PageInfo.EndCursor;
+            var allSamples = new List<Node>();
+
+            if (hasNextPage == true)
+            {
+                var nextSamples = await GetSamples(endCursor);
+                allSamples.AddRange(nextSamples);
+            }
+
+            allSamples.AddRange(samples);
+            return allSamples;
+            
+        }      
 
         /// <summary>
         ///Getting header details and setting the language and featureArea items        
@@ -338,10 +360,10 @@ namespace SamplesDashboard.Services
         {
             //downloading the yaml file
             var httpClient = _clientFactory.CreateClient();
-            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
+            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/README.md"));
 
             if (responseMessage.StatusCode.ToString().Equals("NotFound"))
-                responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/README.md"));
+                responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
 
             if (responseMessage.IsSuccessStatusCode)
             {

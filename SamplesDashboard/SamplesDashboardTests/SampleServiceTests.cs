@@ -65,7 +65,7 @@ namespace SamplesDashboardTests
             var sampleName = "msgraph-training-aspnetmvcapp";
 
             // Act
-            var samples = await _sampleService.GetSamples();
+            var samples = await _sampleService.GetSamples(endCursor);
             var exampleSample = samples.Find((node) => node.Name.Equals(sampleName));
 
             Assert.NotEmpty(samples);
