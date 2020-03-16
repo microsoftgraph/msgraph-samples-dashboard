@@ -56,7 +56,7 @@ namespace SamplesDashboard.Services
 
             if (!string.IsNullOrEmpty(endCursor))
             {
-                cursorString = $", after:{endCursor}";
+                cursorString = $", after:\"{endCursor}\"";
             }
             var request = new GraphQLRequest
             {
@@ -92,8 +92,7 @@ namespace SamplesDashboard.Services
                               hasNextPage
                            }                       
                     }
-                }",
-                Variables = new {after = endCursor } 
+                }"
             };
             var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);          
 
@@ -172,7 +171,7 @@ namespace SamplesDashboard.Services
                                 dependencyGraphManifests(withDependencies: true) {
                                     nodes {
                                         filename
-                                        dependencies(first: 10) {
+                                        dependencies(first: 100) {
                                             nodes {
                                                 packageManager
                                                 packageName
