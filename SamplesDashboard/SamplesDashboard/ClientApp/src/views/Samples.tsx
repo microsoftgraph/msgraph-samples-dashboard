@@ -58,7 +58,7 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
         const columns: IColumn[] = [
             {
                 key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true,
-                isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this.onColumnClick
+                isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
                 key: 'login', name: 'Owner', fieldName: 'login', minWidth: 75, maxWidth: 150,
