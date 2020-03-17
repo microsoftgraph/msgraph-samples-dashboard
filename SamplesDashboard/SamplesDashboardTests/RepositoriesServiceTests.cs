@@ -134,15 +134,15 @@ namespace SamplesDashboardTests
             var packageManager = "NUGET";
 
             //Act
-            var dependencies = await _repositoriesService.GetRepository(name);
-            var res = dependencies.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
-            var library = dependencies.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageName)).Contains("Microsoft.Graph");
+            var repository = await _repositoriesService.GetRepository(name);
+            var res = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
+            var library = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageName)).Contains("Microsoft.Graph");
 
             //Assert
-            Assert.NotNull(dependencies);
+            Assert.NotNull(repository);
             Assert.True(library);
             Assert.Equal(packageManager, res.FirstOrDefault());
-            Assert.IsType<Repository>(dependencies);
+            Assert.IsType<Repository>(repository);
 
         }
 
@@ -153,11 +153,11 @@ namespace SamplesDashboardTests
             var name = "powershell-intune-samples";
 
             //Act
-            var dependencies = await _repositoriesService.GetRepository(name);
-            var nodes = dependencies.DependencyGraphManifests.Nodes.Select(n => n.Dependencies.Nodes);
+            var repository = await _repositoriesService.GetRepository(name);
+            var nodes = repository.DependencyGraphManifests.Nodes.Select(n => n.Dependencies.Nodes);
 
             //Assert
-            Assert.NotNull(dependencies);
+            Assert.NotNull(repository);
             Assert.Empty(nodes);
         }       
 

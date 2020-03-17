@@ -133,27 +133,19 @@ namespace SamplesDashboard.Services
             Repository repository;
             if (!_cache.TryGetValue(repoItem.Name, out repository))
             {
-                repository = await GetRepository(repoItem.Name);
-
-                if (repository?.DependencyGraphManifests?.Nodes?.Length > 0)
-                {
-                    repoItem.HasDependendencies = true;
-                }
-
+                repository = await GetRepository(repoItem.Name);            
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
                 _cache.Set(repoItem.Name, repository, cacheEntryOptions);
-            }    
-            
-            if(repoItem.HasDependendencies == true)
+            }
+
+            if (repository?.DependencyGraphManifests?.Nodes?.Length > 0)
             {
-                if (repository != null)
-                {
-                    repoItem.RepositoryStatus = repository.highestStatus;
-                }
+                repoItem.HasDependendencies = true;
+                repoItem.RepositoryStatus = repository.highestStatus;
                 var headerDetails = await GetHeaderDetails(repoItem.Name);
                 repoItem.Language = headerDetails.GetValueOrDefault("languages");
                 repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
-            }                 
+            }              
             
         }
         
