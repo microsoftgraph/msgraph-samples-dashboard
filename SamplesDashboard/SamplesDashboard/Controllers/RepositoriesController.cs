@@ -13,29 +13,30 @@ using SamplesDashboard.Services;
 namespace SamplesDashboard.Controllers
 {
     [ApiController]
-    public class SamplesController : Controller
+    public class RepositoriesController : Controller
     {
-        private readonly SampleService _sampleService;
+        private readonly RepositoriesService _repositoriesService;
         private IMemoryCache _cache;
         private readonly IConfiguration _config;
 
-        public SamplesController(SampleService sampleService, IMemoryCache memoryCache, IConfiguration config)
+        public RepositoriesController(RepositoriesService repositoriesService, IMemoryCache memoryCache, IConfiguration config)
         {
-            _sampleService = sampleService;
+            _repositoriesService = repositoriesService;
             _cache = memoryCache;
             _config = config;
         }
 
         [Produces("application/json")]
-        [Route("api/[controller]")]
+        [Route("api/samples")]
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            
+            string name = " sample OR training";
             List<Node> samples;
+
             if (!_cache.TryGetValue("samples", out samples))
             {
-                samples = await _sampleService.GetSamples();
+                samples = await _repositoriesService.GetRepositories(name);
 
                 //Read timeout from config file 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
@@ -48,13 +49,35 @@ namespace SamplesDashboard.Controllers
         }
 
         [Produces("application/json")]
+        [Route("api/sdks")]
+        [HttpGet]
+        public async Task<IActionResult> GetSdksListAsync()
+        {
+            string name = " sdk";
+            List<Node> sdkList;
+
+            if (!_cache.TryGetValue("sdks", out sdkList))
+            {
+                sdkList = await _repositoriesService.GetRepositories(name);
+
+                //Read timeout from config file 
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+
+                // Save data in cache.
+                _cache.Set("sdks", sdkList, cacheEntryOptions);
+            }
+
+            return Ok(sdkList);
+        }
+
+        [Produces("application/json")]
         [Route("api/[controller]/{id}")]
         public async Task<IActionResult> GetRepositoriesAsync(string id)
         {
             Repository repository;
             if (!_cache.TryGetValue(id, out repository))
             {
-                repository = await _sampleService.GetRepository(id);
+                repository = await _repositoriesService.GetRepository(id);
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
                 _cache.Set(id, repository, cacheEntryOptions);
             }

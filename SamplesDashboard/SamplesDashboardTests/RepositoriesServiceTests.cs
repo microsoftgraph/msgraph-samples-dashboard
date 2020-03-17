@@ -16,15 +16,15 @@ using System;
 
 namespace SamplesDashboardTests
 {
-    public class SampleServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
+    public class RepositoriesServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
     {
         private readonly ITestOutputHelper _helper;
-        private readonly SampleService _sampleService;
+        private readonly RepositoriesService _repositoriesService;
 
-        public SampleServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
+        public RepositoriesServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
         {
             _helper = helper;
-            _sampleService = applicationFactory.Services.GetService<SampleService>();
+            _repositoriesService = applicationFactory.Services.GetService<RepositoriesService>();
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace SamplesDashboardTests
             var sampleName = "aspnetcore-connect-sample";
 
             //Act
-            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
             _helper.WriteLine(headerDetails["languages"]);
 
             //Assert
@@ -50,7 +50,7 @@ namespace SamplesDashboardTests
             var sampleName = "uwp-csharp-excel-snippets-rest-sample";
 
             //Act
-            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
 
             //Assert
             Assert.NotNull(headerDetails);
@@ -63,15 +63,67 @@ namespace SamplesDashboardTests
         {
             // Arrange
             var sampleName = "msgraph-training-aspnetmvcapp";
+            string name = " sample OR training";
 
             // Act
-            var samples = await _sampleService.GetSamples();
+            var samples = await _repositoriesService.GetRepositories(name);
             var exampleSample = samples.Find((node) => node.Name.Equals(sampleName));
 
             Assert.NotEmpty(samples);
             Assert.IsType<List<Node>>(samples);
             Assert.NotNull(exampleSample);
             Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
+        }
+
+        [Fact]
+        public async Task ShouldGetSdksList()
+        {
+            // Arrange
+            var sdkName = "msgraph-sdk-dotnet";
+            string name = " sdk";
+
+            // Act
+            var sdks = await _repositoriesService.GetRepositories(name);
+            var exampleSdk = sdks.Find((node) => node.Name.Equals(sdkName));
+
+            Assert.NotEmpty(sdks);
+            Assert.IsType<List<Node>>(sdks);
+            Assert.NotNull(exampleSdk);
+            Assert.Equal("microsoftgraph", exampleSdk.Owner.Login);
+        }
+
+        [Fact]
+        public async Task ShouldGetSampleAndTrainingRepositories()
+        {
+            //Arrange
+            string name = " sample OR training";
+
+            //Act
+            var samples = await _repositoriesService.GetRepositories(name);
+            var sampleList = samples.Select(n => n.Name);
+
+            //Assert
+            foreach (string sample in sampleList)
+            {
+                Assert.True(sample.Contains("sample", StringComparison.OrdinalIgnoreCase) || sample.Contains("training", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+
+        [Fact]
+        public async Task ShouldGetSdksRepositories()
+        {
+            //Arrange
+            string name = " sdk";
+
+            //Act
+            var sdks = await _repositoriesService.GetRepositories(name);
+            var sdkList = sdks.Select(n => n.Name);
+
+            //Assert
+            foreach (string sdk in sdkList)
+            {
+                Assert.True(sdk.Contains("sdk", StringComparison.OrdinalIgnoreCase));
+            }
         }
 
         [Fact]
@@ -82,15 +134,15 @@ namespace SamplesDashboardTests
             var packageManager = "NUGET";
 
             //Act
-            var dependencies = await _sampleService.GetRepository(name);
-            var res = dependencies.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
-            var library = dependencies.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageName)).Contains("Microsoft.Graph");
+            var repository = await _repositoriesService.GetRepository(name);
+            var res = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
+            var library = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageName)).Contains("Microsoft.Graph");
 
             //Assert
-            Assert.NotNull(dependencies);
+            Assert.NotNull(repository);
             Assert.True(library);
             Assert.Equal(packageManager, res.FirstOrDefault());
-            Assert.IsType<Repository>(dependencies);
+            Assert.IsType<Repository>(repository);
 
         }
 
@@ -101,27 +153,13 @@ namespace SamplesDashboardTests
             var name = "powershell-intune-samples";
 
             //Act
-            var dependencies = await _sampleService.GetRepository(name);
-            var nodes = dependencies.DependencyGraphManifests.Nodes.Select(n => n.Dependencies.Nodes);
+            var repository = await _repositoriesService.GetRepository(name);
+            var nodes = repository.DependencyGraphManifests.Nodes.Select(n => n.Dependencies.Nodes);
 
             //Assert
-            Assert.NotNull(dependencies);
+            Assert.NotNull(repository);
             Assert.Empty(nodes);
-        }
-
-        [Fact]
-        public async Task ShouldGetSampleAndTrainingRepositories()
-        {
-            //Act
-            var samples = await _sampleService.GetSamples();
-            var sampleList = samples.Select(n => n.Name);
-
-            //Assert
-            foreach(string sample in sampleList)
-            {
-                Assert.True(sample.Contains("sample",StringComparison.OrdinalIgnoreCase) || sample.Contains("training", StringComparison.OrdinalIgnoreCase));
-            }
-        }
+        }       
 
         [Theory]
         [InlineData("1.2.3", "1.2.3", PackageStatus.UpToDate)]
@@ -143,7 +181,7 @@ namespace SamplesDashboardTests
         public void ShouldDetermineStatusFromVersion(string sampleVersion, string latestVersion, PackageStatus expectedStatus)
         {
             // Act
-            var sampleStatus = _sampleService.CalculateStatus(sampleVersion, latestVersion);
+            var sampleStatus = _repositoriesService.CalculateStatus(sampleVersion, latestVersion);
 
             // Assert
             Assert.Equal(expectedStatus, sampleStatus);
@@ -156,8 +194,8 @@ namespace SamplesDashboardTests
             var sample = "msgraph-training-phpapp";
 
             //Act 
-            var dependency = await _sampleService.GetRepository(sample);
-            var latestVersion = _sampleService.UpdateRepositoryStatus(dependency).ToString();
+            var dependency = await _repositoriesService.GetRepository(sample);
+            var latestVersion = _repositoriesService.UpdateRepositoryStatus(dependency).ToString();
 
             Assert.NotNull(latestVersion);
         }
