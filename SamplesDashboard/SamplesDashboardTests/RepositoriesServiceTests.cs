@@ -181,10 +181,10 @@ namespace SamplesDashboardTests
         public void ShouldDetermineStatusFromVersion(string sampleVersion, string latestVersion, PackageStatus expectedStatus)
         {
             // Act
-            var sampleStatus = _repositoriesService.CalculateStatus(sampleVersion, latestVersion);
+            var repositoryStatus = _repositoriesService.CalculateStatus(sampleVersion, latestVersion);
 
             // Assert
-            Assert.Equal(expectedStatus, sampleStatus);
+            Assert.Equal(expectedStatus, repositoryStatus);
         }
 
         [Fact]

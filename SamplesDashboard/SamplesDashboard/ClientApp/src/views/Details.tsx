@@ -52,7 +52,7 @@ export default class Details extends React.Component<any, any> {
         this.setState({ isLoading: true });
         const { match: { params } } = this.props;
         const repositoryName = params.name;
-        const response = await fetch('api/samples/' + repositoryName);
+        const response = await fetch('api/repositories/' + repositoryName);
         const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
             for (let index = 0; index < data.dependencyGraphManifests.nodes.length; index++) {
@@ -67,8 +67,7 @@ export default class Details extends React.Component<any, any> {
             },
             isLoading: false
         });
-    }    
-    
+    }        
 
     public render(): JSX.Element {
         const { columns, items, repositoryDetails, isLoading } = this.state;
