@@ -48,10 +48,10 @@ const classNames = mergeStyleSets({
     blue: [{ color: '#0078d4' }, iconClass]
 });
 
-export default class Samples extends React.Component<{ isAuthenticated: boolean }, ISamplesState> {
+export default class Samples extends React.Component<{ isAuthenticated: boolean, title: string }, ISamplesState> {
     private allItems: ISampleItem[];
 
-    constructor(props: { isAuthenticated: boolean }) {
+    constructor(props: { isAuthenticated: boolean, title: string }) {
         super(props);
 
         this.allItems = [];
@@ -109,10 +109,16 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
     }
 
     public componentDidMount = () => {
-        this.fetchData();
+        if (this.props.title === "samples") {
+            this.fetchData();
+        }
+        else if (this.props.title === "sdks") {
+            this.fetchSDKs();
+        }
+
     }
 
-    // fetching the data from the api
+    // fetching the samples data from the samples api
     public fetchData = async () => {
         this.setState({ isLoading: true });
         const response = await fetch('api/samples');
@@ -125,12 +131,26 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
             });
     }
 
+    //fetching the sdk data from the sdk api
+    public fetchSDKs = async () => {
+        this.setState({ isLoading: true });
+        const response = await fetch('api/sdks');
+        const data = await response.json();
+        this.allItems = data;
+        this.setState(
+            {
+                items: this.allItems,
+                isLoading: false
+            });
+    }
+
+
     public render(): JSX.Element {
         const { columns, items, isLoading } = this.state;
 
         return (
             <Fabric>
-                <PageTitle title='List of samples' />
+                <PageTitle title={'List of ' + this.props.title} />
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
