@@ -31,11 +31,12 @@ namespace SamplesDashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            
+            string name = " sample OR training";
             List<Node> samples;
+
             if (!_cache.TryGetValue("samples", out samples))
             {
-                samples = await _sampleService.GetSamples();
+                samples = await _sampleService.GetSamples(name);
 
                 //Read timeout from config file 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
