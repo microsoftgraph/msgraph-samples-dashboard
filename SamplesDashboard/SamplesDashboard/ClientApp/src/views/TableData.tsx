@@ -48,7 +48,7 @@ const classNames = mergeStyleSets({
     blue: [{ color: '#0078d4' }, iconClass]
 });
 
-export default class Samples extends React.Component<{ isAuthenticated: boolean, title: string }, ISamplesState> {
+export default class TableData extends React.Component<{ isAuthenticated: boolean, title: string }, ISamplesState> {
     private allItems: ISampleItem[];
 
     constructor(props: { isAuthenticated: boolean, title: string }) {
