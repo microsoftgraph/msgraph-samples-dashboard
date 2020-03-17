@@ -79,17 +79,17 @@ namespace SamplesDashboardTests
         public async Task ShouldGetSdksList()
         {
             // Arrange
-            var sampleName = "msgraph-sdk-dotnet";
+            var sdkName = "msgraph-sdk-dotnet";
             string name = " sdk";
 
             // Act
             var sdks = await _repositoriesService.GetRepositories(name);
-            var exampleSample = sdks.Find((node) => node.Name.Equals(sampleName));
+            var exampleSdk = sdks.Find((node) => node.Name.Equals(sdkName));
 
             Assert.NotEmpty(sdks);
             Assert.IsType<List<Node>>(sdks);
-            Assert.NotNull(exampleSample);
-            Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
+            Assert.NotNull(exampleSdk);
+            Assert.Equal("microsoftgraph", exampleSdk.Owner.Login);
         }
 
         [Fact]
