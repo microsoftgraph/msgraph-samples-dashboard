@@ -63,15 +63,66 @@ namespace SamplesDashboardTests
         {
             // Arrange
             var sampleName = "msgraph-training-aspnetmvcapp";
+            string name = " sample OR training";
 
             // Act
-            var samples = await _sampleService.GetSamples();
+            var samples = await _sampleService.GetSamples(name);
             var exampleSample = samples.Find((node) => node.Name.Equals(sampleName));
 
             Assert.NotEmpty(samples);
             Assert.IsType<List<Node>>(samples);
             Assert.NotNull(exampleSample);
             Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
+        }
+
+        [Fact]
+        public async Task ShouldGetSdksList()
+        {
+            // Arrange
+            var sampleName = "msgraph-sdk-dotnet";
+            string name = " sdk";
+
+            // Act
+            var sdks = await _sampleService.GetSamples(name);
+            var exampleSample = sdks.Find((node) => node.Name.Equals(sampleName));
+
+            Assert.NotEmpty(sdks);
+            Assert.IsType<List<Node>>(sdks);
+            Assert.NotNull(exampleSample);
+            Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
+        }
+
+        [Fact]
+        public async Task ShouldGetSampleAndTrainingRepositories()
+        {
+            //Arrange
+            string name = " sample OR training";
+
+            //Act
+            var samples = await _sampleService.GetSamples(name);
+            var sampleList = samples.Select(n => n.Name);
+
+            //Assert
+            foreach (string sample in sampleList)
+            {
+                Assert.True(sample.Contains("sample", StringComparison.OrdinalIgnoreCase) || sample.Contains("training", StringComparison.OrdinalIgnoreCase));
+            }
+        }
+        [Fact]
+        public async Task ShouldGetSdksRepositories()
+        {
+            //Arrange
+            string name = " sdk";
+
+            //Act
+            var sdks = await _sampleService.GetSamples(name);
+            var sdkList = sdks.Select(n => n.Name);
+
+            //Assert
+            foreach (string sdk in sdkList)
+            {
+                Assert.True(sdk.Contains("sdks", StringComparison.OrdinalIgnoreCase));
+            }
         }
 
         [Fact]
@@ -107,21 +158,7 @@ namespace SamplesDashboardTests
             //Assert
             Assert.NotNull(dependencies);
             Assert.Empty(nodes);
-        }
-
-        [Fact]
-        public async Task ShouldGetSampleAndTrainingRepositories()
-        {
-            //Act
-            var samples = await _sampleService.GetSamples();
-            var sampleList = samples.Select(n => n.Name);
-
-            //Assert
-            foreach(string sample in sampleList)
-            {
-                Assert.True(sample.Contains("sample",StringComparison.OrdinalIgnoreCase) || sample.Contains("training", StringComparison.OrdinalIgnoreCase));
-            }
-        }
+        }       
 
         [Theory]
         [InlineData("1.2.3", "1.2.3", PackageStatus.UpToDate)]
