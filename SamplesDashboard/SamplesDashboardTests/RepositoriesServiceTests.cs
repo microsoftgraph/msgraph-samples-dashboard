@@ -16,15 +16,15 @@ using System;
 
 namespace SamplesDashboardTests
 {
-    public class SampleServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
+    public class RepositoriesServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
     {
         private readonly ITestOutputHelper _helper;
-        private readonly SampleService _sampleService;
+        private readonly RepositoriesService _repositoriesService;
 
-        public SampleServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
+        public RepositoriesServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
         {
             _helper = helper;
-            _sampleService = applicationFactory.Services.GetService<SampleService>();
+            _repositoriesService = applicationFactory.Services.GetService<RepositoriesService>();
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace SamplesDashboardTests
             var sampleName = "aspnetcore-connect-sample";
 
             //Act
-            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
             _helper.WriteLine(headerDetails["languages"]);
 
             //Assert
@@ -50,7 +50,7 @@ namespace SamplesDashboardTests
             var sampleName = "uwp-csharp-excel-snippets-rest-sample";
 
             //Act
-            var headerDetails = await _sampleService.GetHeaderDetails(sampleName);
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
 
             //Assert
             Assert.NotNull(headerDetails);
@@ -66,7 +66,7 @@ namespace SamplesDashboardTests
             string name = " sample OR training";
 
             // Act
-            var samples = await _sampleService.GetSamples(name);
+            var samples = await _repositoriesService.GetRepositories(name);
             var exampleSample = samples.Find((node) => node.Name.Equals(sampleName));
 
             Assert.NotEmpty(samples);
@@ -83,7 +83,7 @@ namespace SamplesDashboardTests
             string name = " sdk";
 
             // Act
-            var sdks = await _sampleService.GetSamples(name);
+            var sdks = await _repositoriesService.GetRepositories(name);
             var exampleSample = sdks.Find((node) => node.Name.Equals(sampleName));
 
             Assert.NotEmpty(sdks);
@@ -99,7 +99,7 @@ namespace SamplesDashboardTests
             string name = " sample OR training";
 
             //Act
-            var samples = await _sampleService.GetSamples(name);
+            var samples = await _repositoriesService.GetRepositories(name);
             var sampleList = samples.Select(n => n.Name);
 
             //Assert
@@ -108,6 +108,7 @@ namespace SamplesDashboardTests
                 Assert.True(sample.Contains("sample", StringComparison.OrdinalIgnoreCase) || sample.Contains("training", StringComparison.OrdinalIgnoreCase));
             }
         }
+
         [Fact]
         public async Task ShouldGetSdksRepositories()
         {
@@ -115,13 +116,13 @@ namespace SamplesDashboardTests
             string name = " sdk";
 
             //Act
-            var sdks = await _sampleService.GetSamples(name);
+            var sdks = await _repositoriesService.GetRepositories(name);
             var sdkList = sdks.Select(n => n.Name);
 
             //Assert
             foreach (string sdk in sdkList)
             {
-                Assert.True(sdk.Contains("sdks", StringComparison.OrdinalIgnoreCase));
+                Assert.True(sdk.Contains("sdk", StringComparison.OrdinalIgnoreCase));
             }
         }
 
@@ -133,7 +134,7 @@ namespace SamplesDashboardTests
             var packageManager = "NUGET";
 
             //Act
-            var dependencies = await _sampleService.GetRepository(name);
+            var dependencies = await _repositoriesService.GetRepository(name);
             var res = dependencies.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
             var library = dependencies.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageName)).Contains("Microsoft.Graph");
 
@@ -152,7 +153,7 @@ namespace SamplesDashboardTests
             var name = "powershell-intune-samples";
 
             //Act
-            var dependencies = await _sampleService.GetRepository(name);
+            var dependencies = await _repositoriesService.GetRepository(name);
             var nodes = dependencies.DependencyGraphManifests.Nodes.Select(n => n.Dependencies.Nodes);
 
             //Assert
@@ -180,7 +181,7 @@ namespace SamplesDashboardTests
         public void ShouldDetermineStatusFromVersion(string sampleVersion, string latestVersion, PackageStatus expectedStatus)
         {
             // Act
-            var sampleStatus = _sampleService.CalculateStatus(sampleVersion, latestVersion);
+            var sampleStatus = _repositoriesService.CalculateStatus(sampleVersion, latestVersion);
 
             // Assert
             Assert.Equal(expectedStatus, sampleStatus);
@@ -193,8 +194,8 @@ namespace SamplesDashboardTests
             var sample = "msgraph-training-phpapp";
 
             //Act 
-            var dependency = await _sampleService.GetRepository(sample);
-            var latestVersion = _sampleService.UpdateRepositoryStatus(dependency).ToString();
+            var dependency = await _repositoriesService.GetRepository(sample);
+            var latestVersion = _repositoriesService.UpdateRepositoryStatus(dependency).ToString();
 
             Assert.NotNull(latestVersion);
         }
