@@ -115,7 +115,7 @@ namespace SamplesDashboard.Services
 
             if (hasNextPage == true)
             {
-                var nextrepos = await GetRepositories(endCursor);
+                var nextrepos = await GetRepositories(name, endCursor);
                 repos.AddRange(nextrepos);
             }
 
