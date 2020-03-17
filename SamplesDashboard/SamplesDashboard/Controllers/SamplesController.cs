@@ -31,7 +31,8 @@ namespace SamplesDashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            List<Node> samples;            
+            
+            List<Node> samples;
             if (!_cache.TryGetValue("samples", out samples))
             {
                 samples = await _sampleService.GetSamples();

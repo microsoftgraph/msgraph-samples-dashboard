@@ -31,9 +31,9 @@ namespace SamplesDashboard.Services
 
         public SampleService(
             GraphQLHttpClient graphQlClient,
-            IHttpClientFactory clientFactory, 
+            IHttpClientFactory clientFactory,
             NugetService nugetService,
-            NpmService npmService, 
+            NpmService npmService,
             IMemoryCache memoryCache,
             IConfiguration config)
         {
@@ -49,18 +49,22 @@ namespace SamplesDashboard.Services
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
         /// <returns> A list of samples.</returns>
-        public async Task<List<Node>> GetSamples()
-        { 
+        public async Task<List<Node>> GetSamples(string endCursor = null)
+        {
             // Request to fetch the list of samples for graph
+            string cursorString = "";
 
+            if (!string.IsNullOrEmpty(endCursor))
+            {
+                cursorString = $", after:\"{endCursor}\"";
+            }
             var request = new GraphQLRequest
             {
                 Query = @"
-	            {
-                  search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100) {
+	            {              
+                  search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100 "+ $"{cursorString}" + @" ) {
                         nodes {
                                 ... on Repository {
-                                    id
                                     name
                                     owner {
                                         login
@@ -83,10 +87,14 @@ namespace SamplesDashboard.Services
                                     }
                                 }
                             }
-                        }
+                        pageInfo {
+                              endCursor
+                              hasNextPage
+                           }                       
+                    }
                 }"
             };
-            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);          
 
             // Fetch yaml headers and compute header values in parallel
             List<Task> TaskList = new List<Task>();
@@ -94,13 +102,25 @@ namespace SamplesDashboard.Services
             {
                 Task headerTask = SetHeadersAndStatus(sampleItem);
                 TaskList.Add(headerTask);
-            }
+            } 
 
             await Task.WhenAll(TaskList);
-
             //returning a list of only samples with dependencies
-            return graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
-        }
+            var samples = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
+
+            //Taking the next 100 samples(paginating using endCursor object)
+            var hasNextPage = graphQLResponse?.Data?.Search.PageInfo.HasNextPage;
+            endCursor = graphQLResponse?.Data?.Search.PageInfo.EndCursor;
+
+            if (hasNextPage == true)
+            {
+                var nextSamples = await GetSamples(endCursor);
+                samples.AddRange(nextSamples);
+            }
+
+            return samples;
+            
+        }      
 
         /// <summary>
         ///Getting header details and setting the language and featureArea items        
@@ -151,7 +171,7 @@ namespace SamplesDashboard.Services
                                 dependencyGraphManifests(withDependencies: true) {
                                     nodes {
                                         filename
-                                        dependencies(first: 10) {
+                                        dependencies(first: 100) {
                                             nodes {
                                                 packageManager
                                                 packageName
@@ -338,10 +358,10 @@ namespace SamplesDashboard.Services
         {
             //downloading the yaml file
             var httpClient = _clientFactory.CreateClient();
-            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
+            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/README.md"));
 
             if (responseMessage.StatusCode.ToString().Equals("NotFound"))
-                responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/README.md"));
+                responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
 
             if (responseMessage.IsSuccessStatusCode)
             {
