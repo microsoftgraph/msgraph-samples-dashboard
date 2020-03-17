@@ -146,7 +146,10 @@ namespace SamplesDashboard.Services
             
             if(repoItem.HasDependendencies == true)
             {
-                repoItem.RepositoryStatus = repository.highestStatus;
+                if (repository != null)
+                {
+                    repoItem.RepositoryStatus = repository.highestStatus;
+                }
                 var headerDetails = await GetHeaderDetails(repoItem.Name);
                 repoItem.Language = headerDetails.GetValueOrDefault("languages");
                 repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
