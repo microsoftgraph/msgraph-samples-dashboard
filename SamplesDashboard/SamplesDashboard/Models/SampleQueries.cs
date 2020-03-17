@@ -62,7 +62,7 @@ namespace SamplesDashboard
 
         public string FeatureArea { get; internal set; }
         public bool HasDependendencies { get; set; }
-        public PackageStatus SampleStatus { get; internal set; }
+        public PackageStatus RepositoryStatus { get; internal set; }
     }
     public partial class Forks
     {

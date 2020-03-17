@@ -9,17 +9,17 @@ using System.Net.Http;
 using System;
 using GraphQL;
 using GraphQL.Client.Http;
-using SamplesDashboard.Models;
 using Semver;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using SamplesDashboard.Models;
 
 namespace SamplesDashboard.Services
 {
     /// <summary>
-    ///  This class contains samples query services and functions to be used by the samples API
+    ///  This class contains repos query services and functions to be used by the repos API
     /// </summary>    
-    public class SampleService
+    public class RepositoriesService
     {
         private readonly GraphQLHttpClient _graphQlClient;
         private readonly IHttpClientFactory _clientFactory;
@@ -29,7 +29,7 @@ namespace SamplesDashboard.Services
         private readonly IConfiguration _config;
 
 
-        public SampleService(
+        public RepositoriesService(
             GraphQLHttpClient graphQlClient,
             IHttpClientFactory clientFactory,
             NugetService nugetService,
@@ -46,12 +46,12 @@ namespace SamplesDashboard.Services
         }
 
         /// <summary>
-        /// Gets the client object used to run the samples query and return the samples list 
+        /// Gets the client object used to run the repos query and return the repos list 
         /// </summary>
-        /// <returns> A list of samples.</returns>
-        public async Task<List<Node>> GetSamples(string name, string endCursor = null)
+        /// <returns> A list of repos.</returns>
+        public async Task<List<Node>> GetRepositories(string name, string endCursor = null)
         {
-            // Request to fetch the list of samples for graph
+            // Request to fetch the list of repos for graph
             string cursorString = "";
 
             if (!string.IsNullOrEmpty(endCursor))
@@ -99,75 +99,74 @@ namespace SamplesDashboard.Services
 
             // Fetch yaml headers and compute header values in parallel
             List<Task> TaskList = new List<Task>();
-            foreach (var sampleItem in graphQLResponse?.Data?.Search.Nodes)
+            foreach (var repoItem in graphQLResponse?.Data?.Search.Nodes)
             {
-                Task headerTask = SetHeadersAndStatus(sampleItem);
+                Task headerTask = SetHeadersAndStatus(repoItem);
                 TaskList.Add(headerTask);
             } 
 
             await Task.WhenAll(TaskList);
-            //returning a list of only samples with dependencies
-            var samples = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
+            //returning a list of only repos with dependencies
+            var repos = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
 
-            //Taking the next 100 samples(paginating using endCursor object)
+            //Taking the next 100 repos(paginating using endCursor object)
             var hasNextPage = graphQLResponse?.Data?.Search.PageInfo.HasNextPage;
             endCursor = graphQLResponse?.Data?.Search.PageInfo.EndCursor;
 
             if (hasNextPage == true)
             {
-                var nextSamples = await GetSamples(endCursor);
-                samples.AddRange(nextSamples);
+                var nextrepos = await GetRepositories(endCursor);
+                repos.AddRange(nextrepos);
             }
 
-            return samples;
-            
+            return repos;            
         }      
 
         /// <summary>
         ///Getting header details and setting the language and featureArea items        
         /// </summary>
-        /// <param name="sampleItem">A specific sample item from the samples list</param>
-        /// <returns> A list of samples.</returns>
-        private async Task SetHeadersAndStatus(Node sampleItem) 
+        /// <param name="repoItem">A specific repo item from the repos list</param>
+        /// <returns> A list of repos.</returns>
+        private async Task SetHeadersAndStatus(Node repoItem) 
         {
             
             Repository repository;
-            if (!_cache.TryGetValue(sampleItem.Name, out repository))
+            if (!_cache.TryGetValue(repoItem.Name, out repository))
             {
-                repository = await GetRepository(sampleItem.Name);
+                repository = await GetRepository(repoItem.Name);
 
-                if (repository.DependencyGraphManifests?.Nodes?.Length > 0)
+                if (repository?.DependencyGraphManifests?.Nodes?.Length > 0)
                 {
-                    sampleItem.HasDependendencies = true;
+                    repoItem.HasDependendencies = true;
                 }
 
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
-                _cache.Set(sampleItem.Name, repository, cacheEntryOptions);
+                _cache.Set(repoItem.Name, repository, cacheEntryOptions);
             }    
             
-            if(sampleItem.HasDependendencies == true)
+            if(repoItem.HasDependendencies == true)
             {
-                sampleItem.SampleStatus = repository.highestStatus;
-                var headerDetails = await GetHeaderDetails(sampleItem.Name);
-                sampleItem.Language = headerDetails.GetValueOrDefault("languages");
-                sampleItem.FeatureArea = headerDetails.GetValueOrDefault("services");
+                repoItem.RepositoryStatus = repository.highestStatus;
+                var headerDetails = await GetHeaderDetails(repoItem.Name);
+                repoItem.Language = headerDetails.GetValueOrDefault("languages");
+                repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
             }                 
             
         }
         
         /// <summary>
-        /// Uses client object and sampleName passed inthe url to return the sample's dependencies
+        /// Uses client object and repoName passed inthe url to return the repo's dependencies
         /// </summary>
-        /// <param name="sampleName">The name of that sample</param>
+        /// <param name="repoName">The name of that repo</param>
         /// <returns> A list of dependencies. </returns>
-        public async Task<Repository> GetRepository(string sampleName)
+        public async Task<Repository> GetRepository(string repoName)
         {
-            //request to fetch sample dependencies
+            //request to fetch repo dependencies
             var request = new GraphQLRequest
             {
-                Query = @"query Sample($sample: String!){
+                Query = @"query repo($repo: String!){
                         organization(login: ""microsoftgraph"") {
-                            repository(name: $sample){
+                            repository(name: $repo){
                                 url
                                 dependencyGraphManifests(withDependencies: true) {
                                     nodes {
@@ -193,7 +192,7 @@ namespace SamplesDashboard.Services
                             }                        
                     }
                 }",
-                Variables = new { sample = sampleName }
+                Variables = new { repo = repoName }
             };
 
             var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request); 
@@ -258,20 +257,20 @@ namespace SamplesDashboard.Services
             return repository;
         }
         /// <summary>
-        /// Calculate the status of a sample
+        /// Calculate the status of a repo
         /// </summary>
-        /// <param name="sampleVersion">The current version of the sample</param>
-        /// <param name="latestVersion">The latest version of the sample</param>
-        /// <returns><see cref="PackageStatus"/> of the sample Version </returns>
-        internal PackageStatus CalculateStatus(string sampleVersion, string latestVersion)
+        /// <param name="repoVersion">The current version of the repo</param>
+        /// <param name="latestVersion">The latest version of the repo</param>
+        /// <returns><see cref="PackageStatus"/> of the repo Version </returns>
+        internal PackageStatus CalculateStatus(string repoVersion, string latestVersion)
         {
-            if (string.IsNullOrEmpty(sampleVersion) || string.IsNullOrEmpty(latestVersion))
+            if (string.IsNullOrEmpty(repoVersion) || string.IsNullOrEmpty(latestVersion))
                 return PackageStatus.Unknown;
 
             // Dropping any 'v's that occur before the version
-            if (sampleVersion.StartsWith("v"))
+            if (repoVersion.StartsWith("v"))
             {
-                sampleVersion = sampleVersion.Substring(1);
+                repoVersion = repoVersion.Substring(1);
             }
             if (latestVersion.StartsWith("v"))
             {
@@ -279,32 +278,32 @@ namespace SamplesDashboard.Services
             }
 
             //If version strings are equal, they are upto date
-            if (sampleVersion.Equals(latestVersion))
+            if (repoVersion.Equals(latestVersion))
                 return PackageStatus.UpToDate;
 
             // Try to parse the versions into SemVersion objects
-            if (!SemVersion.TryParse(sampleVersion.Trim(), out SemVersion sample) ||
+            if (!SemVersion.TryParse(repoVersion.Trim(), out SemVersion repo) ||
                 !SemVersion.TryParse(latestVersion.Trim(), out SemVersion latest)) 
             {
                 //Unable to determine the versions
                 return PackageStatus.Unknown;
             }
 
-            int status = sample.CompareTo(latest);
+            int status = repo.CompareTo(latest);
 
             if (status == 0)
             {
                 //Version objects are the same so packages are upto date
                 return PackageStatus.UpToDate;
             }
-            else if (sample.Major == latest.Major && sample.Minor == latest.Minor)
+            else if (repo.Major == latest.Major && repo.Minor == latest.Minor)
             {
                 //Difference is only in the build version therefore package requires an urgent update 
                 return PackageStatus.UrgentUpdate;
             }
             else if (status < 0)
             {
-                //Difference is in the major and/or minor version and the sample version is behind the latest version
+                //Difference is in the major and/or minor version and the repo version is behind the latest version
                 return PackageStatus.Update;
             }
             else
@@ -315,24 +314,28 @@ namespace SamplesDashboard.Services
         }
 
         /// <summary>
-        /// Get dependency statuses from a sample and return the highest status
+        /// Get dependency statuses from a repo and return the highest status
         /// </summary>
-        /// <param name="dependencies"> Dependencies in a sample</param>
+        /// <param name="dependencies"> Dependencies in a repo</param>
         /// <returns><see cref="PackageStatus"/>The highest PackageStatus from dependencies</returns>
         private PackageStatus HighestStatus(DependenciesNode[] dependencies)
         {
             PackageStatus[] statuses = dependencies.Select(dependency => dependency.status).ToArray();
-            return statuses.Max();
+            if (statuses.Any())
+            {
+                return statuses.Max();
+            }
+            return PackageStatus.Unknown;
         }
 
         /// <summary>
         /// Get header details list from the parsed yaml header
         /// </summary>
-        /// <param name="sampleName">The name of each sample</param>
+        /// <param name="repoName">The name of each repo</param>
         /// <returns> A new list of services in the yaml header after parsing it.</returns>
-        internal async Task<Dictionary<string,string>> GetHeaderDetails(string sampleName)
+        internal async Task<Dictionary<string,string>> GetHeaderDetails(string repoName)
         {
-            string header = await GetYamlHeader(sampleName);
+            string header = await GetYamlHeader(repoName);
             if (!string.IsNullOrEmpty(header))
             {
                 string[] lines = header.Split("\r\n");
@@ -351,18 +354,18 @@ namespace SamplesDashboard.Services
         }
 
         /// <summary>
-        /// fetch yaml header from sample repo and parse it
+        /// fetch yaml header from repo repo and parse it
         /// </summary>
-        /// <param name="sampleName">The name of each sample</param>
+        /// <param name="repoName">The name of each repo</param>
         /// <returns> The yaml header. </returns>
-        private async Task<string> GetYamlHeader(string sampleName)
+        private async Task<string> GetYamlHeader(string repoName)
         {
             //downloading the yaml file
             var httpClient = _clientFactory.CreateClient();
-            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/README.md"));
+            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", repoName, "/master/README.md"));
 
             if (responseMessage.StatusCode.ToString().Equals("NotFound"))
-                responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", sampleName, "/master/Readme.md"));
+                responseMessage = await httpClient.GetAsync(string.Concat("https://raw.githubusercontent.com/microsoftgraph/", repoName, "/master/Readme.md"));
 
             if (responseMessage.IsSuccessStatusCode)
             {
