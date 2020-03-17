@@ -36,15 +36,16 @@ namespace SamplesDashboard.Services
         /// <returns>latest package version</returns>
         public async Task<string> GetLatestVersion(string packageName)
         {
-            var httpClient = _clientFactory.CreateClient();
-         
-            HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://registry.npmjs.org/", packageName));
-
-            if (responseMessage.IsSuccessStatusCode)
+            NpmQuery npmData;
+            if (!_cache.TryGetValue($"npm: {packageName}", out npmData))
             {
-                NpmQuery npmData;
-                if (!_cache.TryGetValue(responseMessage, out npmData))
+                var httpClient = _clientFactory.CreateClient();
+         
+                HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://registry.npmjs.org/", packageName));
+
+                if (responseMessage.IsSuccessStatusCode)
                 {
+               
                     using (var stream = await responseMessage.Content.ReadAsStreamAsync())
                     using (var streamReader = new StreamReader(stream))
                     using (var jsonTextReader = new JsonTextReader(streamReader))
@@ -54,14 +55,12 @@ namespace SamplesDashboard.Services
                         npmData = serializer.Deserialize<NpmQuery>(jsonTextReader);
 
                         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
-                        _cache.Set(responseMessage, npmData, cacheEntryOptions);
+                        _cache.Set($"npm: {packageName}", npmData, cacheEntryOptions);
                     }                   
                 }
-
-                return npmData.DistTags.Latest;
             }
 
-            return null;
+            return npmData?.DistTags?.Latest;
         }
     }
 }
