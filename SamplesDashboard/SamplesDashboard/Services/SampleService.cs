@@ -49,7 +49,7 @@ namespace SamplesDashboard.Services
         /// Gets the client object used to run the samples query and return the samples list 
         /// </summary>
         /// <returns> A list of samples.</returns>
-        public async Task<List<Node>> GetSamples(string endCursor = null)
+        public async Task<List<Node>> GetSamples(string name, string endCursor = null)
         {
             // Request to fetch the list of samples for graph
             string cursorString = "";
@@ -57,12 +57,13 @@ namespace SamplesDashboard.Services
             if (!string.IsNullOrEmpty(endCursor))
             {
                 cursorString = $", after:\"{endCursor}\"";
-            }
+            }           
+
             var request = new GraphQLRequest
             {
                 Query = @"
 	            {              
-                  search(query: ""org:microsoftgraph sample OR training in:name archived:false"", type: REPOSITORY, first: 100 "+ $"{cursorString}" + @" ) {
+                  search(query: ""org:microsoftgraph"+ $"{name}"+ @" in:name archived:false"", type: REPOSITORY, first: 100 "+ $"{cursorString}" + @" ) {
                         nodes {
                                 ... on Repository {
                                     name
