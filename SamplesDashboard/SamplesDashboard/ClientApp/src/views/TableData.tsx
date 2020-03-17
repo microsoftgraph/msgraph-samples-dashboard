@@ -12,7 +12,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import PageTitle from '../components/layout/PageTitle';
-import { ISampleItem, ISamplesState } from '../types/samples';
+import { IDataItem, IDataState } from '../types/samples';
 
 initializeIcons();
 
@@ -48,8 +48,8 @@ const classNames = mergeStyleSets({
     blue: [{ color: '#0078d4' }, iconClass]
 });
 
-export default class TableData extends React.Component<{ isAuthenticated: boolean, title: string }, ISamplesState> {
-    private allItems: ISampleItem[];
+export default class TableData extends React.Component<{ isAuthenticated: boolean, title: string }, IDataState> {
+    private allItems: IDataItem[];
 
     constructor(props: { isAuthenticated: boolean, title: string }) {
         super(props);
@@ -228,7 +228,7 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 };
 
 // rendering the language and service component within the details list
-function renderItemColumn(item: ISampleItem, index: number | undefined, column: IColumn | undefined) {
+function renderItemColumn(item: IDataItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const sampleName = item.name;
     const owner = item.owner.login;

@@ -1,6 +1,6 @@
 import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 
-export interface ISampleItem {
+export interface IDataItem {
     key: number;
     name: string;
     owner: any;
@@ -26,8 +26,8 @@ export interface IDetailsItem {
     latestVersion: string;
 }
 
-export interface ISamplesState {
+export interface IDataState {
     columns: IColumn[];
-    items: ISampleItem[];
+    items: IDataItem[];
     isLoading: boolean;
 }
