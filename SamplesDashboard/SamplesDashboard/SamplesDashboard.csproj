@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
@@ -40,6 +40,11 @@
     <None Remove="ClientApp\src\components\Language.tsx" />
     <None Remove="ClientApp\src\components\Samples.tsx" />
     <None Remove="ClientApp\src\components\Service.tsx" />
+    <None Remove="ClientApp\src\views\SDKs.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\views\SDKs.tsx" />
   </ItemGroup>
 
   <ItemGroup>
