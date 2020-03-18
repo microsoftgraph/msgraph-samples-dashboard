@@ -29,9 +29,9 @@ export default class Details extends React.Component<any, any> {
             { key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 300, maxWidth: 400, isRowHeader: true, 
                 isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick },
             { key: 'requirements', name: 'Sample Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
-                isResizable: true, onColumnClick: this.onColumnClick },
+                isResizable: true },
             { key: 'currentVersion', name: 'Current Version', fieldName: 'tagName', minWidth: 200, 
-                maxWidth: 300, isResizable: true, onColumnClick: this.onColumnClick },
+                maxWidth: 300, isResizable: true },
             { key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300, 
                 isResizable: true, onColumnClick: this.onColumnClick },         
         ];
