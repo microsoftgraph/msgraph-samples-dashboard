@@ -25,7 +25,7 @@ namespace SamplesDashboard.Services
         private readonly IHttpClientFactory _clientFactory;
         private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
-        private readonly IMemoryCache _cache;
+        private IMemoryCache _cache;
         private readonly IConfiguration _config;
 
 

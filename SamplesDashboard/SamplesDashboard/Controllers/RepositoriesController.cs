@@ -45,7 +45,6 @@ namespace SamplesDashboard.Controllers
                 // Save data in cache.
                 _cache.Set( Constants.Samples, samples, cacheEntryOptions);
                 _logger.LogInformation($"{nameof(RepositoriesController)} :samples cache refreshed");
-
             }
 
             return Ok(samples);
@@ -67,7 +66,6 @@ namespace SamplesDashboard.Controllers
                 // Save data in cache.
                 _cache.Set(Constants.Sdks, sdkList, cacheEntryOptions);
                 _logger.LogInformation($"{nameof(RepositoriesController)} :sdks cache refreshed");
-
             }
 
             return Ok(sdkList);
@@ -86,7 +84,6 @@ namespace SamplesDashboard.Controllers
                 _logger.LogInformation($"{nameof(RepositoriesController)} : {id} : repositories cache refreshed");
 
             }
-
             return Ok(repository);
         }              
     }

@@ -64,7 +64,7 @@ namespace SamplesDashboard.HostedServices
         /// <summary>
         /// checks state of cache
         /// </summary>
-        /// <returns></returns>
+        /// <returns>task</returns>
         private async Task CheckCacheForRepositories()
         {
             if (!_cache.TryGetValue(Constants.Samples, out var samples))
