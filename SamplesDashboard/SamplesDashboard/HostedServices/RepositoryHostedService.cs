@@ -19,7 +19,7 @@ namespace SamplesDashboard.HostedServices
         private readonly RepositoriesService _repositoryService;
         private readonly ILogger<RepositoryHostedService> _logger;
         private Timer _timer;
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         private readonly IConfiguration _config;
 
         public RepositoryHostedService(RepositoriesService repositoryService, ILogger<RepositoryHostedService> logger, IMemoryCache cache, IConfiguration config)
@@ -67,6 +67,7 @@ namespace SamplesDashboard.HostedServices
         /// <returns>task</returns>
         private async Task CheckCacheForRepositories()
         {
+            //cache samples list if the cache is empty
             if (!_cache.TryGetValue(Constants.Samples, out var samples))
             {
                 var stopWatch = Stopwatch.StartNew();
@@ -83,6 +84,7 @@ namespace SamplesDashboard.HostedServices
 
             }
 
+            //cache the list of sdks if they're not cached
             if (!_cache.TryGetValue(Constants.Sdks, out  var sdkList))
             {
                 var stopWatch = Stopwatch.StartNew();
