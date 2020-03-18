@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import TableData from './TableData';
+import Repositories from './Repositories';
 import { PivotItem, Pivot } from 'office-ui-fabric-react';
 
 class Home extends Component {          
@@ -8,12 +8,12 @@ class Home extends Component {
             <Pivot>
                 <PivotItem headerText="Samples">
                     <div>
-                        <TableData isAuthenticated={false} title={"samples"} />
+                        <Repositories isAuthenticated={false} title={"samples"} />
                     </div>
                 </PivotItem>
                 <PivotItem headerText="SDKs">
                     <div>
-                        <TableData isAuthenticated={false} title={"sdks"} />
+                        <Repositories isAuthenticated={false} title={"sdks"} />
                     </div>
                 </PivotItem>
             </Pivot>

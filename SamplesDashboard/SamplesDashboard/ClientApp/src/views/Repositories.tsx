@@ -12,7 +12,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import PageTitle from '../components/layout/PageTitle';
-import { IDataItem, IDataState } from '../types/samples';
+import { IRepositoryItem, IRepositoryState } from '../types/samples';
 
 initializeIcons();
 
@@ -39,17 +39,14 @@ const classNames = mergeStyleSets({
     pageTitle: {
         fontSize: FontSizes.large
     },
-    yellow: [{
-        color: '#ffaa44',
-        marginRight: '5px'
-    }, iconClass],
+    yellow: [{ color: '#ffaa44'}, iconClass],
     green: [{ color: '#498205' }, iconClass],
     red: [{ color: '#d13438' }, iconClass],
     blue: [{ color: '#0078d4' }, iconClass]
 });
 
-export default class TableData extends React.Component<{ isAuthenticated: boolean, title: string }, IDataState> {
-    private allItems: IDataItem[];
+export default class Repositories extends React.Component<{ isAuthenticated: boolean, title: string }, IRepositoryState> {
+    private allItems: IRepositoryItem[];
 
     constructor(props: { isAuthenticated: boolean, title: string }) {
         super(props);
@@ -65,7 +62,7 @@ export default class TableData extends React.Component<{ isAuthenticated: boolea
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'status', name: 'Status', fieldName: 'sampleStatus', minWidth: 100, maxWidth: 150,
+                key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -110,7 +107,7 @@ export default class TableData extends React.Component<{ isAuthenticated: boolea
 
     public componentDidMount = () => {
         if (this.props.title === "samples") {
-            this.fetchData();
+            this.fetchSamples();
         }
         else if (this.props.title === "sdks") {
             this.fetchSDKs();
@@ -119,7 +116,7 @@ export default class TableData extends React.Component<{ isAuthenticated: boolea
     }
 
     // fetching the samples data from the samples api
-    public fetchData = async () => {
+    public fetchSamples = async () => {
         this.setState({ isLoading: true });
         const response = await fetch('api/samples');
         const data = await response.json();
@@ -228,11 +225,11 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 };
 
 // rendering the language and service component within the details list
-function renderItemColumn(item: IDataItem, index: number | undefined, column: IColumn | undefined) {
+function renderItemColumn(item: IRepositoryItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
-    const sampleName = item.name;
+    const name = item.name;
     const owner = item.owner.login;
-    const status = item.sampleStatus;
+    const status = item.repositoryStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
     const issueCount = item.issues.totalCount;
@@ -245,7 +242,7 @@ function renderItemColumn(item: IDataItem, index: number | undefined, column: IC
     switch (col.name) {
         case 'Name':
             return <div>
-                <Link to={`/samples/${sampleName}`} ><span>{sampleName} </ span></Link>
+                <Link to={`/samples/${name}`} ><span>{name} </ span></Link>
             </div>;
 
         case 'Owner':
