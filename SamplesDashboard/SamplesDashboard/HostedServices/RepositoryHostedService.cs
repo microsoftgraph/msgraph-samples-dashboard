@@ -45,7 +45,7 @@ namespace SamplesDashboard.HostedServices
         /// <returns>completed task</returns>
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new Timer(async state => await CheckCacheForRepositories(), null, TimeSpan.Zero, TimeSpan.FromMinutes(10));
+            _timer = new Timer(async state => await CheckCacheForRepositories(), null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(10));
             return Task.CompletedTask;
         }
 
