@@ -128,13 +128,12 @@ namespace SamplesDashboard.Services
         /// <param name="repoItem">A specific repo item from the repos list</param>
         /// <returns> A list of repos.</returns>
         private async Task SetHeadersAndStatus(Node repoItem) 
-        {
-            
+        {            
             Repository repository;
             if (!_cache.TryGetValue(repoItem.Name, out repository))
             {
                 repository = await GetRepository(repoItem.Name);            
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
                 _cache.Set(repoItem.Name, repository, cacheEntryOptions);
             }
 
@@ -145,7 +144,7 @@ namespace SamplesDashboard.Services
                 var headerDetails = await GetHeaderDetails(repoItem.Name);
                 repoItem.Language = headerDetails.GetValueOrDefault("languages");
                 repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
-            }              
+            }         
             
         }
         
