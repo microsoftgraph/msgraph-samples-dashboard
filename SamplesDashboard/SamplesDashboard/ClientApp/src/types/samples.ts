@@ -1,10 +1,10 @@
 import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 
-export interface ISampleItem {
+export interface IRepositoryItem {
     key: number;
     name: string;
     owner: any;
-    sampleStatus: any;
+    repositoryStatus: any;
     language: string;
     pullRequests: any;
     issues: any;
@@ -26,8 +26,8 @@ export interface IDetailsItem {
     latestVersion: string;
 }
 
-export interface ISamplesState {
+export interface IRepositoryState {
     columns: IColumn[];
-    items: ISampleItem[];
+    items: IRepositoryItem[];
     isLoading: boolean;
 }

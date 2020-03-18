@@ -12,7 +12,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import PageTitle from '../components/layout/PageTitle';
-import { ISampleItem, ISamplesState } from '../types/samples';
+import { IRepositoryItem, IRepositoryState } from '../types/samples';
 
 initializeIcons();
 
@@ -39,33 +39,30 @@ const classNames = mergeStyleSets({
     pageTitle: {
         fontSize: FontSizes.large
     },
-    yellow: [{
-        color: '#ffaa44',
-        marginRight: '5px'
-    }, iconClass],
+    yellow: [{ color: '#ffaa44'}, iconClass],
     green: [{ color: '#498205' }, iconClass],
     red: [{ color: '#d13438' }, iconClass],
     blue: [{ color: '#0078d4' }, iconClass]
 });
 
-export default class Samples extends React.Component<{ isAuthenticated: boolean }, ISamplesState> {
-    private allItems: ISampleItem[];
+export default class Repositories extends React.Component<{ isAuthenticated: boolean, title: string }, IRepositoryState> {
+    private allItems: IRepositoryItem[];
 
-    constructor(props: { isAuthenticated: boolean }) {
+    constructor(props: { isAuthenticated: boolean, title: string }) {
         super(props);
 
         this.allItems = [];
         const columns: IColumn[] = [
             {
                 key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true,
-                isResizable: true, isSorted: true, isSortedDescending: false, onColumnClick: this.onColumnClick
+                isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
                 key: 'login', name: 'Owner', fieldName: 'login', minWidth: 75, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'status', name: 'Status', fieldName: 'sampleStatus', minWidth: 100, maxWidth: 150,
+                key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -109,11 +106,17 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
     }
 
     public componentDidMount = () => {
-        this.fetchData();
+        if (this.props.title === "samples") {
+            this.fetchSamples();
+        }
+        else if (this.props.title === "sdks") {
+            this.fetchSDKs();
+        }
+
     }
 
-    // fetching the data from the api
-    public fetchData = async () => {
+    // fetching the samples data from the samples api
+    public fetchSamples = async () => {
         this.setState({ isLoading: true });
         const response = await fetch('api/samples');
         const data = await response.json();
@@ -125,12 +128,26 @@ export default class Samples extends React.Component<{ isAuthenticated: boolean 
             });
     }
 
+    //fetching the sdk data from the sdk api
+    public fetchSDKs = async () => {
+        this.setState({ isLoading: true });
+        const response = await fetch('api/sdks');
+        const data = await response.json();
+        this.allItems = data;
+        this.setState(
+            {
+                items: this.allItems,
+                isLoading: false
+            });
+    }
+
+
     public render(): JSX.Element {
         const { columns, items, isLoading } = this.state;
 
         return (
             <Fabric>
-                <PageTitle title='List of samples' />
+                <PageTitle title={'List of ' + this.props.title} />
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
@@ -208,11 +225,11 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 };
 
 // rendering the language and service component within the details list
-function renderItemColumn(item: ISampleItem, index: number | undefined, column: IColumn | undefined) {
+function renderItemColumn(item: IRepositoryItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
-    const sampleName = item.name;
+    const name = item.name;
     const owner = item.owner.login;
-    const status = item.sampleStatus;
+    const status = item.repositoryStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
     const issueCount = item.issues.totalCount;
@@ -225,7 +242,7 @@ function renderItemColumn(item: ISampleItem, index: number | undefined, column: 
     switch (col.name) {
         case 'Name':
             return <div>
-                <Link to={`/samples/${sampleName}`} ><span>{sampleName} </ span></Link>
+                <Link to={`/samples/${name}`} ><span>{name} </ span></Link>
             </div>;
 
         case 'Owner':
