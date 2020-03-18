@@ -67,39 +67,48 @@ namespace SamplesDashboard.HostedServices
         /// <returns>task</returns>
         private async Task CheckCacheForRepositories()
         {
-            //cache samples list if the cache is empty
-            if (!_cache.TryGetValue(Constants.Samples, out var samples))
+            try
             {
-                var stopWatch = Stopwatch.StartNew();
+                //cache samples list if the cache is empty
+                if (!_cache.TryGetValue(Constants.Samples, out var samples))
+                {
+                    var stopWatch = Stopwatch.StartNew();
 
-                samples = await _repositoryService.GetRepositories(Constants.Samples);
+                    samples = await _repositoryService.GetRepositories(Constants.Samples);
 
-                //Read timeout from config file 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
+                    //Read timeout from config file 
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
 
-                // Save data in cache.
-                _cache.Set(Constants.Samples, samples, cacheEntryOptions);
-                stopWatch.Stop();
-                _logger.LogInformation($"{nameof(RepositoryHostedService)} :samples cache refreshed in {stopWatch.Elapsed} milliseconds");
+                    // Save data in cache.
+                    _cache.Set(Constants.Samples, samples, cacheEntryOptions);
+                    stopWatch.Stop();
+                    _logger.LogInformation($"{nameof(RepositoryHostedService)} :samples cache refreshed in {stopWatch.Elapsed} milliseconds");
+
+                }
+
+                //cache the list of sdks if they're not cached
+                if (!_cache.TryGetValue(Constants.Sdks, out var sdkList))
+                {
+                    var stopWatch = Stopwatch.StartNew();
+
+                    sdkList = await _repositoryService.GetRepositories(Constants.Sdks);
+
+                    //Read timeout from config file 
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
+
+                    // Save data in cache.
+                    _cache.Set(Constants.Sdks, sdkList, cacheEntryOptions);
+                    stopWatch.Stop();
+                    _logger.LogInformation($"{nameof(RepositoryHostedService)} :sdks cache refreshed in {stopWatch.Elapsed} milliseconds");
+
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogCritical(ex, ex.Message);
 
             }
 
-            //cache the list of sdks if they're not cached
-            if (!_cache.TryGetValue(Constants.Sdks, out  var sdkList))
-            {
-                var stopWatch = Stopwatch.StartNew();
-
-                sdkList = await _repositoryService.GetRepositories(Constants.Sdks);
-
-                //Read timeout from config file 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
-
-                // Save data in cache.
-                _cache.Set(Constants.Sdks, sdkList, cacheEntryOptions);
-                stopWatch.Stop();
-                _logger.LogInformation($"{nameof(RepositoryHostedService)} :sdks cache refreshed in {stopWatch.Elapsed} milliseconds");
-
-            }
         }
 
     }
