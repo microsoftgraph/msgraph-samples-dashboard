@@ -10,6 +10,7 @@ using SamplesDashboard.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics;
 
 namespace SamplesDashboard.HostedServices
 {
@@ -18,7 +19,7 @@ namespace SamplesDashboard.HostedServices
         private readonly RepositoriesService _repositoryService;
         private readonly ILogger<RepositoryHostedService> _logger;
         private Timer _timer;
-        private readonly IMemoryCache _cache;
+        private IMemoryCache _cache;
         private readonly IConfiguration _config;
 
         public RepositoryHostedService(RepositoriesService repositoryService, ILogger<RepositoryHostedService> logger, IMemoryCache cache, IConfiguration config)
@@ -44,7 +45,7 @@ namespace SamplesDashboard.HostedServices
         /// <returns>completed task</returns>
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            _timer = new Timer(async state => await CheckCacheForRepositories(), null, TimeSpan.Zero, TimeSpan.FromMinutes(30));
+            _timer = new Timer(async state => await CheckCacheForRepositories(), null, TimeSpan.Zero, TimeSpan.FromMinutes(10));
             return Task.CompletedTask;
         }
 
@@ -68,6 +69,8 @@ namespace SamplesDashboard.HostedServices
         {
             if (!_cache.TryGetValue(Constants.Samples, out var samples))
             {
+                var stopWatch = Stopwatch.StartNew();
+
                 samples = await _repositoryService.GetRepositories(Constants.Samples);
 
                 //Read timeout from config file 
@@ -75,12 +78,15 @@ namespace SamplesDashboard.HostedServices
 
                 // Save data in cache.
                 _cache.Set(Constants.Samples, samples, cacheEntryOptions);
-                _logger.LogInformation($"{nameof(RepositoryHostedService)} :samples cache refreshed");
+                stopWatch.Stop();
+                _logger.LogInformation($"{nameof(RepositoryHostedService)} :samples cache refreshed in {stopWatch.Elapsed} milliseconds");
 
             }
 
             if (!_cache.TryGetValue(Constants.Sdks, out  var sdkList))
             {
+                var stopWatch = Stopwatch.StartNew();
+
                 sdkList = await _repositoryService.GetRepositories(Constants.Sdks);
 
                 //Read timeout from config file 
@@ -88,7 +94,8 @@ namespace SamplesDashboard.HostedServices
 
                 // Save data in cache.
                 _cache.Set(Constants.Sdks, sdkList, cacheEntryOptions);
-                _logger.LogInformation($"{nameof(RepositoryHostedService)} :sdks cache refreshed");
+                stopWatch.Stop();
+                _logger.LogInformation($"{nameof(RepositoryHostedService)} :sdks cache refreshed in {stopWatch.Elapsed} milliseconds");
 
             }
         }
