@@ -77,7 +77,7 @@ namespace SamplesDashboard.Controllers
         {
             Repository repository;
             if (!_cache.TryGetValue(id, out repository))
-            {
+            {                
                 repository = await _repositoriesService.GetRepository(id);
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
                 _cache.Set(id, repository, cacheEntryOptions);
