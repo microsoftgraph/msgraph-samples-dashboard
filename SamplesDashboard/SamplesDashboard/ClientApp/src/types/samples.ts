@@ -15,6 +15,7 @@ export interface IRepositoryItem {
     vulnerabilityAlerts: any;
 }
 export interface IDetailsItem {
+    azureSdkVersion: any;
     repository: any;
     packageName: string;
     requirements: string;
