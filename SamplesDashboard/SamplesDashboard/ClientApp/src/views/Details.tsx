@@ -1,5 +1,5 @@
 import { DetailsListLayoutMode, Fabric, IColumn, 
-    SelectionMode, ShimmeredDetailsList, PrimaryButton, FontIcon, mergeStyleSets, mergeStyles, ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react';
+    SelectionMode, ShimmeredDetailsList, PrimaryButton, FontIcon, mergeStyleSets, mergeStyles } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
@@ -24,17 +24,31 @@ export default class Details extends React.Component<any, any> {
         super(props);
 
         this.allItems = [];
-
+        const { match: { params } } = this.props;
+        const repositoryName = params.name;
         const columns: IColumn[] = [
             { key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 300, maxWidth: 400, isRowHeader: true, 
-                isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick },
-            { key: 'requirements', name: 'Sample Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
-                isResizable: true },
-            { key: 'currentVersion', name: 'Current Version', fieldName: 'tagName', minWidth: 200, 
-                maxWidth: 300, isResizable: true },
+                isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
+            },
+            { key: 'requirements', name: 'Used Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
+                isResizable: true
+            },
+            { key: 'currentVersion', name: 'Latest Version', fieldName: 'tagName', minWidth: 200, 
+                maxWidth: 300, isResizable: true
+            },
             { key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300, 
-                isResizable: true, onColumnClick: this.onColumnClick },         
+                isResizable: true, onColumnClick: this.onColumnClick
+            }
         ];
+        // Adding Azure SDK column to SDK repository details 
+        if ((repositoryName.includes('sdk')) || (repositoryName.includes('SDK'))) {
+            const azureSdkColumn: IColumn = {
+                key: 'azureSdkVersion', name: 'Azure SDK Version', fieldName: 'azureSdkVersion',
+                minWidth: 200, maxWidth: 200, isResizable: true, onColumnClick: this.onColumnClick
+            }
+            // Adding the column to the second last position
+            columns.splice(columns.length - 1, 0, azureSdkColumn);
+        }
 
         this.state = {
             columns,
@@ -67,7 +81,9 @@ export default class Details extends React.Component<any, any> {
             },
             isLoading: false
         });
-    }        
+
+        
+    }
 
     public render(): JSX.Element {
         const { columns, items, repositoryDetails, isLoading } = this.state;
@@ -123,6 +139,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
     const packageName = item.packageName;
     const version = item.requirements;
     let currentVersion = item.latestVersion;
+    const azureSdkVersion = item.azureSdkVersion;
     const status = item.status;
     const requirements = version.slice(2);
 
@@ -131,11 +148,14 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
         case 'Library':
             return <span>{packageName} </span>;
 
-        case 'Sample Version':
+        case 'Used Version':
             return <span>{requirements} </span>;
 
-        case 'Current Version':
+        case 'Latest Version':
             return <span>{currentVersion} </span>;
+
+        case 'Azure SDK Version':
+            return <span>{azureSdkVersion}</span>;
 
         case 'Status':
             return checkStatus(status);
