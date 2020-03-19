@@ -46,9 +46,11 @@ namespace SamplesDashboard
             {
                 EndPoint = new Uri("https://api.github.com/graphql"),
             });
+           
             services.AddSingleton<RepositoriesService>();
             services.AddSingleton<NugetService>();
             services.AddSingleton<NpmService>();
+            services.AddSingleton<AzureSdkService>();
             services.AddHostedService<RepositoryHostedService>();
 
             // In production, the React files will be served from this directory
