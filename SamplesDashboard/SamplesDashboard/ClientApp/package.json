@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@babel/runtime": "7.8.7",
     "bootstrap": "4.4.1",
     "connected-react-router": "6.2.1",
     "history": "4.7.2",
