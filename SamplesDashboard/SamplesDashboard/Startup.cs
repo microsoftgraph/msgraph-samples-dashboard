@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
 using GraphQL.Client.Http;
 using SamplesDashboard.Services;
+using SamplesDashboard.HostedServices;
 
 namespace SamplesDashboard
 {
@@ -48,6 +49,8 @@ namespace SamplesDashboard
             services.AddSingleton<RepositoriesService>();
             services.AddSingleton<NugetService>();
             services.AddSingleton<NpmService>();
+            services.AddHostedService<RepositoryHostedService>();
+
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
             {

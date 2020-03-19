@@ -63,10 +63,9 @@ namespace SamplesDashboardTests
         {
             // Arrange
             var sampleName = "msgraph-training-aspnetmvcapp";
-            string name = " sample OR training";
 
             // Act
-            var samples = await _repositoriesService.GetRepositories(name);
+            var samples = await _repositoriesService.GetRepositories(Constants.Samples);
             var exampleSample = samples.Find((node) => node.Name.Equals(sampleName));
 
             Assert.NotEmpty(samples);
@@ -80,10 +79,9 @@ namespace SamplesDashboardTests
         {
             // Arrange
             var sdkName = "msgraph-sdk-dotnet";
-            string name = " sdk";
 
             // Act
-            var sdks = await _repositoriesService.GetRepositories(name);
+            var sdks = await _repositoriesService.GetRepositories(Constants.Sdks);
             var exampleSdk = sdks.Find((node) => node.Name.Equals(sdkName));
 
             Assert.NotEmpty(sdks);
@@ -95,11 +93,8 @@ namespace SamplesDashboardTests
         [Fact]
         public async Task ShouldGetSampleAndTrainingRepositories()
         {
-            //Arrange
-            string name = " sample OR training";
-
             //Act
-            var samples = await _repositoriesService.GetRepositories(name);
+            var samples = await _repositoriesService.GetRepositories(Constants.Samples);
             var sampleList = samples.Select(n => n.Name);
 
             //Assert
@@ -112,11 +107,8 @@ namespace SamplesDashboardTests
         [Fact]
         public async Task ShouldGetSdksRepositories()
         {
-            //Arrange
-            string name = " sdk";
-
             //Act
-            var sdks = await _repositoriesService.GetRepositories(name);
+            var sdks = await _repositoriesService.GetRepositories(Constants.Sdks);
             var sdkList = sdks.Select(n => n.Name);
 
             //Assert

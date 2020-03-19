@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Services;
+using Microsoft.Extensions.Logging;
 
 namespace SamplesDashboard.Controllers
 {
@@ -18,12 +19,14 @@ namespace SamplesDashboard.Controllers
         private readonly RepositoriesService _repositoriesService;
         private IMemoryCache _cache;
         private readonly IConfiguration _config;
+        private readonly ILogger<RepositoriesController> _logger;
 
-        public RepositoriesController(RepositoriesService repositoriesService, IMemoryCache memoryCache, IConfiguration config)
+        public RepositoriesController(RepositoriesService repositoriesService, IMemoryCache memoryCache, IConfiguration config, ILogger<RepositoriesController> logger)
         {
             _repositoriesService = repositoriesService;
             _cache = memoryCache;
             _config = config;
+            _logger = logger;
         }
 
         [Produces("application/json")]
@@ -31,19 +34,18 @@ namespace SamplesDashboard.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
         {
-            string name = " sample OR training";
-            List<Node> samples;
 
-            if (!_cache.TryGetValue("samples", out samples))
+            if (!_cache.TryGetValue(Constants.Samples, out var samples))
             {
-                samples = await _repositoriesService.GetRepositories(name);
+                samples = await _repositoriesService.GetRepositories(Constants.Samples);
 
                 //Read timeout from config file 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
 
                 // Save data in cache.
-                _cache.Set("samples", samples, cacheEntryOptions);
-            }              
+                _cache.Set( Constants.Samples, samples, cacheEntryOptions);
+                _logger.LogInformation($"{nameof(RepositoriesController)} :samples cache refreshed");
+            }
 
             return Ok(samples);
         }
@@ -52,19 +54,18 @@ namespace SamplesDashboard.Controllers
         [Route("api/sdks")]
         [HttpGet]
         public async Task<IActionResult> GetSdksListAsync()
-        {
-            string name = " sdk";
-            List<Node> sdkList;
+        {     
 
-            if (!_cache.TryGetValue("sdks", out sdkList))
+            if (!_cache.TryGetValue(Constants.Sdks, out var sdkList))
             {
-                sdkList = await _repositoriesService.GetRepositories(name);
+                sdkList = await _repositoriesService.GetRepositories(Constants.Sdks);
 
                 //Read timeout from config file 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
 
                 // Save data in cache.
-                _cache.Set("sdks", sdkList, cacheEntryOptions);
+                _cache.Set(Constants.Sdks, sdkList, cacheEntryOptions);
+                _logger.LogInformation($"{nameof(RepositoriesController)} :sdks cache refreshed");
             }
 
             return Ok(sdkList);
@@ -78,10 +79,11 @@ namespace SamplesDashboard.Controllers
             if (!_cache.TryGetValue(id, out repository))
             {
                 repository = await _repositoriesService.GetRepository(id);
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
                 _cache.Set(id, repository, cacheEntryOptions);
+                _logger.LogInformation($"{nameof(RepositoriesController)} : {id} : repositories cache refreshed");
+
             }
-            
             return Ok(repository);
         }              
     }
