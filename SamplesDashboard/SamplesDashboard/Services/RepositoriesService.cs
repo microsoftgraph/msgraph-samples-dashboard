@@ -25,8 +25,10 @@ namespace SamplesDashboard.Services
         private readonly IHttpClientFactory _clientFactory;
         private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
+        private readonly AzureSdkService _azureSdkService;
         private readonly IMemoryCache _cache;
         private readonly IConfiguration _config;
+
 
 
         public RepositoriesService(
@@ -34,6 +36,7 @@ namespace SamplesDashboard.Services
             IHttpClientFactory clientFactory,
             NugetService nugetService,
             NpmService npmService,
+            AzureSdkService azureSdkService,
             IMemoryCache memoryCache,
             IConfiguration config)
         {
@@ -41,6 +44,7 @@ namespace SamplesDashboard.Services
             _clientFactory = clientFactory;
             _nugetService = nugetService;
             _npmService = npmService;
+            _azureSdkService = azureSdkService;
             _cache = memoryCache;
             _config = config;
         }
@@ -220,11 +224,13 @@ namespace SamplesDashboard.Services
                     if (string.IsNullOrEmpty(currentVersion)) continue;
 
                     //getting latest versions from the respective packagemanagers, and the default values from github
-                    string latestVersion;                    
+                    string latestVersion;
+                    string azureSdkVersion = String.Empty;
                     switch (dependency.packageManager)
                     {
                         case "NUGET":
                             latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
+                            azureSdkVersion = await GetAzureSdkVersions(dependency.packageName);                         
                             break;
 
                         case "NPM":
@@ -237,6 +243,7 @@ namespace SamplesDashboard.Services
                     }
 
                     dependency.latestVersion = latestVersion;
+                    dependency.azureSdkVersion = azureSdkVersion;
                     dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                 }
                 //getting the highest status from a dependency node
@@ -250,6 +257,27 @@ namespace SamplesDashboard.Services
             }
             return repository;
         }
+        
+        /// <summary>
+        /// This method 
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <returns></returns>
+        public async Task<string> GetAzureSdkVersions(string packageName)
+        {
+            string azureSdkVersion = String.Empty;
+
+            var sdks = await _azureSdkService.FetchAzureSdkVersions();
+            foreach (var sdk in sdks)
+            {
+                if (sdk.Key == packageName)
+                {
+                    azureSdkVersion = sdk.Value;
+                }
+            }
+            return azureSdkVersion;
+        }
+
         /// <summary>
         /// Calculate the status of a repo
         /// </summary>
@@ -365,6 +393,7 @@ namespace SamplesDashboard.Services
             {
                 string fileContents = await responseMessage.Content.ReadAsStringAsync();
                 string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
+
                 //we have a valid header between ---
                 if (parts.Length > 1)
                 {
