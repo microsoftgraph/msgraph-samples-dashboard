@@ -17,7 +17,7 @@ using SamplesDashboard.Models;
 namespace SamplesDashboard.Services
 {
     /// <summary>
-    ///  This class contains repos query services and functions to be used by the repos API
+    ///  This class contains repository query services and functions to be used by the repositories API
     /// </summary>    
     public class RepositoriesService
     {
@@ -25,8 +25,10 @@ namespace SamplesDashboard.Services
         private readonly IHttpClientFactory _clientFactory;
         private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
+        private readonly AzureSdkService _azureSdkService;
         private readonly IMemoryCache _cache;
         private readonly IConfiguration _config;
+
 
 
         public RepositoriesService(
@@ -34,6 +36,7 @@ namespace SamplesDashboard.Services
             IHttpClientFactory clientFactory,
             NugetService nugetService,
             NpmService npmService,
+            AzureSdkService azureSdkService,
             IMemoryCache memoryCache,
             IConfiguration config)
         {
@@ -41,6 +44,7 @@ namespace SamplesDashboard.Services
             _clientFactory = clientFactory;
             _nugetService = nugetService;
             _npmService = npmService;
+            _azureSdkService = azureSdkService;
             _cache = memoryCache;
             _config = config;
         }
@@ -219,12 +223,14 @@ namespace SamplesDashboard.Services
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
 
-                    //getting latest versions from the respective packagemanagers, and the default values from github
-                    string latestVersion;                    
+                    //getting latest versions from the respective packagemanagers,azure sdks and the default values from github
+                    string latestVersion;
+                    string azureSdkVersion = String.Empty;
                     switch (dependency.packageManager)
                     {
                         case "NUGET":
                             latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
+                            azureSdkVersion = await _azureSdkService.GetAzureSdkVersions(dependency.packageName);                         
                             break;
 
                         case "NPM":
@@ -237,6 +243,7 @@ namespace SamplesDashboard.Services
                     }
 
                     dependency.latestVersion = latestVersion;
+                    dependency.azureSdkVersion = azureSdkVersion;
                     dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                 }
                 //getting the highest status from a dependency node
@@ -249,7 +256,8 @@ namespace SamplesDashboard.Services
                 }
             }
             return repository;
-        }
+        }       
+
         /// <summary>
         /// Calculate the status of a repo
         /// </summary>
@@ -365,6 +373,7 @@ namespace SamplesDashboard.Services
             {
                 string fileContents = await responseMessage.Content.ReadAsStringAsync();
                 string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
+
                 //we have a valid header between ---
                 if (parts.Length > 1)
                 {

@@ -138,7 +138,7 @@ namespace SamplesDashboard
         public string requirements { get; set; }
         public string latestVersion { get; set; }
         public Packages repository { get; set; }
-
+        public string azureSdkVersion { get; set; }
     }
 
     public class Packages
@@ -147,7 +147,7 @@ namespace SamplesDashboard
 
         public Releases releases { get; set; }
 
-    }
+    }   
 
     public class Releases
     {

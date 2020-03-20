@@ -54,7 +54,7 @@ namespace SamplesDashboard.Services
                         var serializer = new JsonSerializer();
                         npmData = serializer.Deserialize<NpmQuery>(jsonTextReader);
 
-                        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>("timeout")));
+                        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
                         _cache.Set($"npm: {packageName}", npmData, cacheEntryOptions);
                     }                   
                 }
