@@ -223,14 +223,14 @@ namespace SamplesDashboard.Services
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
 
-                    //getting latest versions from the respective packagemanagers, and the default values from github
+                    //getting latest versions from the respective packagemanagers,azure sdks and the default values from github
                     string latestVersion;
                     string azureSdkVersion = String.Empty;
                     switch (dependency.packageManager)
                     {
                         case "NUGET":
                             latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
-                            azureSdkVersion = await GetAzureSdkVersions(dependency.packageName);                         
+                            azureSdkVersion = await _azureSdkService.GetAzureSdkVersions(dependency.packageName);                         
                             break;
 
                         case "NPM":
@@ -256,27 +256,7 @@ namespace SamplesDashboard.Services
                 }
             }
             return repository;
-        }
-        
-        /// <summary>
-        /// This method 
-        /// </summary>
-        /// <param name="packageName"></param>
-        /// <returns></returns>
-        public async Task<string> GetAzureSdkVersions(string packageName)
-        {
-            string azureSdkVersion = String.Empty;
-
-            var sdks = await _azureSdkService.FetchAzureSdkVersions();
-            foreach (var sdk in sdks)
-            {
-                if (sdk.Key == packageName)
-                {
-                    azureSdkVersion = sdk.Value;
-                }
-            }
-            return azureSdkVersion;
-        }
+        }       
 
         /// <summary>
         /// Calculate the status of a repo
