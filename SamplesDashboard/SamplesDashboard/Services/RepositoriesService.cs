@@ -17,7 +17,7 @@ using SamplesDashboard.Models;
 namespace SamplesDashboard.Services
 {
     /// <summary>
-    ///  This class contains repos query services and functions to be used by the repos API
+    ///  This class contains repository query services and functions to be used by the repositories API
     /// </summary>    
     public class RepositoriesService
     {
