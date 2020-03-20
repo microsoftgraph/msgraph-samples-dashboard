@@ -43,6 +43,26 @@ namespace SamplesDashboard.Services
 
             return packages;
         }
-        
+
+        /// <summary>
+        /// This method gets a dictionary of packages and sets the version used
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <returns>azure sdk version</returns>
+        public async Task<string> GetAzureSdkVersions(string packageName)
+        {
+            string azureSdkVersion = String.Empty;
+
+            var sdks = await FetchAzureSdkVersions();
+            foreach (var sdk in sdks)
+            {
+                if (sdk.Key == packageName)
+                {
+                    azureSdkVersion = sdk.Value;
+                }
+            }
+            return azureSdkVersion;
+        }
+
     }
 }
