@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Xml;
@@ -31,7 +32,7 @@ namespace SamplesDashboard.Services
         /// Downloads and parses an xml file to get a dictionary of azure sdk versions
         /// </summary>
         /// <returns> a dictionary of packages</returns>
-        public async Task<Dictionary<string, string>> FetchAzureSdkVersions()
+        internal async Task<Dictionary<string, string>> FetchAzureSdkVersions()
         {
             Dictionary<string, string> packages = new Dictionary<string, string>();
 
@@ -45,9 +46,9 @@ namespace SamplesDashboard.Services
                 {
                     return null;
                 }
-                string fileContents = await responseMessage.Content.ReadAsStringAsync();
                 XmlDocument xml = new XmlDocument();
-                xml.LoadXml(fileContents);
+                Stream fileStream = await responseMessage.Content.ReadAsStreamAsync();
+                xml.Load(fileStream);
 
                 XmlNodeList data = xml.GetElementsByTagName("PackageReference");
 
