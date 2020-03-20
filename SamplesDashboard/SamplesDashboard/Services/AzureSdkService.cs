@@ -19,13 +19,14 @@ namespace SamplesDashboard.Services
     public class AzureSdkService
     {
         private readonly IHttpClientFactory _clientFactory;
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
         private readonly IConfiguration _config;
 
-        public AzureSdkService(IHttpClientFactory clientFactory, IMemoryCache cache)
+        public AzureSdkService(IHttpClientFactory clientFactory, IMemoryCache cache, IConfiguration config)
         {
             _clientFactory = clientFactory;
             _cache = cache;
+            _config = config;
         } 
 
         /// <summary>
@@ -34,10 +35,11 @@ namespace SamplesDashboard.Services
         /// <returns> a dictionary of packages</returns>
         internal async Task<Dictionary<string, string>> FetchAzureSdkVersions()
         {
-            Dictionary<string, string> packages = new Dictionary<string, string>();
+            Dictionary<string, string> packages;
 
             if (!_cache.TryGetValue("azureSdkVersions", out packages))
             {
+                packages = new Dictionary<string, string>();
                 var httpClient = _clientFactory.CreateClient();
 
                 HttpResponseMessage responseMessage = await httpClient.GetAsync("https://raw.githubusercontent.com/Azure/azure-sdk-for-net/master/eng/Packages.Data.props");
@@ -46,17 +48,21 @@ namespace SamplesDashboard.Services
                 {
                     return null;
                 }
+
                 XmlDocument xml = new XmlDocument();
                 Stream fileStream = await responseMessage.Content.ReadAsStreamAsync();
                 xml.Load(fileStream);
 
                 XmlNodeList data = xml.GetElementsByTagName("PackageReference");
-
                 foreach (XmlNode node in data)
                 {
-                    if (!packages.ContainsKey(node.Attributes["Update"].Value))
+                    var attribute = node.Attributes["Update"];
+                    if (attribute == null) continue;
+                    if (node.Attributes["Version"] == null) continue;
+
+                    if (!packages.ContainsKey(attribute.Value))
                     {
-                        packages.Add(node.Attributes["Update"].Value, node.Attributes["Version"].Value);
+                        packages.Add(attribute.Value, node.Attributes["Version"].Value);
                     }
                 }
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
