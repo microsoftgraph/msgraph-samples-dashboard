@@ -30,10 +30,10 @@ export default class Details extends React.Component<any, any> {
             { key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 300, maxWidth: 400, isRowHeader: true, 
                 isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
-            { key: 'requirements', name: 'Used Version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
+            { key: 'requirements', name: 'Used version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
                 isResizable: true
             },
-            { key: 'currentVersion', name: 'Latest Version', fieldName: 'tagName', minWidth: 200, 
+            { key: 'currentVersion', name: 'Latest version', fieldName: 'tagName', minWidth: 200, 
                 maxWidth: 300, isResizable: true
             },
             { key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300, 
@@ -148,13 +148,13 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
         case 'Library':
             return <span>{packageName} </span>;
 
-        case 'Used Version':
+        case 'Used version':
             return <span>{requirements} </span>;
 
-        case 'Latest Version':
+        case 'Latest version':
             return <span>{currentVersion} </span>;
 
-        case 'Azure SDK Version':
+        case 'Azure SDK version':
             return <span>{azureSdkVersion}</span>;
 
         case 'Status':
