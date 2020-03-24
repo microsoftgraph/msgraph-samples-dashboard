@@ -1,9 +1,10 @@
 import { DetailsListLayoutMode, Fabric, IColumn, 
-    SelectionMode, ShimmeredDetailsList, PrimaryButton, FontIcon, mergeStyleSets, mergeStyles } from 'office-ui-fabric-react';
+    SelectionMode, ShimmeredDetailsList, PrimaryButton, FontIcon, mergeStyleSets, mergeStyles, TooltipHost } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
+import { Tooltip } from 'reactstrap';
 
 const iconClass = mergeStyles({
     fontSize: 15,
@@ -166,16 +167,24 @@ function checkStatus(status: number)
 {
     switch (status) {
         case 0:
-            return <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>;
+            return <TooltipHost content="Unknown" id={'Unknown'}>
+                <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>
+            </TooltipHost>;
 
         case 1:
-            return <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>;
+            return <TooltipHost content="This library is up to date" id={'UptoDate'}>
+                <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>
+            </TooltipHost>;
 
         case 2:
-            return <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>;
+            return <TooltipHost content="This library has a major/minor realease update" id={'Update'}>
+                <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
+            </TooltipHost>;
 
         case 3:
-            return <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>;
+            return <TooltipHost content="This library has a patch release update" id={'UrgentUpdate'}>
+                <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>
+            </TooltipHost>;
     }
 
 }
