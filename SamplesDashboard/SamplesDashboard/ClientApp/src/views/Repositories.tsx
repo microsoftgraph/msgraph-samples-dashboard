@@ -227,7 +227,7 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 // rendering the language and service component within the details list
 function renderItemColumn(item: IRepositoryItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
-    const name = item.name;
+    const name = item.name.toLowerCase();
     const owner = item.owner.login;
     const status = item.repositoryStatus;
     const language = item.language;
