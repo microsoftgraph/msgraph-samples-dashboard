@@ -17,7 +17,7 @@ import { IRepositoryItem, IRepositoryState } from '../types/samples';
 initializeIcons();
 
 const detailListClass = mergeStyles({
-    display: 'block',
+    display: 'block'
     marginBottom: '10px'
 
 });
@@ -66,7 +66,7 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'language', name: 'Language', fieldName: 'language', minWidth: 75, maxWidth: 100,
+                key: 'pullRequestCount', name: 'Open pull requests', fieldName: 'pullRequests', minWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -74,7 +74,7 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'issueCount', name: 'Open Issues', fieldName: 'issues', minWidth: 75, maxWidth: 100,
+                key: 'issueCount', name: 'Open issues', fieldName: 'issues', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -86,7 +86,11 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'featureArea', name: 'Feature Area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300,
+                key: 'language', name: 'Language', fieldName: 'language', minWidth: 75, maxWidth: 100,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'featureArea', name: 'Feature area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300,
                 isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             }
         ];
@@ -254,10 +258,10 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
         case 'Language':
             return <span>{language}</span>;
 
-        case 'Open Pull Requests':
+        case 'Open pull requests':
             return <a href={`${url}/pulls`} target="_blank" rel="noopener noreferrer"> <span>{pullRequestCount} </span></a>
 
-        case 'Open Issues':
+        case 'Open issues':
             return <a href={`${url}/issues`} target="_blank" rel="noopener noreferrer"> <span>{issueCount}</span></a>
 
         case 'Forks':
@@ -266,7 +270,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
         case 'Stars':
             return <a href={`${url}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
 
-        case 'Feature Area':
+        case 'Feature area':
             return <span> {featureArea} </span>;
 
         case 'Security Alerts':
