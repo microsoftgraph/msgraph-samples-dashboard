@@ -1,10 +1,13 @@
 import { DetailsListLayoutMode, Fabric, IColumn, 
-    SelectionMode, ShimmeredDetailsList, PrimaryButton, FontIcon, mergeStyleSets, mergeStyles, TooltipHost } from 'office-ui-fabric-react';
+    SelectionMode, ShimmeredDetailsList, PrimaryButton, FontIcon, mergeStyleSets,
+    mergeStyles, TooltipHost, ScrollablePane, ScrollbarVisibility, Sticky, StickyPositionType,
+    IRenderFunction, IDetailsHeaderProps
+} from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
-import { Tooltip } from 'reactstrap';
+
 
 const iconClass = mergeStyles({
     fontSize: 15,
@@ -12,7 +15,21 @@ const iconClass = mergeStyles({
     width: 15,
     margin: '0 5px'
 });
+const buttonClass = mergeStyles({
+    margin: '10px'
+})
 const classNames = mergeStyleSets({
+    wrapper: {
+        background: '#fff',
+        height: '80vh',
+        position: 'relative',
+        display: 'flex',
+        flexWrap: 'wrap',
+        boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
+        transition: '0.3s',
+        margin: '5px'    
+    },
+    detailList: { padding: '10px' },
     yellow: [{ color: '#ffaa44' }, iconClass],
     green: [{ color: '#498205' }, iconClass],
     red: [{ color: '#d13438' }, iconClass],
@@ -81,36 +98,40 @@ export default class Details extends React.Component<any, any> {
                 url: data.url
             },
             isLoading: false
-        });
-
-        
+        });  
     }
 
     public render(): JSX.Element {
         const { columns, items, repositoryDetails, isLoading } = this.state;
         
         return (
-            <Fabric>
-                <div>
-                    
+            <div>     
                     { isLoading ?
-                        <div /> :
-                        <div>
-                            <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
-                            <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository </PrimaryButton> 
-                        </div>
+                    <div /> :
+                    <Fabric>
+                        <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
+                        <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer" className={buttonClass}>
+                            <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository
+                        </PrimaryButton> 
+                        <div className={classNames.wrapper}>
+                            <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+                                <div>
+                                    <ShimmeredDetailsList
+                                        items={items}
+                                        columns={columns}
+                                        selectionMode={SelectionMode.none}
+                                        layoutMode={DetailsListLayoutMode.justified}
+                                        isHeaderVisible={true}
+                                        onRenderItemColumn={renderItemColumn}
+                                        enableShimmer={isLoading}
+                                        onRenderDetailsHeader={onRenderDetailsHeader}
+                                    />
+                                </div>
+                            </ScrollablePane>   
+                            </div>
+                    </Fabric>
                     }
-                    <ShimmeredDetailsList
-                        items={items}
-                        columns={columns}
-                        selectionMode={SelectionMode.none}
-                        layoutMode={DetailsListLayoutMode.justified}
-                        onRenderItemColumn={renderItemColumn}
-                        isHeaderVisible={true}
-                        enableShimmer={isLoading}
-                    />
-                </div>
-            </Fabric>
+            </div>
         );
     }
 
@@ -134,6 +155,20 @@ export default class Details extends React.Component<any, any> {
         });
     };
 }
+// Enables the column headers to remain sticky
+const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
+    if (!props) {
+        return null;
+    }
+    return (
+        <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced={true}>
+            {defaultRender!({
+                ...props
+            })}
+        </Sticky>
+    );
+};
+
 
 function renderItemColumn(item: IDetailsItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
@@ -162,7 +197,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
             return checkStatus(status);
     }
 }
-
+// checks the value of the status and displays the appropriate status
 function checkStatus(status: number)
 {
     switch (status) {

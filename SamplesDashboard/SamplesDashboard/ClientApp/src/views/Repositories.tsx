@@ -1,24 +1,24 @@
 import {
     DetailsListLayoutMode, IColumn,
-    SelectionMode, ShimmeredDetailsList, FontIcon, IRenderFunction, IDetailsHeaderProps, IDetailsColumnRenderTooltipProps, TooltipHost
+    SelectionMode, ShimmeredDetailsList, FontIcon, IRenderFunction, IDetailsHeaderProps, TooltipHost
 } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
 import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
-import { FontSizes, mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
+import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IRepositoryItem, IRepositoryState } from '../types/samples';
-import { Tooltip } from 'reactstrap';
 
 initializeIcons();
 
-const detailListClass = mergeStyles({
-    display: 'block'
+const filterListClass = mergeStyles({
+    display: 'block',
+    padding: '10px'
 });
 
 const iconClass = mergeStyles({
@@ -30,14 +30,16 @@ const iconClass = mergeStyles({
 
 const classNames = mergeStyleSets({
     wrapper: {
-        height: '80vh',
+        background: '#fff' ,
+        height: '70vh',
         position: 'relative',
         display: 'flex',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
+        boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
+        transition: '0.3s',
+        margin: '5px'     
     },
-    pageTitle: {
-        fontSize: FontSizes.large
-    },
+    detailList: { padding: '10px'},
     yellow: [{ color: '#ffaa44'}, iconClass],
     green: [{ color: '#498205' }, iconClass],
     red: [{ color: '#d13438' }, iconClass],
@@ -111,7 +113,6 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
         else if (this.props.title === "sdks") {
             this.fetchSDKs();
         }
-
     }
 
     // fetching the samples data from the samples api
@@ -140,7 +141,6 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
             });
     }
 
-
     public render(): JSX.Element {
         const { columns, items, isLoading } = this.state;
 
@@ -151,12 +151,13 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
                             <TextField
-                                className={detailListClass}
+                                className={filterListClass}
                                 label='Filter by name:'
                                 onChange={this.onFilterName}
                                 styles={{ root: { maxWidth: '300px' } }}
                             />
                         </Sticky>
+                        <div className={classNames.detailList}>
                         <ShimmeredDetailsList
                             items={items}
                             columns={columns}
@@ -166,7 +167,8 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                             onRenderItemColumn={renderItemColumn}
                             enableShimmer={isLoading}
                             onRenderDetailsHeader={onRenderDetailsHeader}
-                        />
+                            />
+                        </div>
                     </ScrollablePane>
                 </div>
             </Fabric>
@@ -208,16 +210,10 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
     if (!props) {
         return null;
     }
-
-    const onRenderColumnHeaderTooltip: IRenderFunction<IDetailsColumnRenderTooltipProps> = tooltipHostProps => (
-        <TooltipHost {...tooltipHostProps} />
-    );
-
     return (
         <Sticky stickyPosition={StickyPositionType.Header} isScrollSynced={true}>
             {defaultRender!({
-                ...props,
-                onRenderColumnHeaderTooltip
+                ...props
             })}
         </Sticky>
     );
