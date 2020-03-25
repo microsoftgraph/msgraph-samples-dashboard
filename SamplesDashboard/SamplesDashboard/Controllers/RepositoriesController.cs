@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace SamplesDashboard.Controllers
 {
     [ApiController]
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public class RepositoriesController : Controller
     {
         private readonly RepositoriesService _repositoriesService;
