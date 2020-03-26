@@ -324,17 +324,17 @@ function checkStatus(status: number) {
             </TooltipHost>;
 
         case 1:
-            return <TooltipHost content="This repository has dependencies that are up to date" id={'UptoDate'}>
+            return <TooltipHost content="All dependencies in this repository are up to date" id={'UptoDate'}>
                 <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>
             </TooltipHost>;
 
         case 2:
-            return <TooltipHost content="Many depepndencies in this repository have a major/minor release update" id={'Update'}>
+            return <TooltipHost content="Many dependencies in this repository have a major/minor release update" id={'Update'}>
                 <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
             </TooltipHost>;
 
         case 3:
-            return <TooltipHost content="Many depepndencies in this repository have a patch release update" id={'UrgentUpdate'}>
+            return <TooltipHost content="At least 1 dependency in this repository has a patch release update" id={'UrgentUpdate'}>
                 <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>
             </TooltipHost>;
     }
