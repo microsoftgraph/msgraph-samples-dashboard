@@ -8,16 +8,17 @@ import * as React from 'react';
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
 
-
 const iconClass = mergeStyles({
     fontSize: 15,
     height: 15,
     width: 15,
     margin: '0 5px'
 });
+
 const buttonClass = mergeStyles({
     margin: '10px'
-})
+});
+
 const classNames = mergeStyleSets({
     wrapper: {
         background: '#fff',
@@ -35,6 +36,7 @@ const classNames = mergeStyleSets({
     red: [{ color: '#d13438' }, iconClass],
     blue: [{ color: '#0078d4' }, iconClass]
 });
+
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
 
@@ -61,7 +63,7 @@ export default class Details extends React.Component<any, any> {
         // Adding Azure SDK column to SDK repository details 
         if ((repositoryName.includes('sdk')) || (repositoryName.includes('SDK'))) {
             const azureSdkColumn: IColumn = {
-                key: 'azureSdkVersion', name: 'Azure SDK Version', fieldName: 'azureSdkVersion',
+                key: 'azureSdkVersion', name: 'Azure SDK version', fieldName: 'azureSdkVersion',
                 minWidth: 200, maxWidth: 200, isResizable: true, onColumnClick: this.onColumnClick
             }
             // Adding the column to the second last position
@@ -169,7 +171,6 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
     );
 };
 
-
 function renderItemColumn(item: IDetailsItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const packageName = item.packageName;
@@ -212,7 +213,7 @@ function checkStatus(status: number)
             </TooltipHost>;
 
         case 2:
-            return <TooltipHost content="This library has a major/minor realease update" id={'Update'}>
+            return <TooltipHost content="This library has a major/minor release update" id={'Update'}>
                 <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
             </TooltipHost>;
 
