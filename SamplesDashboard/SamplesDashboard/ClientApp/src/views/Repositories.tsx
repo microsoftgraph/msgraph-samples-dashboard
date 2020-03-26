@@ -329,7 +329,7 @@ function checkStatus(status: number) {
             </TooltipHost>;
 
         case 2:
-            return <TooltipHost content="Many dependencies in this repository have a major/minor release update" id={'Update'}>
+            return <TooltipHost content="At least 1 dependency in this repository has a major/minor release update" id={'Update'}>
                 <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
             </TooltipHost>;
 
