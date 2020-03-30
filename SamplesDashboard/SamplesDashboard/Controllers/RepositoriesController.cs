@@ -10,10 +10,12 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SamplesDashboard.Controllers
 {
     [ApiController]
+    [Authorize]
     public class RepositoriesController : Controller
     {
         private readonly RepositoriesService _repositoriesService;

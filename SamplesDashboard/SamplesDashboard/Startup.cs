@@ -3,23 +3,27 @@
 // ------------------------------------------------------------------------------
 
 using System;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
 using GraphQL.Client.Http;
 using SamplesDashboard.Services;
 using SamplesDashboard.HostedServices;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace SamplesDashboard
 {
-
     public class Startup
     {
-        public  IWebHostEnvironment Environment { get; }
+        public IWebHostEnvironment Environment { get; }
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
@@ -27,9 +31,29 @@ namespace SamplesDashboard
             Environment = environment;
             Configuration = configuration;
         }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public virtual void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(sharedOptions =>
+            {
+                sharedOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                sharedOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            })
+            .AddAzureAd(options => Configuration.Bind("AzureAd", options))
+            .AddCookie();
+
+            services.AddMvc(options =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                options.Filters.Add(new AuthorizeFilter(policy));
+            })
+            .AddRazorPagesOptions(options =>
+            {
+                options.Conventions.AllowAnonymousToFolder("/Account");
+            });
             services.AddControllersWithViews();
             services.AddMemoryCache();
             services.AddHttpClient();
@@ -46,7 +70,7 @@ namespace SamplesDashboard
             {
                 EndPoint = new Uri("https://api.github.com/graphql"),
             });
-           
+
             services.AddSingleton<RepositoriesService>();
             services.AddSingleton<NugetService>();
             services.AddSingleton<NpmService>();
@@ -65,6 +89,7 @@ namespace SamplesDashboard
         {
             if (env.IsDevelopment())
             {
+                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -74,12 +99,14 @@ namespace SamplesDashboard
                 app.UseHsts();
             }
 
+            app.UseStaticFiles();
+            app.UseAuthentication();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-
             app.UseRouting();
-
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

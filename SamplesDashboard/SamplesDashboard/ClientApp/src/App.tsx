@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Route } from 'react-router';
+import AuthorizeRoute  from './components/api-authorization/AuthorizeRoute';
 
 import Layout from './components/layout/Layout';
 import './custom.css';
@@ -8,7 +8,7 @@ import Home from './views/Home';
 
 export default () => (
     <Layout>
-        <Route exact path='/' component={Home} />
-        <Route path='/samples/:name' component={Samples} />
+        <AuthorizeRoute exact path='/' component={Home} />
+        <AuthorizeRoute path='/samples/:name' component={Samples} />
     </Layout>
 );
