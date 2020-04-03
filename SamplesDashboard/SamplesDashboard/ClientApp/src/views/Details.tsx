@@ -113,7 +113,7 @@ export default class Details extends React.Component<any, any> {
                     { isLoading ?
                     <div /> :
                     <Fabric>
-                        <PageTitle title={` ${repositoryDetails.name} dependencies`} />
+                        <PageTitle title={`${repositoryDetails.name} dependencies`} />
                         <div>{repositoryDetails.description}</div>
                         <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer" className={buttonClass}>
                             <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository

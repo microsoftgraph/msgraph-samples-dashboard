@@ -159,17 +159,16 @@ namespace SamplesDashboard.Services
                 repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
 
                 if(repoItem.Collaborators != null)
-                {
-                    var name = repoItem.Collaborators.Edges.Select(n => n.Node.Name);
-                    var url = repoItem.Collaborators.Edges.Select(n => n.Node.Url);
-
-
-                    name = repoItem.Collaborators.Edges.Where(p => p.Permission == "ADMIN")
+                {                 
+                    var userName = repoItem.Collaborators.Edges.Where(p => p.Permission == "ADMIN")
                                                               .Select(p => p.Node.Name).ToList();
-                    url = repoItem.Collaborators.Edges.Where(p => p.Permission == "ADMIN")
+                    var profileUrl = repoItem.Collaborators.Edges.Where(p => p.Permission == "ADMIN")
                                                               .Select(p => p.Node.Url).ToList();
+
+                    repoItem.Owner = userName;
+                    repoItem.OwnerUrl = profileUrl;
+
                 }
-                
             }         
            
         }

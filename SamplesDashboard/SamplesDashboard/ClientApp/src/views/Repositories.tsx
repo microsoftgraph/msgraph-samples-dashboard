@@ -223,8 +223,8 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 function renderItemColumn(item: IRepositoryItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const name = item.name.toLowerCase();
-    const owner = item.admins;
-    //const userProfile = item.collaborators.edges.node.url;
+    const owner = item.owner;
+    const ownerUrl = item.ownerUrl;
     const status = item.repositoryStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
@@ -242,7 +242,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             </div>;
 
         case 'Owner':
-            return stringSplit(owner);
+            return <span>{owner}</span>;
 
         case 'Status':
             return checkStatus(status);
@@ -289,17 +289,7 @@ function stringSplit(owner: any)
     const user = owner.join(', ');
     return user;
 }
-function validate(item: IRepositoryItem)
-{
-    if ((item.collaborators === null) || (item.collaborators.edges === null) || (item.collaborators.edges.node === null)) {
-        return ' ';
-    }
 
-    for (let i = 0; i < item.collaborators.edges.length; i++) {
-        const profile = item.collaborators.edges[i].node.url;
-        console.log(profile);
-    } 
-}
 function compare(a: any, b: any, isSortedDescending?: boolean) {
     // Handle the possible scenario of blank inputs 
     // and keep them at the bottom of the lists
