@@ -36,8 +36,6 @@ namespace SamplesDashboard
 
         [JsonProperty("name")]
         public string Name { get; set; }
-
-        [JsonProperty("owner")]
         public Owner Owner { get; set; }
 
         [JsonProperty("vulnerabilityAlerts")]
@@ -54,14 +52,20 @@ namespace SamplesDashboard
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
+        [JsonProperty("collaborators")]
+        public Collaborators Collaborators { get; set; }
 
         [JsonProperty("forks")]
-        public Forks Forks { get; set; } 
+        public Forks Forks { get; set; }
+        
+        public List<string> Admins { get; set; }
 
         public string Language { get; internal set; }
 
         public string FeatureArea { get; internal set; }
+
         public bool HasDependendencies { get; set; }
+
         public PackageStatus RepositoryStatus { get; internal set; }
     }
     public partial class Forks
@@ -88,6 +92,32 @@ namespace SamplesDashboard
         [JsonProperty("hasNextPage")]
         public bool HasNextPage { get; set; }
     }
+    public partial class Collaborators
+    {
+        [JsonProperty("edges")]
+        public Edge[] Edges { get; set; }
+    }
+
+    public partial class Edge
+    {
+        [JsonProperty("permission")]
+        public string Permission { get; set; }
+
+        [JsonProperty("node")]
+        public EdgeNode Node { get; set; }
+    }
+
+    public partial class EdgeNode
+    {
+        [JsonProperty("login")]
+        public string Login { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("url")]
+        public Uri Url { get; set; }
+    }
     public class Organization
     {
         [JsonProperty("repository")]
@@ -96,11 +126,15 @@ namespace SamplesDashboard
 
     public class Repository
     {
+        [JsonProperty("description")]
+        public string Description { get; set; }
+
         [JsonProperty("url")]
         public Uri Url { get; set; }
 
         [JsonProperty("dependencyGraphManifests")]
         public DependencyGraphManifests DependencyGraphManifests { get; set; }
+
         public PackageStatus highestStatus { get; set; }
     }
 

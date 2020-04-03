@@ -1,6 +1,8 @@
 import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 
 export interface IRepositoryItem {
+    collaborators: any;
+    admins: any;
     key: number;
     name: string;
     owner: any;
@@ -10,9 +12,14 @@ export interface IRepositoryItem {
     issues: any;
     stargazers: any;
     forks: any;
-    url: string;
+    url: any;
     featureArea: string;
     vulnerabilityAlerts: any;
+    edges: any;
+    node: any;
+    permission: any;
+
+   
 }
 export interface IDetailsItem {
     azureSdkVersion: any;

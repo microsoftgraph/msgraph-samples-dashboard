@@ -59,8 +59,8 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
-                key: 'login', name: 'Owner', fieldName: 'login', minWidth: 75, maxWidth: 150,
-                isResizable: true, onColumnClick: this.onColumnClick
+                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 150, maxWidth: 200,
+                isResizable: true, onColumnClick: this.onColumnClick, isMultiline:true
             },
             {
                 key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100, maxWidth: 150,
@@ -223,7 +223,8 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 function renderItemColumn(item: IRepositoryItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const name = item.name.toLowerCase();
-    const owner = item.owner.login;
+    const owner = item.admins;
+    //const userProfile = item.collaborators.edges.node.url;
     const status = item.repositoryStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
@@ -232,7 +233,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const forkCount = item.forks.totalCount;
     const url = item.url;
     const featureArea = item.featureArea;
-    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;
+    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;    
 
     switch (col.name) {
         case 'Name':
@@ -241,7 +242,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             </div>;
 
         case 'Owner':
-            return <span>{owner} </span>;
+            return stringSplit(owner);
 
         case 'Status':
             return checkStatus(status);
@@ -279,6 +280,26 @@ function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: bool
     return itemsSorted;
 }
 
+function stringSplit(owner: any)
+{
+    if (owner === null)
+    {
+        return owner;
+    }
+    const user = owner.join(', ');
+    return user;
+}
+function validate(item: IRepositoryItem)
+{
+    if ((item.collaborators === null) || (item.collaborators.edges === null) || (item.collaborators.edges.node === null)) {
+        return ' ';
+    }
+
+    for (let i = 0; i < item.collaborators.edges.length; i++) {
+        const profile = item.collaborators.edges[i].node.url;
+        console.log(profile);
+    } 
+}
 function compare(a: any, b: any, isSortedDescending?: boolean) {
     // Handle the possible scenario of blank inputs 
     // and keep them at the bottom of the lists

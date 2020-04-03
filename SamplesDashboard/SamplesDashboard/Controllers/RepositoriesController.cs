@@ -33,10 +33,15 @@ namespace SamplesDashboard.Controllers
         [Route("api/samples")]
         [HttpGet]
         public async Task<IActionResult> GetSamplesListAsync()
+        
         {
 
             if (!_cache.TryGetValue(Constants.Samples, out var samples))
             {
+                
+                
+                
+                
                 samples = await _repositoriesService.GetRepositories(Constants.Samples);
 
                 //Read timeout from config file 

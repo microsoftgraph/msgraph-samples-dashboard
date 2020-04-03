@@ -81,7 +81,8 @@ export default class Details extends React.Component<any, any> {
     public async componentDidMount() {    
         this.fetchData();
     }
-        // fetch repository libraries
+
+    // fetch repository libraries
     public fetchData = async () => {
         this.setState({ isLoading: true });
         const { match: { params } } = this.props;
@@ -97,6 +98,7 @@ export default class Details extends React.Component<any, any> {
             items: this.allItems,
             repositoryDetails: {
                 name: repositoryName,
+                description: data.description,
                 url: data.url
             },
             isLoading: false
@@ -111,7 +113,8 @@ export default class Details extends React.Component<any, any> {
                     { isLoading ?
                     <div /> :
                     <Fabric>
-                        <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
+                        <PageTitle title={` ${repositoryDetails.name} dependencies`} />
+                        <div>{repositoryDetails.description}</div>
                         <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer" className={buttonClass}>
                             <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository
                         </PrimaryButton> 
