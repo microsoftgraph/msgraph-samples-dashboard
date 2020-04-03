@@ -242,7 +242,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             </div>;
 
         case 'Owner':
-            return <span>{owner}</span>;
+            return stringSplit(owner, ownerUrl);
 
         case 'Status':
             return checkStatus(status);
@@ -280,16 +280,26 @@ function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: bool
     return itemsSorted;
 }
 
-function stringSplit(owner: any)
+function stringSplit(owner: any, ownerUrl: any)
 {
     if (owner === null)
     {
         return owner;
     }
-    const user = owner.join(', ');
-    return user;
+    var user = owner.join(', ');
+    return <a href={`${ownerUrl}`} target="_blank" rel="noopener noreferrer">{user}</a>;
 }
 
+/*function getUrl(item: IRepositoryItem) {
+    if (item.owner.length === null)
+    {
+        return "";
+    }
+    for (let i = 0; i < item.owner.length; i++) {
+        const ownerUrl = item.ownerUrl[i];
+        return ownerUrl;
+    }
+}*/
 function compare(a: any, b: any, isSortedDescending?: boolean) {
     // Handle the possible scenario of blank inputs 
     // and keep them at the bottom of the lists
