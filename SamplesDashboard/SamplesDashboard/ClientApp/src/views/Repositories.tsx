@@ -224,7 +224,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const col = column as IColumn;
     const name = item.name.toLowerCase();
     const owner = item.owner;
-    const ownerUrl = item.ownerUrl;
+    //const ownerUrl = item.ownerUrl;
     const status = item.repositoryStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
@@ -234,6 +234,8 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const url = item.url;
     const featureArea = item.featureArea;
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;    
+
+   
 
     switch (col.name) {
         case 'Name':
@@ -282,9 +284,10 @@ function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: bool
 
 function stringSplit(owner: any, ownerUrl: any)
 {
-    if (owner === null)
+    for (let i = 0; i < item.owner.length; i++)
     {
-        return owner;
+        const ownerUrl = item.ownerUrl[i];
+        return ownerUrl;
     }
     var user = owner.join(', ');
     return <a href={`${ownerUrl}`} target="_blank" rel="noopener noreferrer">{user}</a>;

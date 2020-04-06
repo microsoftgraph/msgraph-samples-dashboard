@@ -18,6 +18,10 @@ const iconClass = mergeStyles({
 const buttonClass = mergeStyles({
     margin: '10px'
 });
+const descriptionClass = mergeStyles({
+    paddingLeft: '10px',
+    paddingBottom: '10px'
+})
 
 const classNames = mergeStyleSets({
     wrapper: {
@@ -114,7 +118,7 @@ export default class Details extends React.Component<any, any> {
                     <div /> :
                     <Fabric>
                         <PageTitle title={`${repositoryDetails.name} dependencies`} />
-                        <div>{repositoryDetails.description}</div>
+                        <div className={descriptionClass}>{repositoryDetails.description}</div>
                         <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer" className={buttonClass}>
                             <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository
                         </PrimaryButton> 
