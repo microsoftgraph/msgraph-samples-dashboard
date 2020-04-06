@@ -36,8 +36,9 @@ namespace SamplesDashboard
 
         [JsonProperty("name")]
         public string Name { get; set; }
-        public List<string> Owner { get; set; }
-        public List<Uri> OwnerUrl { get; set; }
+
+        public Dictionary<string, Uri> Owner { get; set; }
+
         [JsonProperty("vulnerabilityAlerts")]
         public Issues VulnerabilityAlerts { get; set; }
 
@@ -52,13 +53,13 @@ namespace SamplesDashboard
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
+
         [JsonProperty("collaborators")]
         public Collaborators Collaborators { get; set; }
 
         [JsonProperty("forks")]
         public Forks Forks { get; set; }
         
-        public List<string> Admins { get; set; }
 
         public string Language { get; internal set; }
 

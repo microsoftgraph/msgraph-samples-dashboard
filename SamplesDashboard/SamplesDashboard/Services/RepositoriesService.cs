@@ -161,12 +161,10 @@ namespace SamplesDashboard.Services
                 if(repoItem.Collaborators != null)
                 {                 
                     var userName = repoItem.Collaborators.Edges.Where(p => p.Permission == "ADMIN")
-                                                              .Select(p => p.Node.Name).ToList();
-                    var profileUrl = repoItem.Collaborators.Edges.Where(p => p.Permission == "ADMIN")
-                                                              .Select(p => p.Node.Url).ToList();
-
-                    repoItem.Owner = userName;
-                    repoItem.OwnerUrl = profileUrl;
+                                                              .Select (p=> new { p.Node.Name, p.Node.Url})
+                                                              .ToDictionary(p=>p.Name, p=>p.Url);
+                    
+                    repoItem.Owner = userName;  
 
                 }
             }         
