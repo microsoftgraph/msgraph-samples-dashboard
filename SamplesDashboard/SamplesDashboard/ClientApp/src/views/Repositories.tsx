@@ -224,7 +224,6 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const col = column as IColumn;
     const name = item.name.toLowerCase();
     const owner = item.owner;
-    //const ownerUrl = item.ownerUrl;
     const status = item.repositoryStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
@@ -233,9 +232,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const forkCount = item.forks.totalCount;
     const url = item.url;
     const featureArea = item.featureArea;
-    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;    
-
-   
+    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;  
 
     switch (col.name) {
         case 'Name':
@@ -243,8 +240,8 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
                 <Link to={`/samples/${name}`} ><span>{name} </ span></Link>
             </div>;
 
-        case 'Owner':
-            return stringSplit(owner, ownerUrl);
+        case 'Owner':            
+            return displayAdmins(owner);            
 
         case 'Status':
             return checkStatus(status);
@@ -282,27 +279,28 @@ function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: bool
     return itemsSorted;
 }
 
-function stringSplit(owner: any, ownerUrl: any)
+function displayAdmins(owner: any)
 {
-    for (let i = 0; i < item.owner.length; i++)
-    {
-        const ownerUrl = item.ownerUrl[i];
-        return ownerUrl;
+    if (owner != null) {
+        var user = document.createElement('div');
+
+        for (var key in owner) {
+            var value = owner[key];
+            var item = document.createElement('a');
+            item.href = value;
+            item.target = '_blank';
+            item.rel = 'noopener noreferrer';
+            item.text = key.concat(', ');
+
+            user.appendChild(item);
+        }
+
+        return <div dangerouslySetInnerHTML={{ __html: user.innerHTML }}></div>;
     }
-    var user = owner.join(', ');
-    return <a href={`${ownerUrl}`} target="_blank" rel="noopener noreferrer">{user}</a>;
+    else
+        return <span>{}</span>;
 }
 
-/*function getUrl(item: IRepositoryItem) {
-    if (item.owner.length === null)
-    {
-        return "";
-    }
-    for (let i = 0; i < item.owner.length; i++) {
-        const ownerUrl = item.ownerUrl[i];
-        return ownerUrl;
-    }
-}*/
 function compare(a: any, b: any, isSortedDescending?: boolean) {
     // Handle the possible scenario of blank inputs 
     // and keep them at the bottom of the lists
