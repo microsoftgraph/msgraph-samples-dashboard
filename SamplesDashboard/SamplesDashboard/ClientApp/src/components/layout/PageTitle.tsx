@@ -5,7 +5,8 @@ export default function PageTitle(props: any) {
 
     const classNames = mergeStyleSets({
         pageTitle: {
-            fontSize: FontSizes.large
+            fontSize: FontSizes.large,
+            padding: '5px'
         }
     });
     

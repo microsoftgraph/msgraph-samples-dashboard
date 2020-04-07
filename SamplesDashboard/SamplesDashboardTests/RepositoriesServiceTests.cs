@@ -71,7 +71,6 @@ namespace SamplesDashboardTests
             Assert.NotEmpty(samples);
             Assert.IsType<List<Node>>(samples);
             Assert.NotNull(exampleSample);
-            Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
         }
 
         [Fact]
@@ -87,7 +86,6 @@ namespace SamplesDashboardTests
             Assert.NotEmpty(sdks);
             Assert.IsType<List<Node>>(sdks);
             Assert.NotNull(exampleSdk);
-            Assert.Equal("microsoftgraph", exampleSdk.Owner.Login);
         }
 
         [Fact]

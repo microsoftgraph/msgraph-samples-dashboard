@@ -71,9 +71,6 @@ namespace SamplesDashboard.Services
                         nodes {
                                 ... on Repository {
                                     name
-                                    owner {
-                                        login
-                                    }
                                     vulnerabilityAlerts {
                                         totalCount
                                     }
@@ -85,6 +82,16 @@ namespace SamplesDashboard.Services
                                     }
                                     stargazers {
                                         totalCount
+                                    }
+                                    collaborators(first: 10) {
+                                        edges {
+                                            permission
+                                            node {
+                                                login
+                                                name
+                                                url
+                                            }
+                                        }
                                     }
                                     url
                                     forks {
@@ -111,7 +118,7 @@ namespace SamplesDashboard.Services
 
             await Task.WhenAll(TaskList);
             //returning a list of only repos with dependencies
-            var repos = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
+            var repos = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();           
 
             //Taking the next 100 repos(paginating using endCursor object)
             var hasNextPage = graphQLResponse?.Data?.Search.PageInfo.HasNextPage;
@@ -119,13 +126,13 @@ namespace SamplesDashboard.Services
 
             if (hasNextPage == true)
             {
-                var nextrepos = await GetRepositories(name, endCursor);
-                repos.AddRange(nextrepos);
-            }
+                var nextRepos = await GetRepositories(name, endCursor);
+                repos.AddRange(nextRepos);
+            }          
 
             return repos;            
-        }      
-
+        }    
+       
         /// <summary>
         ///Getting header details and setting the language and featureArea items        
         /// </summary>
@@ -148,8 +155,17 @@ namespace SamplesDashboard.Services
                 var headerDetails = await GetHeaderDetails(repoItem.Name);
                 repoItem.Language = headerDetails.GetValueOrDefault("languages");
                 repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
-            }         
-            
+
+                if(repoItem.Collaborators != null)
+                {                 
+                    var userName = repoItem.Collaborators.Edges.Where(p => p.Permission == "ADMIN")
+                                                              .Select (p=> new { p.Node.Name, p.Node.Url})
+                                                              .ToDictionary(p=>p.Name, p=>p.Url);
+                    
+                    repoItem.OwnerProfiles = userName;  
+
+                }
+            } 
         }
         
         /// <summary>
@@ -165,6 +181,7 @@ namespace SamplesDashboard.Services
                 Query = @"query repo($repo: String!){
                         organization(login: ""microsoftgraph"") {
                             repository(name: $repo){
+                                description
                                 url
                                 dependencyGraphManifests(withDependencies: true) {
                                     nodes {

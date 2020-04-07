@@ -1,11 +1,21 @@
 import React, { Component } from 'react';
 import Repositories from './Repositories';
-import { PivotItem, Pivot } from 'office-ui-fabric-react';
+import { PivotItem, Pivot, PivotLinkSize, FontSizes } from 'office-ui-fabric-react';
+
 
 class Home extends Component {          
     public render() {
         return (
-            <Pivot>
+            <Pivot linkSize={PivotLinkSize.large}
+                styles={{
+                    text: {
+                        fontSize: FontSizes.xLarge
+                    },
+                    root: {
+                        marginBottom: '20px',
+                    }
+                }}
+            >
                 <PivotItem headerText="Samples">
                     <div>
                         <Repositories isAuthenticated={false} title={"samples"} />

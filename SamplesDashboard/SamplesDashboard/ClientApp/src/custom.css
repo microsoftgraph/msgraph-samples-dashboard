@@ -1,26 +1,5 @@
 /* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
-}
-
-code {
-  color: #E01A76;
-}
-
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-.Table {
-
-    background: #fff;
-    box-shadow: 0 1px 0 0 rgba(22, 29, 37, 0.05);
-}
-td, th {
-    border: 1px solid #ddd;
-    padding:15px;
-}
 .container {
-    max-width: 100%
+    max-width: 100%;
+    background: #f7f7f7;
 }
