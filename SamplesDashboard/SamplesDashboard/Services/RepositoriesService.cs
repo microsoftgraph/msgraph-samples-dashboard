@@ -118,9 +118,7 @@ namespace SamplesDashboard.Services
 
             await Task.WhenAll(TaskList);
             //returning a list of only repos with dependencies
-            var repos = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();
-
-           
+            var repos = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();           
 
             //Taking the next 100 repos(paginating using endCursor object)
             var hasNextPage = graphQLResponse?.Data?.Search.PageInfo.HasNextPage;
@@ -140,7 +138,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="repoItem">A specific repo item from the repos list</param>
         /// <returns> A list of repos.</returns>
-        internal async Task SetHeadersAndStatus(Node repoItem) 
+        private async Task SetHeadersAndStatus(Node repoItem) 
         {            
             Repository repository;
             if (!_cache.TryGetValue(repoItem.Name, out repository))
@@ -164,11 +162,10 @@ namespace SamplesDashboard.Services
                                                               .Select (p=> new { p.Node.Name, p.Node.Url})
                                                               .ToDictionary(p=>p.Name, p=>p.Url);
                     
-                    repoItem.Owner = userName;  
+                    repoItem.OwnerProfiles = userName;  
 
                 }
-            }         
-           
+            } 
         }
         
         /// <summary>

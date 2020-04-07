@@ -37,7 +37,7 @@ namespace SamplesDashboard
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        public Dictionary<string, Uri> Owner { get; set; }
+        public Dictionary<string, Uri> OwnerProfiles { get; set; }
 
         [JsonProperty("vulnerabilityAlerts")]
         public Issues VulnerabilityAlerts { get; set; }
@@ -79,12 +79,7 @@ namespace SamplesDashboard
         [JsonProperty("totalCount")]
         public long TotalCount { get; set; }
     }
-
-    public partial class Owner
-    {
-        [JsonProperty("login")]
-        public string Login { get; set; }
-    }
+   
     public partial class PageInfo
     {
         [JsonProperty("endCursor")]

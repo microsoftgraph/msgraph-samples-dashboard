@@ -223,14 +223,14 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 function renderItemColumn(item: IRepositoryItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const name = item.name.toLowerCase();
-    const owner = item.owner;
+    const ownerProfiles = item.ownerProfiles;
     const status = item.repositoryStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
     const issueCount = item.issues.totalCount;
     const starsCount = item.stargazers.totalCount;
     const forkCount = item.forks.totalCount;
-    const url = item.url;
+    const repositoryUrl = item.repositoryUrl;
     const featureArea = item.featureArea;
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;  
 
@@ -241,7 +241,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             </div>;
 
         case 'Owner':            
-            return displayAdmins(owner);            
+            return displayAdmins(ownerProfiles);            
 
         case 'Status':
             return checkStatus(status);
@@ -250,23 +250,23 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             return <span>{language}</span>;
 
         case 'Open pull requests':
-            return <a href={`${url}/pulls`} target="_blank" rel="noopener noreferrer"> <span>{pullRequestCount} </span></a>
+            return <a href={`${repositoryUrl}/pulls`} target="_blank" rel="noopener noreferrer"> <span>{pullRequestCount} </span></a>
 
         case 'Open issues':
-            return <a href={`${url}/issues`} target="_blank" rel="noopener noreferrer"> <span>{issueCount}</span></a>
+            return <a href={`${repositoryUrl}/issues`} target="_blank" rel="noopener noreferrer"> <span>{issueCount}</span></a>
 
         case 'Forks':
-            return <a href={`${url}/network/members`} target="_blank" rel="noopener noreferrer"> <span>{forkCount} </span></a>;
+            return <a href={`${repositoryUrl}/network/members`} target="_blank" rel="noopener noreferrer"> <span>{forkCount} </span></a>;
 
         case 'Stars':
-            return <a href={`${url}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
+            return <a href={`${repositoryUrl}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
 
         case 'Feature area':
             return <span> {featureArea} </span>;
 
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
-                return <a href={`${url}/network/alerts`} target="_blank" rel="noopener noreferrer">
+                return <a href={`${repositoryUrl}/network/alerts`} target="_blank" rel="noopener noreferrer">
                     <FontIcon iconName="WarningSolid" className={classNames.yellow} /> <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;
@@ -279,23 +279,23 @@ function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: bool
     return itemsSorted;
 }
 
-function displayAdmins(owner: any)
+function displayAdmins(ownerProfiles: any)
 {
-    if (owner != null) {
-        var user = document.createElement('div');
+    if (ownerProfiles != null) {
+        var div = document.createElement('div');
 
-        for (var key in owner) {
-            var value = owner[key];
-            var item = document.createElement('a');
-            item.href = value;
-            item.target = '_blank';
-            item.rel = 'noopener noreferrer';
-            item.text = key.concat(', ');
+        for (var key in ownerProfiles) {
+            var value = ownerProfiles[key];
+            var user = document.createElement('a');
+            user.href = value;
+            user.target = '_blank';
+            user.rel = 'noopener noreferrer';
+            user.text = key.concat(', ');
 
-            user.appendChild(item);
+            div.appendChild(user);
         }
 
-        return <div dangerouslySetInnerHTML={{ __html: user.innerHTML }}></div>;
+        return <div dangerouslySetInnerHTML={{ __html: div.innerHTML }}></div>;
     }
     else
         return <span>{}</span>;
