@@ -18,6 +18,9 @@ using GraphQL.Client.Http;
 using SamplesDashboard.Services;
 using SamplesDashboard.HostedServices;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.EntityFrameworkCore;
+using SamplesDashboard.DataFiles;
+using SamplesDashboard.Models;
 
 namespace SamplesDashboard
 {
@@ -35,25 +38,29 @@ namespace SamplesDashboard
         // This method gets called by the runtime. Use this method to add services to the container.
         public virtual void ConfigureServices(IServiceCollection services)
         {
-            services.AddAuthentication(sharedOptions =>
-            {
-                sharedOptions.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                sharedOptions.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            })
-            .AddAzureAd(options => Configuration.Bind("AzureAd", options))
-            .AddCookie();
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddMvc(options =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
-            })
-            .AddRazorPagesOptions(options =>
-            {
-                options.Conventions.AllowAnonymousToFolder("/Account");
-            });
+            services.AddDefaultIdentity<ApplicationUser>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddIdentityServer()
+                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+
+            services.AddAuthentication()
+                .AddIdentityServerJwt()
+                .AddMicrosoftAccount(microsoftOptions =>
+                {
+                    microsoftOptions.ClientId = Configuration["AuthenticationConfig:Microsoft:ClientId"];
+                    microsoftOptions.ClientSecret = Configuration["AuthenticationConfig:Microsoft:ClientSecret"];
+                    microsoftOptions.AuthorizationEndpoint = Configuration["AuthenticationConfig:Microsoft:Instance"] + Configuration["AuthenticationConfig:Microsoft:TenantId"] + "/oauth2/v2.0/authorize";
+                    microsoftOptions.TokenEndpoint = Configuration["AuthenticationConfig:Microsoft:Instance"] + Configuration["AuthenticationConfig:Microsoft:TenantId"] + "/oauth2/v2.0/token";
+                    microsoftOptions.Scope.Add("email");
+                    microsoftOptions.Scope.Add("profile");
+                    microsoftOptions.Scope.Add("openid");
+                });
+
             services.AddControllersWithViews();
             services.AddMemoryCache();
             services.AddHttpClient();
@@ -111,13 +118,15 @@ namespace SamplesDashboard
             }
 
             app.UseStaticFiles();
-            app.UseAuthentication();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseIdentityServer();
             app.UseAuthorization();
+            app.UseCors(); 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
