@@ -134,7 +134,11 @@ namespace SamplesDashboard.Services
 
             return repos;            
         }
-
+        /// <summary>
+        /// Creates a github client to make calls to the API and access traffic view data
+        /// </summary>
+        /// <param name="repoName"></param>
+        /// <returns>View count</returns>
         internal async Task<int?> FetchViews(string repoName)
         {
             ViewData views;
