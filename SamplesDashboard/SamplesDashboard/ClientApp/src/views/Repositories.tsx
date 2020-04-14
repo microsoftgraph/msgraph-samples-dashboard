@@ -235,7 +235,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const starsCount = item.stargazers.totalCount;
     const forkCount = item.forks.totalCount;
     const views = item.views;
-    const repositoryUrl = item.repositoryUrl;
+    const url = item.url;
     const featureArea = item.featureArea;
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;  
 
@@ -255,26 +255,26 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             return <span>{language}</span>;
 
         case 'Open pull requests':
-            return <a href={`${repositoryUrl}/pulls`} target="_blank" rel="noopener noreferrer"> <span>{pullRequestCount} </span></a>
+            return <a href={`${url}/pulls`} target="_blank" rel="noopener noreferrer"> <span>{pullRequestCount} </span></a>
 
         case 'Open issues':
-            return <a href={`${repositoryUrl}/issues`} target="_blank" rel="noopener noreferrer"> <span>{issueCount}</span></a>
+            return <a href={`${url}/issues`} target="_blank" rel="noopener noreferrer"> <span>{issueCount}</span></a>
 
         case 'Forks':
-            return <a href={`${repositoryUrl}/network/members`} target="_blank" rel="noopener noreferrer"> <span>{forkCount} </span></a>;
+            return <a href={`${url}/network/members`} target="_blank" rel="noopener noreferrer"> <span>{forkCount} </span></a>;
 
         case 'Stars':
-            return <a href={`${repositoryUrl}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
+            return <a href={`${url}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
 
         case 'Views':
-            return <a href={`${repositoryUrl}/graphs/traffic`} target="_blank" rel="noopener noreferrer"> <span>{views} </span></a>;
+            return <a href={`${url}/graphs/traffic`} target="_blank" rel="noopener noreferrer"> <span>{views} </span></a>;
 
         case 'Feature area':
             return <span> {featureArea} </span>;
 
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
-                return <a href={`${repositoryUrl}/network/alerts`} target="_blank" rel="noopener noreferrer">
+                return <a href={`${url}/network/alerts`} target="_blank" rel="noopener noreferrer">
                     <FontIcon iconName="WarningSolid" className={classNames.yellow} /> <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;

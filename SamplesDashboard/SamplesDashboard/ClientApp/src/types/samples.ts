@@ -11,7 +11,7 @@ export interface IRepositoryItem {
     stargazers: any;
     views: number;
     forks: any;
-    repositoryUrl: string;
+    url: string;
     featureArea: string;
     vulnerabilityAlerts: any;
    
