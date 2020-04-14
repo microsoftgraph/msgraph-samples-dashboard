@@ -1,4 +1,4 @@
-export const ApplicationName = 'MovieShop';
+export const ApplicationName = 'DevX Dashboard';
 
 export const QueryParameterNames = {
   ReturnUrl: 'returnUrl',
