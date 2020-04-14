@@ -66,6 +66,17 @@ namespace SamplesDashboard
             })
                 .AddPolicyHandler(Policies.GithubRetryPolicy);
 
+            services.AddHttpClient("github", c =>
+            {
+                c.BaseAddress = new Uri("https://api.github.com/");
+                c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
+                // Github API versioning
+                c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
+                // Github requires a user-agent
+                c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
+
+            });
+
             services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions()
             {
                 EndPoint = new Uri("https://api.github.com/graphql"),

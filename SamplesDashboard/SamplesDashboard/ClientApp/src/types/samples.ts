@@ -9,8 +9,9 @@ export interface IRepositoryItem {
     pullRequests: any;
     issues: any;
     stargazers: any;
+    views: number;
     forks: any;
-    repositoryUrl: string;
+    url: string;
     featureArea: string;
     vulnerabilityAlerts: any;
    
