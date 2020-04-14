@@ -83,6 +83,10 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
+                key: 'viewCount', name: 'Views', fieldName: 'views', minWidth: 75, maxWidth: 100,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
                 key: 'language', name: 'Language', fieldName: 'language', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
@@ -230,6 +234,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const issueCount = item.issues.totalCount;
     const starsCount = item.stargazers.totalCount;
     const forkCount = item.forks.totalCount;
+    const views = item.views;
     const repositoryUrl = item.repositoryUrl;
     const featureArea = item.featureArea;
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;  
@@ -260,6 +265,9 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
 
         case 'Stars':
             return <a href={`${repositoryUrl}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
+
+        case 'Views':
+            return <a href={`${repositoryUrl}/graphs/traffic`} target="_blank" rel="noopener noreferrer"> <span>{views} </span></a>;
 
         case 'Feature area':
             return <span> {featureArea} </span>;
