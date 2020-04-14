@@ -13,6 +13,8 @@ using Semver;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Models;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace SamplesDashboard.Services
 {
@@ -131,8 +133,41 @@ namespace SamplesDashboard.Services
             }          
 
             return repos;            
-        }    
-       
+        }
+
+        internal async Task<int?> FetchViews(string repoName)
+        {
+            ViewData views;
+
+            if (!_cache.TryGetValue(repoName, out views))
+            {
+                var httpClient = _clientFactory.CreateClient("github");
+                
+                HttpResponseMessage response = await httpClient.GetAsync(string.Concat("repos/microsoftgraph/", repoName, "/traffic/views"));
+                if (response.IsSuccessStatusCode)
+                {
+                    using (var responseStream = await response.Content.ReadAsStreamAsync())
+                    using (var streamReader = new StreamReader(responseStream))
+                    using (var jsonTextReader = new JsonTextReader(streamReader))
+                    {
+                        var serializer = new JsonSerializer();
+                        views = serializer.Deserialize<ViewData>(jsonTextReader);
+
+                        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
+                        _cache.Set(repoName, views, cacheEntryOptions);
+                    }
+                      
+                }                  
+              
+            }
+
+            if (views == null)
+            {
+                return null;
+            }
+            return views.Count;
+        }
+
         /// <summary>
         ///Getting header details and setting the language and featureArea items        
         /// </summary>
@@ -155,6 +190,7 @@ namespace SamplesDashboard.Services
                 var headerDetails = await GetHeaderDetails(repoItem.Name);
                 repoItem.Language = headerDetails.GetValueOrDefault("languages");
                 repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
+                repoItem.Views = await FetchViews(repoItem.Name);
 
                 if(repoItem.Collaborators != null)
                 {                 
