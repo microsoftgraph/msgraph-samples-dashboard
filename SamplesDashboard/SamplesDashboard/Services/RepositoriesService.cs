@@ -141,35 +141,23 @@ namespace SamplesDashboard.Services
         /// <returns>View count</returns>
         internal async Task<int?> FetchViews(string repoName)
         {
-            ViewData views;
+            ViewData views = null;
 
-            if (!_cache.TryGetValue(repoName, out views))
+            var httpClient = _clientFactory.CreateClient("github");                
+            HttpResponseMessage response = await httpClient.GetAsync(string.Concat("repos/microsoftgraph/", repoName, "/traffic/views"));
+            
+            if (response.IsSuccessStatusCode)
             {
-                var httpClient = _clientFactory.CreateClient("github");
-                
-                HttpResponseMessage response = await httpClient.GetAsync(string.Concat("repos/microsoftgraph/", repoName, "/traffic/views"));
-                if (response.IsSuccessStatusCode)
+                using (var responseStream = await response.Content.ReadAsStreamAsync())
+                using (var streamReader = new StreamReader(responseStream))
+                using (var jsonTextReader = new JsonTextReader(streamReader))
                 {
-                    using (var responseStream = await response.Content.ReadAsStreamAsync())
-                    using (var streamReader = new StreamReader(responseStream))
-                    using (var jsonTextReader = new JsonTextReader(streamReader))
-                    {
-                        var serializer = new JsonSerializer();
-                        views = serializer.Deserialize<ViewData>(jsonTextReader);
-
-                        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
-                        _cache.Set(repoName, views, cacheEntryOptions);
-                    }
-                      
-                }                  
-              
+                    var serializer = new JsonSerializer();
+                    views = serializer.Deserialize<ViewData>(jsonTextReader);                    
+                } 
             }
-
-            if (views == null)
-            {
-                return null;
-            }
-            return views.Count;
+            
+            return views?.Count;
         }
 
         /// <summary>
