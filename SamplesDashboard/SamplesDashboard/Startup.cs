@@ -44,13 +44,13 @@ namespace SamplesDashboard
 
             services.AddHttpClient("github", c =>
             {
-                c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
-
                 c.BaseAddress = new Uri("https://api.github.com/");
+                c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
                 // Github API versioning
-                c.DefaultRequestHeaders.Add("Accept", "application/vnd.github.v3+json");
+                c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                 // Github requires a user-agent
-                c.DefaultRequestHeaders.Add("User-Agent", "HttpClientFactory-Sample");
+                c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
+
             });
 
             services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions()
