@@ -41,7 +41,7 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "aspx,csharp");
             Assert.True(headerDetails["services"] == "Microsoft identity platform");
-        }
+        }       
 
         [Fact]
         public async Task ShouldGetHeaderDetailsAsync2()
@@ -57,6 +57,19 @@ namespace SamplesDashboardTests
             Assert.True(headerDetails["languages"] == "csharp,uwp");
             Assert.True(headerDetails["services"] == "Excel");
         }
+
+        [Fact]
+        public async Task ShouldGetViews()
+        {
+            // Arrange
+            var repoName = "msgraph-samples-dashboard";
+
+            // Act
+            var views = await _repositoriesService.FetchViews(repoName);
+
+            //Assert
+            Assert.NotNull(views);
+        }       
 
         [Fact]
         public async Task ShouldGetSamples()

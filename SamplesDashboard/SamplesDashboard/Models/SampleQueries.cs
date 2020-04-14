@@ -51,6 +51,8 @@ namespace SamplesDashboard
         [JsonProperty("stargazers")]
         public Issues Stargazers { get; set; }
 
+        public int? Views { get; set; }        
+
         [JsonProperty("url")]
         public Uri Url { get; set; }
 
@@ -58,8 +60,7 @@ namespace SamplesDashboard
         public Collaborators Collaborators { get; set; }
 
         [JsonProperty("forks")]
-        public Forks Forks { get; set; }
-        
+        public Forks Forks { get; set; }        
 
         public string Language { get; internal set; }
 
@@ -69,17 +70,25 @@ namespace SamplesDashboard
 
         public PackageStatus RepositoryStatus { get; internal set; }
     }
+
     public partial class Forks
     {
         [JsonProperty("totalCount")]
         public long TotalCount { get; set; }
     }
+
     public partial class Issues
     {
         [JsonProperty("totalCount")]
         public long TotalCount { get; set; }
     }
-   
+
+    public partial class ViewData
+    {
+        [JsonProperty("count")]
+        public int Count { get; set; }       
+    }  
+    
     public partial class PageInfo
     {
         [JsonProperty("endCursor")]
@@ -88,6 +97,7 @@ namespace SamplesDashboard
         [JsonProperty("hasNextPage")]
         public bool HasNextPage { get; set; }
     }
+
     public partial class Collaborators
     {
         [JsonProperty("edges")]
@@ -114,6 +124,7 @@ namespace SamplesDashboard
         [JsonProperty("url")]
         public Uri Url { get; set; }
     }
+
     public class Organization
     {
         [JsonProperty("repository")]
