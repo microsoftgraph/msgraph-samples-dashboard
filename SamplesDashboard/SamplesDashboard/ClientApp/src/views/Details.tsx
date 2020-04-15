@@ -7,6 +7,7 @@ import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
+import authService from '../components/api-authorization/AuthorizeService';
 
 const iconClass = mergeStyles({
     fontSize: 15,
@@ -91,7 +92,13 @@ export default class Details extends React.Component<any, any> {
         this.setState({ isLoading: true });
         const { match: { params } } = this.props;
         const repositoryName = params.name;
-        const response = await fetch('api/repositories/' + repositoryName);
+
+        const token = await authService.getAccessToken();        
+        const response = await fetch('api/repositories/' + repositoryName,
+            {
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }
+        );
         const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
             for (let index = 0; index < data.dependencyGraphManifests.nodes.length; index++) {
