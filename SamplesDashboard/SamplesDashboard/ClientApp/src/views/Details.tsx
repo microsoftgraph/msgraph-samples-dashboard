@@ -130,7 +130,8 @@ export default class Details extends React.Component<any, any> {
                         {repositoryDetails.name.includes('sdk') ? <PrimaryButton className={buttonClass}><Link to='/?tabIndex=1' className={linkClass}>
                             <FontIcon iconName="Back" className={iconClass} /> Go Back </Link></PrimaryButton> :
                             <PrimaryButton className={buttonClass}><Link to='/' className={linkClass}><FontIcon iconName="Back" className={iconClass} />
-                                Go Back </Link></PrimaryButton>}
+                                Go Back </Link></PrimaryButton>
+                        }
                         <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer" className={buttonClass}>
                             <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository
                         </PrimaryButton> 
