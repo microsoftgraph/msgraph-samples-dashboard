@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler } from 'reactstrap';
+import { Navbar, NavbarBrand, NavbarToggler } from 'reactstrap';
 import './NavMenu.css';
 
 export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }> {

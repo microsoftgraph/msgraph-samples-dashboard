@@ -7,6 +7,7 @@ import * as React from 'react';
 
 import PageTitle from '../components/layout/PageTitle';
 import { IDetailsItem } from '../types/samples';
+import { Link } from 'react-router-dom';
 
 const iconClass = mergeStyles({
     fontSize: 15,
@@ -23,10 +24,19 @@ const descriptionClass = mergeStyles({
     paddingBottom: '10px'
 })
 
+const linkClass = mergeStyles({
+    color: '#fff',
+    selectors: {
+        '&:hover': {
+            color: '#fff'
+        }
+    }
+});
+
 const classNames = mergeStyleSets({
     wrapper: {
         background: '#fff',
-        height: '80vh',
+        height: '70vh',
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap',
@@ -78,7 +88,7 @@ export default class Details extends React.Component<any, any> {
             columns,
             items: this.allItems,
             repositoryDetails: {},
-            isLoading: false
+            isLoading: true
         };
     }
 
@@ -88,7 +98,6 @@ export default class Details extends React.Component<any, any> {
 
     // fetch repository libraries
     public fetchData = async () => {
-        this.setState({ isLoading: true });
         const { match: { params } } = this.props;
         const repositoryName = params.name;
         const response = await fetch('api/repositories/' + repositoryName);
@@ -111,14 +120,18 @@ export default class Details extends React.Component<any, any> {
 
     public render(): JSX.Element {
         const { columns, items, repositoryDetails, isLoading } = this.state;
-        
         return (
             <div>     
                     { isLoading ?
                     <div /> :
                     <Fabric>
-                        <PageTitle title={`${repositoryDetails.name} dependencies`} />
+                        <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
                         <div className={descriptionClass}>{repositoryDetails.description}</div>
+                        {repositoryDetails.name.includes('sdk') ? <PrimaryButton className={buttonClass}><Link to='/?tabIndex=1' className={linkClass}>
+                            <FontIcon iconName="Back" className={iconClass} /> Go Back </Link></PrimaryButton> :
+                            <PrimaryButton className={buttonClass}><Link to='/' className={linkClass}><FontIcon iconName="Back" className={iconClass} />
+                                Go Back </Link></PrimaryButton>
+                        }
                         <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer" className={buttonClass}>
                             <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository
                         </PrimaryButton> 
