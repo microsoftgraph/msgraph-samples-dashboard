@@ -41,7 +41,7 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "aspx,csharp");
             Assert.True(headerDetails["services"] == "Microsoft identity platform");
-        }
+        }       
 
         [Fact]
         public async Task ShouldGetHeaderDetailsAsync2()
@@ -59,6 +59,19 @@ namespace SamplesDashboardTests
         }
 
         [Fact]
+        public async Task ShouldGetViews()
+        {
+            // Arrange
+            var repoName = "msgraph-samples-dashboard";
+
+            // Act
+            var views = await _repositoriesService.FetchViews(repoName);
+
+            //Assert
+            Assert.NotNull(views);
+        }       
+
+        [Fact]
         public async Task ShouldGetSamples()
         {
             // Arrange
@@ -71,7 +84,6 @@ namespace SamplesDashboardTests
             Assert.NotEmpty(samples);
             Assert.IsType<List<Node>>(samples);
             Assert.NotNull(exampleSample);
-            Assert.Equal("microsoftgraph", exampleSample.Owner.Login);
         }
 
         [Fact]
@@ -87,7 +99,6 @@ namespace SamplesDashboardTests
             Assert.NotEmpty(sdks);
             Assert.IsType<List<Node>>(sdks);
             Assert.NotNull(exampleSdk);
-            Assert.Equal("microsoftgraph", exampleSdk.Owner.Login);
         }
 
         [Fact]

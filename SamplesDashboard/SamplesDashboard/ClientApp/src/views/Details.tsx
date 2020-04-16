@@ -19,6 +19,10 @@ const iconClass = mergeStyles({
 const buttonClass = mergeStyles({
     margin: '10px'
 });
+const descriptionClass = mergeStyles({
+    paddingLeft: '10px',
+    paddingBottom: '10px'
+})
 
 const linkClass = mergeStyles({
     color: '#fff',
@@ -91,7 +95,8 @@ export default class Details extends React.Component<any, any> {
     public async componentDidMount() {    
         this.fetchData();
     }
-        // fetch repository libraries
+
+    // fetch repository libraries
     public fetchData = async () => {
         const { match: { params } } = this.props;
         const repositoryName = params.name;
@@ -106,6 +111,7 @@ export default class Details extends React.Component<any, any> {
             items: this.allItems,
             repositoryDetails: {
                 name: repositoryName,
+                description: data.description,
                 url: data.url
             },
             isLoading: false
@@ -120,6 +126,7 @@ export default class Details extends React.Component<any, any> {
                     <div /> :
                     <Fabric>
                         <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
+                        <div className={descriptionClass}>{repositoryDetails.description}</div>
                         {repositoryDetails.name.includes('sdk') ? <PrimaryButton className={buttonClass}><Link to='/?tabIndex=1' className={linkClass}>
                             <FontIcon iconName="Back" className={iconClass} /> Go Back </Link></PrimaryButton> :
                             <PrimaryButton className={buttonClass}><Link to='/' className={linkClass}><FontIcon iconName="Back" className={iconClass} />

@@ -3,17 +3,20 @@ import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 export interface IRepositoryItem {
     key: number;
     name: string;
-    owner: any;
+    ownerProfiles: any;
     repositoryStatus: any;
     language: string;
     pullRequests: any;
     issues: any;
     stargazers: any;
+    views: number;
     forks: any;
     url: string;
     featureArea: string;
     vulnerabilityAlerts: any;
+   
 }
+
 export interface IDetailsItem {
     azureSdkVersion: any;
     repository: any;

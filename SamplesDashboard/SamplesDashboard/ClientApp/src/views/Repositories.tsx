@@ -59,8 +59,8 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
-                key: 'login', name: 'Owner', fieldName: 'login', minWidth: 75, maxWidth: 150,
-                isResizable: true, onColumnClick: this.onColumnClick
+                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 150, maxWidth: 200,
+                isResizable: true, onColumnClick: this.onColumnClick, isMultiline:true
             },
             {
                 key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100, maxWidth: 150,
@@ -80,6 +80,10 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
             },
             {
                 key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 75, maxWidth: 100,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'viewCount', name: 'Views', fieldName: 'views', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -223,16 +227,17 @@ const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defa
 function renderItemColumn(item: IRepositoryItem, index: number | undefined, column: IColumn | undefined) {
     const col = column as IColumn;
     const name = item.name.toLowerCase();
-    const owner = item.owner.login;
+    const ownerProfiles = item.ownerProfiles;
     const status = item.repositoryStatus;
     const language = item.language;
     const pullRequestCount = item.pullRequests.totalCount;
     const issueCount = item.issues.totalCount;
     const starsCount = item.stargazers.totalCount;
     const forkCount = item.forks.totalCount;
+    const views = item.views;
     const url = item.url;
     const featureArea = item.featureArea;
-    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;
+    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;  
 
     switch (col.name) {
         case 'Name':
@@ -240,8 +245,8 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
                 <Link to={`/samples/${name}`} ><span>{name} </ span></Link>
             </div>;
 
-        case 'Owner':
-            return <span>{owner} </span>;
+        case 'Owner':            
+            return displayAdmins(ownerProfiles);            
 
         case 'Status':
             return checkStatus(status);
@@ -261,6 +266,9 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
         case 'Stars':
             return <a href={`${url}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
 
+        case 'Views':
+            return <a href={`${url}/graphs/traffic`} target="_blank" rel="noopener noreferrer"> <span>{views} </span></a>;
+
         case 'Feature area':
             return <span> {featureArea} </span>;
 
@@ -277,6 +285,28 @@ function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: bool
     const key = columnKey as keyof T;
     let itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
     return itemsSorted;
+}
+
+function displayAdmins(ownerProfiles: any)
+{
+    if (ownerProfiles != null) {
+        var div = document.createElement('div');
+
+        for (var key in ownerProfiles) {
+            var value = ownerProfiles[key];
+            var user = document.createElement('a');
+            user.href = value;
+            user.target = '_blank';
+            user.rel = 'noopener noreferrer';
+            user.text = key.concat(', ');
+
+            div.appendChild(user);
+        }
+
+        return <div dangerouslySetInnerHTML={{ __html: div.innerHTML }}></div>;
+    }
+    else
+        return <span>{}</span>;
 }
 
 function compare(a: any, b: any, isSortedDescending?: boolean) {
