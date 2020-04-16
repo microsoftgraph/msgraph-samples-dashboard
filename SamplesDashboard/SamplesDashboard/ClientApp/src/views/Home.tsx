@@ -4,7 +4,7 @@ import { PivotItem, Pivot, PivotLinkSize, FontSizes } from 'office-ui-fabric-rea
 import queryString from 'query-string';
 
 
-export default class Home extends React.Component<any, any> {
+export default class Home extends React.Component<any> {
     public render(): JSX.Element {
         const { location } = this.props;
         let index = 0;
