@@ -249,7 +249,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             return displayAdmins(ownerProfiles);            
 
         case 'Status':
-            return checkStatus(status);
+            return checkStatus(status, vulnerabilityAlertsCount);
 
         case 'Language':
             return <span>{language}</span>;
@@ -346,27 +346,23 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
     return comparison;
 }
 
-function checkStatus(status: number) {
-    switch (status) {
-        case 0:
-            return <TooltipHost content="Unknown" id={'Unknown'}>
-                <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>
-            </TooltipHost>;
-
-        case 1:
-            return <TooltipHost content="All dependencies in this repository are up to date" id={'UptoDate'}>
-                <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>
-            </TooltipHost>;
-
-        case 2:
-            return <TooltipHost content="At least 1 dependency in this repository has a major/minor release update" id={'Update'}>
-                <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
-            </TooltipHost>;
-
-        case 3:
-            return <TooltipHost content="At least 1 dependency in this repository has a patch release update" id={'UrgentUpdate'}>
-                <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>
-            </TooltipHost>;
+function checkStatus(status: number, vulnerabilityAlertsCount: number) {
+    if (status === 0 && vulnerabilityAlertsCount === 0) {
+        return <TooltipHost content="Unknown" id={'Unknown'}>
+            <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>
+        </TooltipHost>;
+    } else if (status === 1 && vulnerabilityAlertsCount === 0) {
+        return <TooltipHost content="All dependencies in this repository are up to date" id={'UptoDate'}>
+            <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>
+        </TooltipHost>;
+    } else if (status > 1 && vulnerabilityAlertsCount === 0) {
+        return <TooltipHost content="At least 1 dependency in this repository has a major/minor/patch release update" id={'Update'}>
+            <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
+        </TooltipHost>;
+    } else if (vulnerabilityAlertsCount > 0) {
+        return <TooltipHost content="This repository has a security alert" id={'UrgentUpdate'}>
+            <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>
+        </TooltipHost>;
     }
 
 }
