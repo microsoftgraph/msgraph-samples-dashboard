@@ -3,7 +3,7 @@ import AuthorizeRoute  from './components/api-authorization/AuthorizeRoute';
 
 import Layout from './components/layout/Layout';
 import './custom.css';
-import Samples from './views/Details';
+import Details from './views/Details';
 import Home from './views/Home';
 import { Route } from 'react-router';
 import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
