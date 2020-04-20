@@ -59,7 +59,7 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
-                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 150, maxWidth: 200,
+                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 100, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick, isMultiline:true
             },
             {
@@ -75,15 +75,15 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 75, maxWidth: 100,
+                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 75, maxWidth: 75,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 75, maxWidth: 100,
+                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 75, maxWidth: 75,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'viewCount', name: 'Views', fieldName: 'views', minWidth: 75, maxWidth: 100,
+                key: 'viewCount', name: 'Views', fieldName: 'views', minWidth: 75, maxWidth: 75,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -91,7 +91,7 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'featureArea', name: 'Feature area', fieldName: 'featureArea', minWidth: 200, maxWidth: 300,
+                key: 'featureArea', name: 'Feature area', fieldName: 'featureArea', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             }
         ];
@@ -249,7 +249,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             return displayAdmins(ownerProfiles);            
 
         case 'Status':
-            return checkStatus(status);
+            return checkStatus(status, vulnerabilityAlertsCount);
 
         case 'Language':
             return <span>{language}</span>;
@@ -346,7 +346,12 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
     return comparison;
 }
 
-function checkStatus(status: number) {
+function checkStatus(status: number, vulnerabilityAlertsCount: number) {
+    if (vulnerabilityAlertsCount > 0) {
+        return <TooltipHost content="This repository has a security alert" id={'UrgentUpdate'}>
+            <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>
+        </TooltipHost>;
+    }
     switch (status) {
         case 0:
             return <TooltipHost content="Unknown" id={'Unknown'}>
@@ -359,15 +364,12 @@ function checkStatus(status: number) {
             </TooltipHost>;
 
         case 2:
+        case 3:
             return <TooltipHost content="At least 1 dependency in this repository has a major/minor release update" id={'Update'}>
                 <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
             </TooltipHost>;
-
-        case 3:
-            return <TooltipHost content="At least 1 dependency in this repository has a patch release update" id={'UrgentUpdate'}>
-                <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>
-            </TooltipHost>;
     }
+
 
 }
 
