@@ -28,13 +28,12 @@
                             <p>
                                 @foreach (var provider in Model.ExternalLogins)
                                 {
-                                <a onclick="$(this).closest('form').submit()" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
-                                    @provider.DisplayName
-                                    <span>
-                                        <img src="~/img/ms-symbollockup_signin_dark.svg" />
-                                    </span>
-                                </a>
-                                   
+                                    <input name="provider" id="provider" value="@provider.Name" type="hidden" />
+                                    <a onclick="$(this).closest('form').submit()" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                                        <span>
+                                            <img src="~/img/ms-symbollockup_signin_dark.svg" />
+                                        </span>
+                                    </a>
                                 }
                             </p>
                         </div>
