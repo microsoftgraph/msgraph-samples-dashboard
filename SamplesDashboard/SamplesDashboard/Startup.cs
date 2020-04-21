@@ -21,6 +21,8 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using SamplesDashboard.DataFiles;
 using SamplesDashboard.Models;
+using SamplesDashboard.Tasks;
+using SamplesDashboard.Tasks.Definitions;
 
 namespace SamplesDashboard
 {
@@ -94,6 +96,9 @@ namespace SamplesDashboard
             services.AddSingleton<NpmService>();
             services.AddSingleton<AzureSdkService>();
             services.AddHostedService<RepositoryHostedService>();
+
+            // Run migrations
+            services.AddTransient<IStartupTask, ApplicationDbMigratorStartupTask>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>

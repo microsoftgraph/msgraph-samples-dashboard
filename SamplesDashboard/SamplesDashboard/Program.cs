@@ -3,8 +3,10 @@
 // ------------------------------------------------------------------------------
 
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using SamplesDashboard.Extensions;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -13,7 +15,7 @@ namespace SamplesDashboard
 {
     public static class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -26,7 +28,7 @@ namespace SamplesDashboard
             try
             {
                 Log.Information("Starting web host");
-                CreateWebHostBuilder(args).UseSerilog().Build().Run();
+                await CreateWebHostBuilder(args).UseSerilog().Build().RunWithTasksAsync();
             }
             catch (Exception ex)
             {
