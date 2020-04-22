@@ -181,6 +181,7 @@ namespace SamplesDashboardTests
         [InlineData("2.1.0", "Unknown", PackageStatus.Unknown)]
         [InlineData("2.1.0", "", PackageStatus.Unknown)]
         [InlineData("2.1.0", null, PackageStatus.Unknown)]
+        [InlineData("2.0,< 3.0", "2.0.2", PackageStatus.UrgentUpdate)]
         public void ShouldDetermineStatusFromVersion(string sampleVersion, string latestVersion, PackageStatus expectedStatus)
         {
             // Act
