@@ -5,6 +5,7 @@ import { DetailsListLayoutMode, Fabric, FontIcon,
 } from 'office-ui-fabric-react';
 import * as React from 'react';
 
+import authService from '../../components/api-authorization/AuthorizeService';
 import { Link } from 'react-router-dom';
 import PageTitle from '../../components/layout/PageTitle';
 import { IDetailsItem } from '../../types/samples';
@@ -60,12 +61,17 @@ export default class Details extends React.Component<any, any> {
     public fetchData = async () => {
         const { match: { params } } = this.props;
         const repositoryName = params.name;
-        const response = await fetch('api/repositories/' + repositoryName);
+
+        const token = await authService.getAccessToken();
+        const response = await fetch('api/repositories/' + repositoryName,
+            {
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            }
+        );
         const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
             for (let index = 0; index < data.dependencyGraphManifests.nodes.length; index++) {
-                data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) => 
-                this.allItems.push(element));
+                data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) => this.allItems.push(element));
             }
         }
         this.setState({
@@ -76,7 +82,7 @@ export default class Details extends React.Component<any, any> {
                 url: data.url
             },
             isLoading: false
-        });  
+        });
     }
 
     public render(): JSX.Element {

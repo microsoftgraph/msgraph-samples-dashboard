@@ -10,6 +10,7 @@ import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
+import authService from '../../components/api-authorization/AuthorizeService';
 import PageTitle from '../../components/layout/PageTitle';
 import { IRepositoryItem, IRepositoryState } from '../../types/samples';
 import { classNames, filterListClass } from '../repositories/Repositories.Styles';
@@ -88,11 +89,14 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
             this.fetchSDKs();
         }
     }
-
     // fetching the samples data from the samples api
     public fetchSamples = async () => {
         this.setState({ isLoading: true });
-        const response = await fetch('api/samples');
+        const token = await authService.getAccessToken();
+        const response = await fetch('api/samples',
+            {
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            });
         const data = await response.json();
         this.allItems = data;
         this.setState(
@@ -102,10 +106,14 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
             });
     }
 
-    // fetching the sdk data from the sdk api
+    //fetching the sdk data from the sdk api
     public fetchSDKs = async () => {
         this.setState({ isLoading: true });
-        const response = await fetch('api/sdks');
+        const token = await authService.getAccessToken();
+        const response = await fetch('api/sdks',
+            {
+                headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+            });
         const data = await response.json();
         this.allItems = data;
         this.setState(
