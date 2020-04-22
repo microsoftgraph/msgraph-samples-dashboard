@@ -1,50 +1,20 @@
 import {
-    DetailsListLayoutMode, IColumn,
-    SelectionMode, ShimmeredDetailsList, FontIcon, IRenderFunction, IDetailsHeaderProps, TooltipHost
+    DetailsListLayoutMode, FontIcon,
+    IColumn, IDetailsHeaderProps, IRenderFunction, SelectionMode, ShimmeredDetailsList, TooltipHost
 } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
 import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
-import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
-import PageTitle from '../components/layout/PageTitle';
-import { IRepositoryItem, IRepositoryState } from '../types/samples';
+import PageTitle from '../../components/layout/PageTitle';
+import { IRepositoryItem, IRepositoryState } from '../../types/samples';
+import { classNames, filterListClass } from '../repositories/Repositories.Styles';
 
 initializeIcons();
-
-const filterListClass = mergeStyles({
-    display: 'block',
-    padding: '10px'
-});
-
-const iconClass = mergeStyles({
-    fontSize: 15,
-    height: 15,
-    width: 15,
-    margin: '0 5px'
-});
-
-const classNames = mergeStyleSets({
-    wrapper: {
-        background: '#fff' ,
-        height: '70vh',
-        position: 'relative',
-        display: 'flex',
-        flexWrap: 'wrap',
-        boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
-        transition: '0.3s',
-        margin: '5px'     
-    },
-    detailList: { padding: '10px'},
-    yellow: [{ color: '#ffaa44'}, iconClass],
-    green: [{ color: '#498205' }, iconClass],
-    red: [{ color: '#d13438' }, iconClass],
-    blue: [{ color: '#0078d4' }, iconClass]
-});
 
 export default class Repositories extends React.Component<{ isAuthenticated: boolean, title: string }, IRepositoryState> {
     private allItems: IRepositoryItem[];
@@ -60,7 +30,7 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
             },
             {
                 key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 100, maxWidth: 100,
-                isResizable: true, onColumnClick: this.onColumnClick, isMultiline:true
+                isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             },
             {
                 key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100, maxWidth: 150,
@@ -111,10 +81,10 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
     }
 
     public componentDidMount = () => {
-        if (this.props.title === "samples") {
+        if (this.props.title === 'samples') {
             this.fetchSamples();
         }
-        else if (this.props.title === "sdks") {
+        else if (this.props.title === 'sdks') {
             this.fetchSDKs();
         }
     }
@@ -132,7 +102,7 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
             });
     }
 
-    //fetching the sdk data from the sdk api
+    // fetching the sdk data from the sdk api
     public fetchSDKs = async () => {
         this.setState({ isLoading: true });
         const response = await fetch('api/sdks');
@@ -255,27 +225,33 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             return <span>{language}</span>;
 
         case 'Open pull requests':
-            return <a href={`${url}/pulls`} target="_blank" rel="noopener noreferrer"> <span>{pullRequestCount} </span></a>
+            return <a href={`${url}/pulls`} target='_blank' rel='noopener noreferrer'> 
+                <span>{pullRequestCount} </span></a>;
 
         case 'Open issues':
-            return <a href={`${url}/issues`} target="_blank" rel="noopener noreferrer"> <span>{issueCount}</span></a>
+            return <a href={`${url}/issues`} target='_blank' rel='noopener noreferrer'> 
+            <span>{issueCount}</span></a>;
 
         case 'Forks':
-            return <a href={`${url}/network/members`} target="_blank" rel="noopener noreferrer"> <span>{forkCount} </span></a>;
+            return <a href={`${url}/network/members`} target='_blank' rel='noopener noreferrer'> 
+            <span>{forkCount} </span></a>;
 
         case 'Stars':
-            return <a href={`${url}/stargazers`} target="_blank" rel="noopener noreferrer"> <FontIcon iconName="FavoriteStarFill" className={classNames.yellow} /><span>{starsCount} </span></a>;
+            return <a href={`${url}/stargazers`} target='_blank' rel='noopener noreferrer'> 
+            <FontIcon iconName='FavoriteStarFill' className={classNames.yellow} /><span>{starsCount} </span></a>;
 
         case 'Views':
-            return <a href={`${url}/graphs/traffic`} target="_blank" rel="noopener noreferrer"> <span>{views} </span></a>;
+            return <a href={`${url}/graphs/traffic`} target='_blank' rel='noopener noreferrer'> 
+            <span>{views} </span></a>;
 
         case 'Feature area':
             return <span> {featureArea} </span>;
 
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
-                return <a href={`${url}/network/alerts`} target="_blank" rel="noopener noreferrer">
-                    <FontIcon iconName="WarningSolid" className={classNames.yellow} /> <span>{vulnerabilityAlertsCount} </span></a>;
+                return <a href={`${url}/network/alerts`} target='_blank' rel='noopener noreferrer'>
+                    <FontIcon iconName='WarningSolid' className={classNames.yellow} /> 
+                    <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;
 
@@ -283,18 +259,18 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
 }
 function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
     const key = columnKey as keyof T;
-    let itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
+    const itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
     return itemsSorted;
 }
 
 function displayAdmins(ownerProfiles: any)
 {
-    if (ownerProfiles != null) {
-        var div = document.createElement('div');
+    if (ownerProfiles !== null) {
+        const div = document.createElement('div');
 
-        for (var key in ownerProfiles) {
-            var value = ownerProfiles[key];
-            var user = document.createElement('a');
+        for (const key in ownerProfiles) {
+            const value = ownerProfiles[key];
+            const user = document.createElement('a');
             user.href = value;
             user.target = '_blank';
             user.rel = 'noopener noreferrer';
@@ -305,15 +281,16 @@ function displayAdmins(ownerProfiles: any)
 
         return <div dangerouslySetInnerHTML={{ __html: div.innerHTML }}></div>;
     }
-    else
+    else {
         return <span>{}</span>;
+    }
 }
 
 function compare(a: any, b: any, isSortedDescending?: boolean) {
     // Handle the possible scenario of blank inputs 
     // and keep them at the bottom of the lists
-    if (!a) return 1;
-    if (!b) return -1;
+    if (!a) { return 1; }
+    if (!b) { return -1; }
 
     let valueA: any;
     let valueB: any;
@@ -324,7 +301,7 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
         valueA = a.toUpperCase();
         valueB = b.toUpperCase();
         // its an item of type number
-    } else if (typeof a == 'number' && typeof b == 'number') {
+    } else if (typeof a === 'number' && typeof b === 'number') {
         valueA = a;
         valueB = b;
     }else {
@@ -342,35 +319,33 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
     if (isSortedDescending) {
         comparison = comparison * -1;
     }
-
     return comparison;
 }
 
 function checkStatus(status: number, vulnerabilityAlertsCount: number) {
     if (vulnerabilityAlertsCount > 0) {
-        return <TooltipHost content="This repository has a security alert" id={'UrgentUpdate'}>
-            <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>
+        return <TooltipHost content='This repository has a security alert' id={'UrgentUpdate'}>
+            <span><FontIcon iconName='StatusErrorFull' className={classNames.red} /> Urgent Update </span>
         </TooltipHost>;
     }
     switch (status) {
         case 0:
-            return <TooltipHost content="Unknown" id={'Unknown'}>
-                <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>
+            return <TooltipHost content='Unknown' id={'Unknown'}>
+                <span><FontIcon iconName='StatusCircleQuestionMark' className={classNames.blue} /> Unknown </span>
             </TooltipHost>;
 
         case 1:
-            return <TooltipHost content="All dependencies in this repository are up to date" id={'UptoDate'}>
-                <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>
+            return <TooltipHost content='All dependencies in this repository are up to date' id={'UptoDate'}>
+                <span><FontIcon iconName='CompletedSolid' className={classNames.green} /> Up To Date </span>
             </TooltipHost>;
 
         case 2:
         case 3:
-            return <TooltipHost content="At least 1 dependency in this repository has a major/minor release update" id={'Update'}>
-                <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
+            return <TooltipHost content='At least 1 dependency in this repository has a major/minor release update'
+             id={'Update'}>
+                <span><FontIcon iconName='WarningSolid' className={classNames.yellow} /> Update </span>
             </TooltipHost>;
     }
-
-
 }
 
 

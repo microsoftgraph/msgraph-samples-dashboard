@@ -3,7 +3,7 @@ import { Route } from 'react-router';
 
 import Layout from './components/layout/Layout';
 import './custom.css';
-import Details from './views/Details';
+import Details from './views/details/Details';
 import Home from './views/Home';
 
 export default () => (
