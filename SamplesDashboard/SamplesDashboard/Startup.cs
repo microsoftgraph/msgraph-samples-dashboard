@@ -3,23 +3,32 @@
 // ------------------------------------------------------------------------------
 
 using System;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http.Headers;
 using GraphQL.Client.Http;
 using SamplesDashboard.Services;
 using SamplesDashboard.HostedServices;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.EntityFrameworkCore;
+using SamplesDashboard.DataFiles;
+using SamplesDashboard.Models;
+using SamplesDashboard.Tasks;
+using SamplesDashboard.Tasks.Definitions;
 
 namespace SamplesDashboard
 {
-
     public class Startup
     {
-        public  IWebHostEnvironment Environment { get; }
+        public IWebHostEnvironment Environment { get; }
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration, IWebHostEnvironment environment)
@@ -27,9 +36,33 @@ namespace SamplesDashboard
             Environment = environment;
             Configuration = configuration;
         }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public virtual void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration["DefaultConnection"]));
+
+            services.AddDefaultIdentity<ApplicationUser>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddIdentityServer()
+                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+
+            services.AddAuthentication()
+                .AddIdentityServerJwt()
+                .AddMicrosoftAccount(microsoftOptions =>
+                {
+                    microsoftOptions.ClientId = Configuration["AuthenticationConfig:Microsoft:ClientId"];
+                    microsoftOptions.ClientSecret = Configuration["AuthenticationConfig:Microsoft:ClientSecret"];
+                    microsoftOptions.AuthorizationEndpoint = Configuration["AuthenticationConfig:Microsoft:Instance"] + Configuration["AuthenticationConfig:Microsoft:TenantId"] + "/oauth2/v2.0/authorize";
+                    microsoftOptions.TokenEndpoint = Configuration["AuthenticationConfig:Microsoft:Instance"] + Configuration["AuthenticationConfig:Microsoft:TenantId"] + "/oauth2/v2.0/token";
+                    microsoftOptions.Scope.Add("email");
+                    microsoftOptions.Scope.Add("profile");
+                    microsoftOptions.Scope.Add("openid");
+                });
+
             services.AddControllersWithViews();
             services.AddMemoryCache();
             services.AddHttpClient();
@@ -57,12 +90,15 @@ namespace SamplesDashboard
             {
                 EndPoint = new Uri("https://api.github.com/graphql"),
             });
-           
+
             services.AddSingleton<RepositoriesService>();
             services.AddSingleton<NugetService>();
             services.AddSingleton<NpmService>();
             services.AddSingleton<AzureSdkService>();
             services.AddHostedService<RepositoryHostedService>();
+
+            // Run migrations
+            services.AddTransient<IStartupTask, ApplicationDbMigratorStartupTask>();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -76,6 +112,7 @@ namespace SamplesDashboard
         {
             if (env.IsDevelopment())
             {
+                app.UseBrowserLink();
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -85,17 +122,22 @@ namespace SamplesDashboard
                 app.UseHsts();
             }
 
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
-
             app.UseRouting();
-
+            app.UseAuthentication();
+            app.UseIdentityServer();
+            app.UseAuthorization();
+            app.UseCors(); 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
             });
 
             app.UseSpa(spa =>
