@@ -1,14 +1,18 @@
 import * as React from 'react';
-import { Route } from 'react-router';
+import AuthorizeRoute  from './components/api-authorization/AuthorizeRoute';
 
 import Layout from './components/layout/Layout';
 import './custom.css';
 import Details from './views/details/Details';
 import Home from './views/Home';
+import { Route } from 'react-router';
+import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
+import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
 
 export default () => (
     <Layout>
-        <Route exact path='/' component={Home}/>
-        <Route path='/samples/:name' component={Details} />
+        <AuthorizeRoute exact path='/' component={Home} />
+        <AuthorizeRoute path='/samples/:name' component={Samples} />
+        <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
     </Layout>
 );
