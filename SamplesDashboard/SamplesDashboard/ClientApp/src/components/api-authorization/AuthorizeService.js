@@ -1,5 +1,5 @@
 import { UserManager, WebStorageStateStore } from 'oidc-client';
-import { ApplicationPaths, ApplicationName } from './ApiAuthorizationConstants';
+import { QueryParameterNames, ApplicationPaths, ApplicationName } from './ApiAuthorizationConstants';
 
 export class AuthorizeService {
     _callbacks = [];
@@ -197,8 +197,47 @@ export class AuthorizeService {
             await this.userManager.removeUser();
             this.updateState(undefined);
         });
+
+        this.userManager.events.addAccessTokenExpired(async () => {
+            console.log("token expired...");
+            var result = await this.signIn({ returnUrl: this.getReturnUrl() });
+            switch (result.status) {
+                case AuthenticationResultStatus.Redirect:
+                    // We replace the location here so that in case the user hits the back
+                    // arrow from within the login page he doesn't get into an infinite
+                    // redirect loop.
+                    //window.location.replace(this.getReturnUrl());
+                    break;
+                case AuthenticationResultStatus.Success:
+                    await this.navigateToReturnUrl("/");
+                    break;
+                case AuthenticationResultStatus.Fail:
+                    break;
+                default:
+                    throw new Error(`Invalid status result ${result.status}.`);
+            }
+        });
+
+        this.userManager.events.addAccessTokenExpiring(function () {
+            console.log("token expiring...");
+        });
     }
 
+    navigateToReturnUrl(returnUrl) {
+        // It's important that we do a replace here so that we remove the callback uri with the
+        // fragment containing the tokens from the browser history.
+        window.location.replace(returnUrl);
+    }
+
+    getReturnUrl(state) {
+        const params = new URLSearchParams(window.location.search);
+        const fromQuery = params.get(QueryParameterNames.ReturnUrl);
+        if (fromQuery && !fromQuery.startsWith(`${window.location.origin}/`)) {
+            // This is an extra check to prevent open redirects.
+            throw new Error("Invalid return url. The return url needs to have the same origin as the current page.");
+        }
+        return (state && state.returnUrl) || fromQuery || `${window.location.origin}/`;
+    }
     static get instance() { return authService }
 }
 
