@@ -1,56 +1,15 @@
-import { DetailsListLayoutMode, Fabric, IColumn, 
-    SelectionMode, ShimmeredDetailsList, PrimaryButton, FontIcon, mergeStyleSets,
-    mergeStyles, TooltipHost, ScrollablePane, ScrollbarVisibility, Sticky, StickyPositionType,
-    IRenderFunction, IDetailsHeaderProps
+import { DetailsListLayoutMode, Fabric, FontIcon, 
+    IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
+    ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
+    StickyPositionType, TooltipHost
 } from 'office-ui-fabric-react';
 import * as React from 'react';
 
-import PageTitle from '../components/layout/PageTitle';
-import { IDetailsItem } from '../types/samples';
-import authService from '../components/api-authorization/AuthorizeService';
+import authService from '../../components/api-authorization/AuthorizeService';
 import { Link } from 'react-router-dom';
-
-const iconClass = mergeStyles({
-    fontSize: 15,
-    height: 15,
-    width: 15,
-    margin: '0 5px'
-});
-
-const buttonClass = mergeStyles({
-    margin: '10px'
-});
-const descriptionClass = mergeStyles({
-    paddingLeft: '10px',
-    paddingBottom: '10px'
-})
-
-const linkClass = mergeStyles({
-    color: '#fff',
-    selectors: {
-        '&:hover': {
-            color: '#fff'
-        }
-    }
-});
-
-const classNames = mergeStyleSets({
-    wrapper: {
-        background: '#fff',
-        height: '70vh',
-        position: 'relative',
-        display: 'flex',
-        flexWrap: 'wrap',
-        boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
-        transition: '0.3s',
-        margin: '5px'    
-    },
-    detailList: { padding: '10px' },
-    yellow: [{ color: '#ffaa44' }, iconClass],
-    green: [{ color: '#498205' }, iconClass],
-    red: [{ color: '#d13438' }, iconClass],
-    blue: [{ color: '#0078d4' }, iconClass]
-});
+import PageTitle from '../../components/layout/PageTitle';
+import { IDetailsItem } from '../../types/samples';
+import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
 
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
@@ -62,8 +21,9 @@ export default class Details extends React.Component<any, any> {
         const { match: { params } } = this.props;
         const repositoryName = params.name;
         const columns: IColumn[] = [
-            { key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 300, maxWidth: 400, isRowHeader: true, 
-                isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
+            { key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 300, maxWidth: 400, 
+            isRowHeader: true, isResizable: true, isSorted: false, isSortedDescending: false, 
+            onColumnClick: this.onColumnClick
             },
             { key: 'requirements', name: 'Used version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
                 isResizable: true
@@ -80,7 +40,7 @@ export default class Details extends React.Component<any, any> {
             const azureSdkColumn: IColumn = {
                 key: 'azureSdkVersion', name: 'Azure SDK version', fieldName: 'azureSdkVersion',
                 minWidth: 200, maxWidth: 200, isResizable: true, onColumnClick: this.onColumnClick
-            }
+            };
             // Adding the column to the second last position
             columns.splice(columns.length - 1, 0, azureSdkColumn);
         }
@@ -102,7 +62,7 @@ export default class Details extends React.Component<any, any> {
         const { match: { params } } = this.props;
         const repositoryName = params.name;
 
-        const token = await authService.getAccessToken();        
+        const token = await authService.getAccessToken();
         const response = await fetch('api/repositories/' + repositoryName,
             {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
@@ -122,7 +82,7 @@ export default class Details extends React.Component<any, any> {
                 url: data.url
             },
             isLoading: false
-        });  
+        });
     }
 
     public render(): JSX.Element {
@@ -133,14 +93,22 @@ export default class Details extends React.Component<any, any> {
                     <div /> :
                     <Fabric>
                         <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
-                        <div className={descriptionClass}>{repositoryDetails.description}</div>
-                        {repositoryDetails.name.includes('sdk') ? <PrimaryButton className={buttonClass}><Link to='/?tabIndex=1' className={linkClass}>
-                            <FontIcon iconName="Back" className={iconClass} /> Go Back </Link></PrimaryButton> :
-                            <PrimaryButton className={buttonClass}><Link to='/' className={linkClass}><FontIcon iconName="Back" className={iconClass} />
-                                Go Back </Link></PrimaryButton>
+                        <div className={descriptionClass}> {repositoryDetails.description} </div>
+                        {
+                            repositoryDetails.name.includes('sdk') ? 
+                            <PrimaryButton className={buttonClass}>
+                                <Link to='/?tabIndex=1' className={linkClass}>
+                                <FontIcon iconName='Back' className={iconClass} /> Go Back </Link>
+                            </PrimaryButton> :
+                            <PrimaryButton className={buttonClass}>
+                                <Link to='/' className={linkClass}>
+                                    <FontIcon iconName='Back' className={iconClass} />Go Back </Link>
+                            </PrimaryButton>
                         }
-                        <PrimaryButton href={repositoryDetails.url} target="_blank" rel="noopener noreferrer" className={buttonClass}>
-                            <FontIcon iconName="OpenInNewTab" className={iconClass} /> Go to Repository
+                        <PrimaryButton href={repositoryDetails.url} target='_blank' rel='noopener noreferrer' 
+                        className={buttonClass}>
+                            <FontIcon iconName='OpenInNewTab' className={iconClass} /> 
+                                Go to Repository 
                         </PrimaryButton> 
                         <div className={classNames.wrapper}>
                             <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
@@ -157,7 +125,7 @@ export default class Details extends React.Component<any, any> {
                                     />
                                 </div>
                             </ScrollablePane>   
-                            </div>
+                        </div>
                     </Fabric>
                     }
             </div>
@@ -202,7 +170,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
     const col = column as IColumn;
     const packageName = item.packageName;
     const version = item.requirements;
-    let currentVersion = item.latestVersion;
+    const currentVersion = item.latestVersion;
     const azureSdkVersion = item.azureSdkVersion;
     const status = item.status;
     const requirements = version.slice(2);
@@ -230,39 +198,38 @@ function checkStatus(status: number)
 {
     switch (status) {
         case 0:
-            return <TooltipHost content="Unknown" id={'Unknown'}>
-                <span><FontIcon iconName="StatusCircleQuestionMark" className={classNames.blue} /> Unknown </span>
+            return <TooltipHost content='Unknown' id={'Unknown'}>
+                <span><FontIcon iconName='StatusCircleQuestionMark' className={classNames.blue} /> Unknown </span>
             </TooltipHost>;
 
         case 1:
-            return <TooltipHost content="This library is up to date" id={'UptoDate'}>
-                <span><FontIcon iconName="CompletedSolid" className={classNames.green} /> Up To Date </span>
+            return <TooltipHost content='This library is up to date' id={'UptoDate'}>
+                <span><FontIcon iconName='CompletedSolid' className={classNames.green} /> Up To Date </span>
             </TooltipHost>;
 
         case 2:
-            return <TooltipHost content="This library has a major/minor release update" id={'Update'}>
-                <span><FontIcon iconName="WarningSolid" className={classNames.yellow} /> Update </span>
+            return <TooltipHost content='This library has a major/minor release update' id={'Update'}>
+                <span><FontIcon iconName='WarningSolid' className={classNames.yellow} /> Update </span>
             </TooltipHost>;
 
         case 3:
-            return <TooltipHost content="This library has a patch release update" id={'UrgentUpdate'}>
-                <span><FontIcon iconName="StatusErrorFull" className={classNames.red} /> Urgent Update </span>
+            return <TooltipHost content='This library has a patch release update' id={'UrgentUpdate'}>
+                <span><FontIcon iconName='StatusErrorFull' className={classNames.red} /> Urgent Update </span>
             </TooltipHost>;
     }
-
 }
 
 function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
     const key = columnKey as keyof T;
-    let itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
+    const itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
     return itemsSorted;
 }
 
 function compare(a: any, b: any, isSortedDescending?: boolean) {
     // Handle the possible scenario of blank inputs 
     // and keep them at the bottom of the lists
-    if (!a) return 1;
-    if (!b) return -1;
+    if (!a) { return 1; }
+    if (!b) { return -1; }
 
     let valueA: any;
     let valueB: any;
@@ -273,7 +240,7 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
         valueA = a.toUpperCase();
         valueB = b.toUpperCase();
         // its an item of type number
-    } else if (typeof a == 'number' && typeof b == 'number') {
+    } else if (typeof a === 'number' && typeof b === 'number') {
         valueA = a;
         valueB = b;
     } else {
@@ -291,7 +258,6 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
     if (isSortedDescending) {
         comparison = comparison * -1;
     }
-
     return comparison;
 }
 

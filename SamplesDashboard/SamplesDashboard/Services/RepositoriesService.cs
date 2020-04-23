@@ -329,7 +329,7 @@ namespace SamplesDashboard.Services
                 return PackageStatus.UpToDate;
 
             // Try to parse the versions into SemVersion objects
-            if (!SemVersion.TryParse(repoVersion.Trim(), out SemVersion repo) ||
+            if (!SemVersion.TryParse(repoVersion.Split(',').First().Trim(), out SemVersion repo) ||
                 !SemVersion.TryParse(latestVersion.Trim(), out SemVersion latest)) 
             {
                 //Unable to determine the versions
