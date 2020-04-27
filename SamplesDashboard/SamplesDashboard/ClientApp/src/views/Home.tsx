@@ -1,5 +1,5 @@
 import React from 'react';
-import Repositories from './Repositories';
+import Repositories from './repositories/Repositories';
 import { PivotItem, Pivot, PivotLinkSize, FontSizes } from 'office-ui-fabric-react';
 import queryString from 'query-string';
 
