@@ -5,6 +5,7 @@
       "tslint-config-prettier"
     ],
     "rules": {
+      "no-empty":false,
       "quotemark": [
         true,
         "single"
@@ -86,9 +87,7 @@
       }
     },
     "linterOptions": {
-      "exclude": [
-        "src/messages/*",
-        "src/app/views/sidebar/sample-queries/queries.ts"
+      "exclude": [       
       ]
     }
   }

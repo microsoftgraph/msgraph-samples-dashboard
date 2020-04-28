@@ -1,7 +1,7 @@
+import { FontSizes, Pivot, PivotItem, PivotLinkSize } from 'office-ui-fabric-react';
+import queryString from 'query-string';
 import React from 'react';
 import Repositories from './repositories/Repositories';
-import { PivotItem, Pivot, PivotLinkSize, FontSizes } from 'office-ui-fabric-react';
-import queryString from 'query-string';
 
 
 export default class Home extends React.Component<any> {
@@ -10,7 +10,7 @@ export default class Home extends React.Component<any> {
         let index = 0;
         const value = queryString.parse(location.search);
         if (value.tabIndex) {
-            index = parseInt(value.tabIndex.toString());
+            index = parseInt(value.tabIndex.toString(), 10);
         }
 
         return (
@@ -25,14 +25,14 @@ export default class Home extends React.Component<any> {
                 }}
                 defaultSelectedIndex = {index}
             >
-                <PivotItem headerText="Samples" >
+                <PivotItem headerText='Samples' >
                     <div>
-                        <Repositories isAuthenticated={true} title={"samples"} />
+                        <Repositories isAuthenticated={true} title={'samples'} />
                     </div>
                 </PivotItem>
-                <PivotItem headerText="SDKs">
+                <PivotItem headerText='SDKs'>
                     <div>
-                        <Repositories isAuthenticated={true} title={"sdks"} />
+                        <Repositories isAuthenticated={true} title={'sdks'} />
                     </div>
                 </PivotItem>
             </Pivot>

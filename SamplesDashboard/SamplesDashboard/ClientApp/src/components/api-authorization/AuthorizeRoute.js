@@ -9,18 +9,18 @@ export default class AuthorizeRoute extends Component {
         super(props);
 
         this.state = {
-            ready: false,
-            authenticated: false
+            authenticated: false,
+            ready: false
         };
     }
 
     componentDidMount() {
-        this._subscription = authService.subscribe(() => this.authenticationChanged());
+        this.subscription = authService.subscribe(() => this.authenticationChanged());
         this.populateAuthenticationState();
     }
 
     componentWillUnmount() {
-        authService.unsubscribe(this._subscription);
+        authService.unsubscribe(this.subscription);
     }
 
     render() {
@@ -29,6 +29,7 @@ export default class AuthorizeRoute extends Component {
         if (!ready) {
             return <div></div>;
         } else {
+            // tslint:disable-next-line
             const { component: Component, ...rest } = this.props;
             return <Route {...rest}
                 render={(props) => {

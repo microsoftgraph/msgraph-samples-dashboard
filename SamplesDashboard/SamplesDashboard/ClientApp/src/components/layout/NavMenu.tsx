@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar, NavbarBrand, NavbarToggler, Container, Collapse } from 'reactstrap';
-import './NavMenu.css';
+import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler } from 'reactstrap';
 import { LoginMenu } from '../api-authorization/LoginMenu';
+import './NavMenu.css';
 
 export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }> {
     public state = {
@@ -17,7 +17,7 @@ export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }
                         <NavbarBrand tag={Link} to='/'>DevX Dashboard</NavbarBrand>
                         <NavbarToggler onClick={this.toggle} className='mr-2' />
                         <Collapse className='d-sm-inline-flex flex-sm-row-reverse' isOpen={this.state.isOpen} navbar>
-                            <ul className="navbar-nav flex-grow">
+                            <ul className='navbar-nav flex-grow'>
                                 <LoginMenu>
                                 </LoginMenu>
                             </ul>

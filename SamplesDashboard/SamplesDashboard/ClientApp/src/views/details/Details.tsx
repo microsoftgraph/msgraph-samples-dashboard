@@ -5,8 +5,8 @@ import { DetailsListLayoutMode, Fabric, FontIcon,
 } from 'office-ui-fabric-react';
 import * as React from 'react';
 
-import authService from '../../components/api-authorization/AuthorizeService';
 import { Link } from 'react-router-dom';
+import authService from '../../components/api-authorization/AuthorizeService';
 import PageTitle from '../../components/layout/PageTitle';
 import { IDetailsItem } from '../../types/samples';
 import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
@@ -70,8 +70,9 @@ export default class Details extends React.Component<any, any> {
         );
         const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
-            for (let index = 0; index < data.dependencyGraphManifests.nodes.length; index++) {
-                data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) => this.allItems.push(element));
+            for ( const index of data.dependencyGraphManifests.nodes) {
+                data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) => 
+                this.allItems.push(element));
             }
         }
         this.setState({
