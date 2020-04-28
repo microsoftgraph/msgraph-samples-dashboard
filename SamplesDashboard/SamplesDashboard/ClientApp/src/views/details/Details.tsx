@@ -1,8 +1,7 @@
 import { DetailsListLayoutMode, Fabric, FontIcon, 
     IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
     ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TooltipHost
-} from 'office-ui-fabric-react';
+    StickyPositionType, TooltipHost } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import { Link } from 'react-router-dom';
@@ -70,9 +69,10 @@ export default class Details extends React.Component<any, any> {
         );
         const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
-            for ( const index of data.dependencyGraphManifests.nodes) {
+            let index;
+            for ( index in data.dependencyGraphManifests.nodes) {
                 data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) => 
-                this.allItems.push(element));
+                    this.allItems.push(element));               
             }
         }
         this.setState({
