@@ -115,13 +115,13 @@ IRepositoryState> {
             {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             });
-        const data = await response.json();
+        const data = await response.json();       
         this.allItems = data;
         this.setState(
             {
                 items: this.allItems,
                 isLoading: false
-            });
+            });       
     }
 
     public render(): JSX.Element {
