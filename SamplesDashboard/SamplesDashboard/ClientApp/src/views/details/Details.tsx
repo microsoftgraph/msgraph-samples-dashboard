@@ -70,9 +70,11 @@ export default class Details extends React.Component<any, any> {
         const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
             let index;
-            for ( index in data.dependencyGraphManifests.nodes) {
-                data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) => 
-                    this.allItems.push(element));               
+            for (index in data.dependencyGraphManifests.nodes) {
+                if (data.dependencyGraphManifests.nodes.hasOwnProperty(index)) {
+                    data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) =>
+                        this.allItems.push(element)); 
+                }               
             }
         }
         this.setState({
