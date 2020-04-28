@@ -17,7 +17,8 @@ import { classNames, filterListClass } from '../repositories/Repositories.Styles
 
 initializeIcons();
 
-export default class Repositories extends React.Component<{ isAuthenticated: boolean, title: string }, IRepositoryState> {
+export default class Repositories extends React.Component<{ isAuthenticated: boolean, title: string }, 
+IRepositoryState> {
     private allItems: IRepositoryItem[];
 
     constructor(props: { isAuthenticated: boolean, title: string }) {
@@ -106,7 +107,7 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
             });
     }
 
-    //fetching the sdk data from the sdk api
+    // fetching the sdk data from the sdk api
     public fetchSDKs = async () => {
         this.setState({ isLoading: true });
         const token = await authService.getAccessToken();
@@ -161,7 +162,8 @@ export default class Repositories extends React.Component<{ isAuthenticated: boo
         return item.key;
     }
 
-    private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: string | undefined): void => {
+    private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: 
+        string | undefined): void => {
         this.setState({
             items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems
         });
@@ -277,14 +279,16 @@ function displayAdmins(ownerProfiles: any)
         const div = document.createElement('div');
 
         for (const key in ownerProfiles) {
-            const value = ownerProfiles[key];
-            const user = document.createElement('a');
-            user.href = value;
-            user.target = '_blank';
-            user.rel = 'noopener noreferrer';
-            user.text = key.concat(', ');
+            if (ownerProfiles.hasOwnProperty(key)) {
+                const value = ownerProfiles[key];
+                const user = document.createElement('a');
+                user.href = value;
+                user.target = '_blank';
+                user.rel = 'noopener noreferrer';
+                user.text = key.concat(', ');
 
-            div.appendChild(user);
+                div.appendChild(user);
+            }            
         }
 
         return <div dangerouslySetInnerHTML={{ __html: div.innerHTML }}></div>;

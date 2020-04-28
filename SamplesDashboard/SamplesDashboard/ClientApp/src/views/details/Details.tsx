@@ -1,12 +1,11 @@
 import { DetailsListLayoutMode, Fabric, FontIcon, 
     IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
     ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TooltipHost
-} from 'office-ui-fabric-react';
+    StickyPositionType, TooltipHost } from 'office-ui-fabric-react';
 import * as React from 'react';
 
-import authService from '../../components/api-authorization/AuthorizeService';
 import { Link } from 'react-router-dom';
+import authService from '../../components/api-authorization/AuthorizeService';
 import PageTitle from '../../components/layout/PageTitle';
 import { IDetailsItem } from '../../types/samples';
 import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
@@ -70,8 +69,12 @@ export default class Details extends React.Component<any, any> {
         );
         const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
-            for (let index = 0; index < data.dependencyGraphManifests.nodes.length; index++) {
-                data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) => this.allItems.push(element));
+            let index;
+            for (index in data.dependencyGraphManifests.nodes) {
+                if (data.dependencyGraphManifests.nodes.hasOwnProperty(index)) {
+                    data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) =>
+                        this.allItems.push(element)); 
+                }               
             }
         }
         this.setState({

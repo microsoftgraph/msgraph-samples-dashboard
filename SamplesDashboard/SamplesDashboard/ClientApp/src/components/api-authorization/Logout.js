@@ -12,9 +12,9 @@ export class Logout extends Component {
         super(props);
 
         this.state = {
-            message: undefined,
+            authenticated: false,
             isReady: false,
-            authenticated: false
+            message: undefined
         };
     }
 

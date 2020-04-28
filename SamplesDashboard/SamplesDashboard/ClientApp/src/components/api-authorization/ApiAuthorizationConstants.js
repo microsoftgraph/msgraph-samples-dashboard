@@ -1,14 +1,14 @@
 export const ApplicationName = 'DevX Dashboard';
 
 export const QueryParameterNames = {
-  ReturnUrl: 'returnUrl',
-  Message: 'message'
+  Message: 'message',
+  ReturnUrl: 'returnUrl'
 };
 
 export const LogoutActions = {
-  LogoutCallback: 'logout-callback',
+  LoggedOut: 'logged-out',
   Logout: 'logout',
-  LoggedOut: 'logged-out'
+  LogoutCallback: 'logout-callback'
 };
 
 export const LoginActions = {
@@ -22,17 +22,17 @@ export const LoginActions = {
 const prefix = '/authentication';
 
 export const ApplicationPaths = {
-  DefaultLoginRedirectPath: '/',
   ApiAuthorizationClientConfigurationUrl: `/_configuration/${ApplicationName}`,
   ApiAuthorizationPrefix: prefix,
-  Login: `${prefix}/${LoginActions.Login}`,
-  LoginFailed: `${prefix}/${LoginActions.LoginFailed}`,
-  LoginCallback: `${prefix}/${LoginActions.LoginCallback}`,
-  Register: `${prefix}/${LoginActions.Register}`,
-  Profile: `${prefix}/${LoginActions.Profile}`,
-  LogOut: `${prefix}/${LogoutActions.Logout}`,
-  LoggedOut: `${prefix}/${LogoutActions.LoggedOut}`,
-  LogOutCallback: `${prefix}/${LogoutActions.LogoutCallback}`,
+  DefaultLoginRedirectPath: '/',
+  IdentityManagePath: '/Identity/Account/Manage',
   IdentityRegisterPath: '/Identity/Account/Register',
-  IdentityManagePath: '/Identity/Account/Manage'
+  LogOut: `${prefix}/${LogoutActions.Logout}`,
+  LogOutCallback: `${prefix}/${LogoutActions.LogoutCallback}`,
+  LoggedOut: `${prefix}/${LogoutActions.LoggedOut}`,
+  Login: `${prefix}/${LoginActions.Login}`,
+  LoginCallback: `${prefix}/${LoginActions.LoginCallback}`,
+  LoginFailed: `${prefix}/${LoginActions.LoginFailed}`,
+  Profile: `${prefix}/${LoginActions.Profile}`,
+  Register: `${prefix}/${LoginActions.Register}`,
 };
