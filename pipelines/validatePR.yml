@@ -53,6 +53,13 @@ steps:
     workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
     customCommand: 'run build'
 
+- task: Npm@1
+  displayName: "Run Linter"
+  inputs:
+    command: 'custom'
+    workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
+    customCommand: 'run lint'
+
 - task: DotNetCoreCLI@2
   displayName: "Run Tests"
   inputs:
