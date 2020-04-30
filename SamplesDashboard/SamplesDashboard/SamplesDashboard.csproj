@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GitHubJwt" Version="0.0.4" />
     <PackageReference Include="GraphQL.Client" Version="2.0.0" />
     <PackageReference Include="IdentityServer4.EntityFramework.Storage" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="3.0.0" />
@@ -30,6 +31,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
     <PackageReference Include="NuGet.Protocol" Version="5.4.0" />
+    <PackageReference Include="Octokit" Version="0.47.0" />
     <PackageReference Include="OfficeUIFabric" Version="2.6.3" />
     <PackageReference Include="Polly" Version="7.2.0" />
     <PackageReference Include="Semver" Version="2.0.6" />

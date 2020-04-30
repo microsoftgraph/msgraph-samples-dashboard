@@ -23,6 +23,7 @@ using SamplesDashboard.DataFiles;
 using SamplesDashboard.Models;
 using SamplesDashboard.Tasks;
 using SamplesDashboard.Tasks.Definitions;
+using SamplesDashboard.MessageHandlers;
 
 namespace SamplesDashboard
 {
@@ -68,23 +69,24 @@ namespace SamplesDashboard
             services.AddHttpClient();
             services.AddHttpClient<GraphQLHttpClient>(c =>
             {
-                c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
+                //c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
                 c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.antiope-preview+json"));
                 c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json"));
                 c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
             })
-                .AddPolicyHandler(Policies.GithubRetryPolicy);
+                .AddPolicyHandler(Policies.GithubRetryPolicy)
+                .AddHttpMessageHandler<GithubAuthHandler>();
 
             services.AddHttpClient("github", c =>
             {
                 c.BaseAddress = new Uri("https://api.github.com/");
-                c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
+                //c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
                 // Github API versioning
                 c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                 // Github requires a user-agent
                 c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
 
-            });
+            }).AddHttpMessageHandler<GithubAuthHandler>();
 
             services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions()
             {
@@ -95,7 +97,9 @@ namespace SamplesDashboard
             services.AddSingleton<NugetService>();
             services.AddSingleton<NpmService>();
             services.AddSingleton<AzureSdkService>();
+            services.AddSingleton<GithubAuthService>();
             services.AddHostedService<RepositoryHostedService>();
+            services.AddScoped<GithubAuthHandler>();
 
             // Run migrations
             services.AddTransient<IStartupTask, ApplicationDbMigratorStartupTask>();
