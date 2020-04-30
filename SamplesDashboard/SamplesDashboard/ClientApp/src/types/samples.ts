@@ -34,4 +34,8 @@ export interface IRepositoryState {
     columns: IColumn[];
     items: IRepositoryItem[];
     isLoading: boolean;
+    uptoDateCount: number;
+    patchUpdateCount: number;
+    majorUpdateCount: number;
+    urgentUpdateCount: number;
 }
