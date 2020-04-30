@@ -3,3 +3,7 @@
     max-width: 100%;
     background: #f7f7f7;
 }
+.ms-Grid {
+    padding-left: 10px;
+    padding-bottom: 10px;
+}
