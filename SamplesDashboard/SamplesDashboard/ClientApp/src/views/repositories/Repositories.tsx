@@ -78,7 +78,11 @@ IRepositoryState> {
         this.state = {
             columns,
             items: this.allItems,
-            isLoading: false
+            isLoading: false,
+            uptoDateCount: 0,
+            patchUpdateCount: 0,
+            majorUpdateCount: 0,
+            urgentUpdateCount: 0
         };
     }
 
@@ -100,6 +104,8 @@ IRepositoryState> {
             });
         const data = await response.json();
         this.allItems = data;
+        // call the statistics function
+        this.statusStatistics(this.allItems);
         this.setState(
             {
                 items: this.allItems,
@@ -117,19 +123,81 @@ IRepositoryState> {
             });
         const data = await response.json();       
         this.allItems = data;
+        // call the statistics function
+        this.statusStatistics(this.allItems);
         this.setState(
             {
                 items: this.allItems,
                 isLoading: false
-            });       
+            }); 
+    }
+
+    // compute status statistics 
+    public statusStatistics(items: IRepositoryItem[]) {
+        let uptoDateCount = 0;
+        let patchUpdateCount = 0;
+        let majorUpdateCount = 0;
+        let urgentUpdateCount = 0;
+        for (const item of items) {
+            if (item.vulnerabilityAlerts.totalCount > 0) {
+                urgentUpdateCount = urgentUpdateCount + 1;
+            } else {
+                switch (item.repositoryStatus) {
+                    case 1:
+                        uptoDateCount = uptoDateCount + 1;
+                        break;
+                    case 2:
+                        majorUpdateCount = majorUpdateCount + 1;
+                        break;
+                    case 3:
+                        patchUpdateCount = patchUpdateCount + 1;
+                        break;
+                }
+            }
+        }
+        const total = this.allItems.length;
+        const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
+        const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
+        const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
+        const urgentUpdateStats = parseFloat((urgentUpdateCount / total * 100).toFixed(1));
+        this.setState({
+            uptoDateCount: uptoDateStats,
+            patchUpdateCount: patchUpdateStats,
+            majorUpdateCount: majorUpdateStats,
+            urgentUpdateCount: urgentUpdateStats
+        });
     }
 
     public render(): JSX.Element {
-        const { columns, items, isLoading } = this.state;
+        const { columns, items, isLoading, uptoDateCount, patchUpdateCount, majorUpdateCount, urgentUpdateCount } = 
+        this.state;
 
         return (
             <Fabric>
                 <PageTitle title={'List of ' + this.props.title} />
+                <div className='ms-Grid' dir='ltr'>
+                    <div className='row align-items-center'>
+                        <div className='col-sm-4'>
+                            There are {this.allItems.length} repositories listed
+                        </div>
+                        <div className='col-sm-2'>
+                            <FontIcon iconName='StatusCircleInner' className={classNames.green} /> 
+                            {uptoDateCount}% Up To Date
+                        </div>
+                        <div className='col-sm-2'>
+                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> 
+                            {patchUpdateCount}% Patch Update
+                        </div>
+                        <div className='col-sm-2'>
+                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> 
+                            {majorUpdateCount}% Major/Minor Update
+                        </div>
+                        <div className='col-sm-2'>
+                            <FontIcon iconName='StatusCircleInner' className={classNames.red} /> 
+                            {urgentUpdateCount}% Urgent Update
+                        </div>
+                    </div>
+                </div>
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
@@ -337,7 +405,7 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
 function checkStatus(status: number, vulnerabilityAlertsCount: number) {
     if (vulnerabilityAlertsCount > 0) {
         return <TooltipHost content='This repository has a security alert' id={'UrgentUpdate'}>
-            <span><FontIcon iconName='StatusErrorFull' className={classNames.red} /> Urgent Update </span>
+            <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
         </TooltipHost>;
     }
     switch (status) {
@@ -348,14 +416,14 @@ function checkStatus(status: number, vulnerabilityAlertsCount: number) {
 
         case 1:
             return <TooltipHost content='All dependencies in this repository are up to date' id={'UptoDate'}>
-                <span><FontIcon iconName='CompletedSolid' className={classNames.green} /> Up To Date </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.green} /> Up To Date </span>
             </TooltipHost>;
 
         case 2:
         case 3:
             return <TooltipHost content='At least 1 dependency in this repository has a major/minor release update'
              id={'Update'}>
-                <span><FontIcon iconName='WarningSolid' className={classNames.yellow} /> Update </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Update </span>
             </TooltipHost>;
     }
 }
