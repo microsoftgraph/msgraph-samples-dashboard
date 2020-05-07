@@ -37,7 +37,7 @@ namespace SamplesDashboard
         [JsonProperty("name")]
         public string Name { get; set; }
 
-        public Dictionary<string, Uri> OwnerProfiles { get; set; }
+        public Dictionary<string, string> OwnerProfiles { get; set; }
 
         [JsonProperty("vulnerabilityAlerts")]
         public Issues VulnerabilityAlerts { get; set; }
@@ -56,8 +56,8 @@ namespace SamplesDashboard
         [JsonProperty("url")]
         public Uri Url { get; set; }
 
-        [JsonProperty("collaborators")]
-        public Collaborators Collaborators { get; set; }
+        [JsonProperty("contributors")]
+        public Contributors Contributors { get; set; }
 
         [JsonProperty("forks")]
         public Forks Forks { get; set; }        
@@ -96,33 +96,15 @@ namespace SamplesDashboard
 
         [JsonProperty("hasNextPage")]
         public bool HasNextPage { get; set; }
-    }
+    }    
 
-    public partial class Collaborators
-    {
-        [JsonProperty("edges")]
-        public Edge[] Edges { get; set; }
-    }
-
-    public partial class Edge
-    {
-        [JsonProperty("permission")]
-        public string Permission { get; set; }
-
-        [JsonProperty("node")]
-        public EdgeNode Node { get; set; }
-    }
-
-    public partial class EdgeNode
+    public partial class Contributors
     {
         [JsonProperty("login")]
-        public string Login { get; set; }
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Login { get; set; }       
 
         [JsonProperty("url")]
-        public Uri Url { get; set; }
+        public Uri HtmlUrl { get; set; }
     }
 
     public class Organization
