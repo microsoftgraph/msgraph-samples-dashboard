@@ -69,7 +69,6 @@ namespace SamplesDashboard
             services.AddHttpClient();
             services.AddHttpClient<GraphQLHttpClient>(c =>
             {
-                //c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
                 c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.antiope-preview+json"));
                 c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json"));
                 c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
@@ -80,7 +79,6 @@ namespace SamplesDashboard
             services.AddHttpClient("github", c =>
             {
                 c.BaseAddress = new Uri("https://api.github.com/");
-                //c.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", Configuration.GetValue<string>("GithubAuthenticationToken"));
                 // Github API versioning
                 c.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
                 // Github requires a user-agent
