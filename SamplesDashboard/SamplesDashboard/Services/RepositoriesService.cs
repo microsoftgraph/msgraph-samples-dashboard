@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Models;
 using System.IO;
 using Newtonsoft.Json;
+using Octokit;
 
 namespace SamplesDashboard.Services
 {
@@ -30,8 +31,7 @@ namespace SamplesDashboard.Services
         private readonly AzureSdkService _azureSdkService;
         private readonly IMemoryCache _cache;
         private readonly IConfiguration _config;
-
-
+        private readonly GithubAuthService _githubAuthService;
 
         public RepositoriesService(
             GraphQLHttpClient graphQlClient,
@@ -39,6 +39,7 @@ namespace SamplesDashboard.Services
             NugetService nugetService,
             NpmService npmService,
             AzureSdkService azureSdkService,
+            GithubAuthService githubAuthService,
             IMemoryCache memoryCache,
             IConfiguration config)
         {
@@ -49,6 +50,7 @@ namespace SamplesDashboard.Services
             _azureSdkService = azureSdkService;
             _cache = memoryCache;
             _config = config;
+            _githubAuthService = githubAuthService;
         }
 
         /// <summary>
@@ -130,7 +132,7 @@ namespace SamplesDashboard.Services
             {
                 var nextRepos = await GetRepositories(name, endCursor);
                 repos.AddRange(nextRepos);
-            }          
+            }       
 
             return repos;            
         }
@@ -141,23 +143,31 @@ namespace SamplesDashboard.Services
         /// <returns>View count</returns>
         internal async Task<int?> FetchViews(string repoName)
         {
-            ViewData views = null;
+            var client = await CreateClient();
 
-            var httpClient = _clientFactory.CreateClient("github");                
-            HttpResponseMessage response = await httpClient.GetAsync(string.Concat("repos/microsoftgraph/", repoName, "/traffic/views"));
-            
-            if (response.IsSuccessStatusCode)
-            {
-                using (var responseStream = await response.Content.ReadAsStreamAsync())
-                using (var streamReader = new StreamReader(responseStream))
-                using (var jsonTextReader = new JsonTextReader(streamReader))
-                {
-                    var serializer = new JsonSerializer();
-                    views = serializer.Deserialize<ViewData>(jsonTextReader);                    
-                } 
-            }
-            
+            //use client to fetch views
+            var views = await client.Repository.Traffic.GetViews("microsoftgraph", repoName, new RepositoryTrafficRequest(TrafficDayOrWeek.Week));
             return views?.Count;
+        }  
+        internal async Task<GitHubClient> CreateClient()
+        {
+            var token = await _githubAuthService.GetGithubAppToken();
+
+            // Create a new GitHubClient using the installation token as authentication
+            var installationClient = new GitHubClient(new ProductHeaderValue(_config.GetValue<string>("product")))
+            {
+                Credentials = new Credentials(token)
+            };
+            return installationClient;
+        }
+
+        internal async Task<Dictionary<string, string>> FetchContributors(string repoName)
+        {
+            var client = await CreateClient();
+
+            var contributors = await client.Repository.GetAllContributors("microsoftgraph", repoName);
+            var contributorList = contributors.Select(p => new { p.Login, p.HtmlUrl }).Take(3).ToDictionary(p => p.Login, p => p.HtmlUrl);
+            return contributorList;
         }
 
         /// <summary>
@@ -183,16 +193,7 @@ namespace SamplesDashboard.Services
                 repoItem.Language = headerDetails.GetValueOrDefault("languages");
                 repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
                 repoItem.Views = await FetchViews(repoItem.Name);
-
-                if(repoItem.Collaborators != null)
-                {                 
-                    var userName = repoItem.Collaborators.Edges.Where(p => p.Permission == "ADMIN")
-                                                              .Select (p=> new { p.Node.Name, p.Node.Url})
-                                                              .ToDictionary(p=>p.Name, p=>p.Url);
-                    
-                    repoItem.OwnerProfiles = userName;  
-
-                }
+                repoItem.OwnerProfiles = await FetchContributors(repoItem.Name);              
             } 
         }
         
