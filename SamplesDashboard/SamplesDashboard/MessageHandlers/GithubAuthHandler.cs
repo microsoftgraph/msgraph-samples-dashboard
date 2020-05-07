@@ -1,9 +1,12 @@
-﻿using SamplesDashboard.Services;
+﻿// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
+
+using SamplesDashboard.Services;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-
 
 namespace SamplesDashboard.MessageHandlers
 {
@@ -21,7 +24,6 @@ namespace SamplesDashboard.MessageHandlers
             request.Headers.Authorization = new AuthenticationHeaderValue("bearer", token);
             return await base.SendAsync(request, cancellationToken);
         }
-
         
     }
 }
