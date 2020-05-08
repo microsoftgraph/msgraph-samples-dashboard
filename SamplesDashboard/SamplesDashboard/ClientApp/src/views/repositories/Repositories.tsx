@@ -27,44 +27,44 @@ IRepositoryState> {
         this.allItems = [];
         const columns: IColumn[] = [
             {
-                key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, isRowHeader: true,
+                key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true,
                 isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
-                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 100,
+                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             },
             {
-                key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100,
+                key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
                 key: 'pullRequestCount', name: 'Open pull requests', fieldName: 'pullRequests', minWidth: 100,
+                maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'issueCount', name: 'Open issues', fieldName: 'issues', minWidth: 75, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'issueCount', name: 'Open issues', fieldName: 'issues', minWidth: 100,
+                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 100,
+                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 100,
+                key: 'viewCount', name: 'Views', fieldName: 'views', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'viewCount', name: 'Views', fieldName: 'views', minWidth: 100,
-                isResizable: true, onColumnClick: this.onColumnClick
-            },
-            {
-                key: 'language', name: 'Language', fieldName: 'language', minWidth: 100,
+                key: 'language', name: 'Language', fieldName: 'language', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
                 key: 'featureArea', name: 'Feature area', fieldName: 'featureArea', minWidth: 100,
-                isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
+                maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             }
         ];
 
