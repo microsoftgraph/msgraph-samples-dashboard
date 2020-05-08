@@ -15,6 +15,9 @@ using System.Threading.Tasks;
 
 namespace SamplesDashboard.Services
 {
+    /// <summary>
+    /// Handles GithubApp authentication functionality
+    /// </summary>
     public class GithubAuthService
     {
         private readonly IConfiguration _configuration;
@@ -27,11 +30,15 @@ namespace SamplesDashboard.Services
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// Creates an azurekeyvault client and uses client credentials to acquire security token
+        /// </summary>
+        /// <returns>access token</returns>
         private KeyVaultClient GetAzureKeyVaultClient() => new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(async (string authority, string resource, string scope) =>
         {
 
-            var CLIENT_ID = _configuration["AuthenticationConfig:AzureKeyVault:ClientId"];
-            var CLIENT_SECRET = _configuration["AuthenticationConfig:AzureKeyVault:ClientSecret"];
+            var CLIENT_ID = _configuration["AzureClientId"];
+            var CLIENT_SECRET = _configuration["AzureClientSecret"];
 
             var context = new AuthenticationContext(authority, TokenCache.DefaultShared);
             ClientCredential clientCred = new ClientCredential(CLIENT_ID, CLIENT_SECRET);
@@ -39,6 +46,10 @@ namespace SamplesDashboard.Services
             return authResult.AccessToken;
         }));
 
+        /// <summary>
+        /// Gets cert, signs jwt token and generates an installation token for msgraph installation instance
+        /// </summary>
+        /// <returns>installation token</returns>
         internal async Task<string> GetGithubAppToken()
         {
             string token;
