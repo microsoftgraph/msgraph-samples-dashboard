@@ -3,7 +3,20 @@
     max-width: 100%;
     background: #f7f7f7;
 }
-.ms-Grid {
-    padding-left: 10px;
+.card {
+    background: #fff;
+    height: 8rem;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    transition: 0.3s;
+    margin: 5px;
+}
+.card-text {
+    font-size: 16px;
     padding-bottom: 10px;
+}
+.card-footer {
+    background: #fff;
 }
