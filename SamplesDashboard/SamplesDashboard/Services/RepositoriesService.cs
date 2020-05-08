@@ -110,13 +110,22 @@ namespace SamplesDashboard.Services
                     }
                 }"
             };
-            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);          
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
+
+            // get githubapp token 
+            var token = await _githubAuthService.GetGithubAppToken();
+
+            // Create a new GitHubClient using the installation token as authentication
+            var githubClient = new GitHubClient(new ProductHeaderValue(_config.GetValue<string>("product")))
+            {
+                Credentials = new Credentials(token)
+            };
 
             // Fetch yaml headers and compute header values in parallel
             List<Task> TaskList = new List<Task>();
             foreach (var repoItem in graphQLResponse?.Data?.Search.Nodes)
             {
-                Task headerTask = SetHeadersAndStatus(repoItem);
+                Task headerTask = SetHeadersAndStatus(githubClient, repoItem, "microsoftgraph");
                 TaskList.Add(headerTask);
             } 
 
@@ -141,31 +150,23 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="repoName"></param>
         /// <returns>View count</returns>
-        internal async Task<int?> FetchViews(string repoName)
+        internal async Task<int?> FetchViews(GitHubClient githubclient, string repoName, string owner)
         {
-            var client = await CreateClient();
-
             //use client to fetch views
-            var views = await client.Repository.Traffic.GetViews("microsoftgraph", repoName, new RepositoryTrafficRequest(TrafficDayOrWeek.Week));
+            var views = await githubclient.Repository.Traffic.GetViews(owner, repoName, new RepositoryTrafficRequest(TrafficDayOrWeek.Week));
             return views?.Count;
-        }  
-        internal async Task<GitHubClient> CreateClient()
+        } 
+
+        /// <summary>
+        /// Uses githubclient to fetch a list of contributors
+        /// </summary>
+        /// <param name="githubclient"></param>
+        /// <param name="repoName"></param>
+        /// <param name="owner"></param>
+        /// <returns>a list of contributors</returns>
+        internal async Task<Dictionary<string, string>> FetchContributors(GitHubClient githubclient, string repoName, string owner)
         {
-            var token = await _githubAuthService.GetGithubAppToken();
-
-            // Create a new GitHubClient using the installation token as authentication
-            var installationClient = new GitHubClient(new ProductHeaderValue(_config.GetValue<string>("product")))
-            {
-                Credentials = new Credentials(token)
-            };
-            return installationClient;
-        }
-
-        internal async Task<Dictionary<string, string>> FetchContributors(string repoName)
-        {
-            var client = await CreateClient();
-
-            var contributors = await client.Repository.GetAllContributors("microsoftgraph", repoName);
+            var contributors = await githubclient.Repository.GetAllContributors(owner, repoName);
             var contributorList = contributors.Select(p => new { p.Login, p.HtmlUrl }).Take(3).ToDictionary(p => p.Login, p => p.HtmlUrl);
             return contributorList;
         }
@@ -175,7 +176,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="repoItem">A specific repo item from the repos list</param>
         /// <returns> A list of repos.</returns>
-        private async Task SetHeadersAndStatus(Node repoItem) 
+        private async Task SetHeadersAndStatus(GitHubClient githubClient, Node repoItem, string owner) 
         {            
             Repository repository;
             if (!_cache.TryGetValue(repoItem.Name, out repository))
@@ -192,8 +193,8 @@ namespace SamplesDashboard.Services
                 var headerDetails = await GetHeaderDetails(repoItem.Name);
                 repoItem.Language = headerDetails.GetValueOrDefault("languages");
                 repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
-                repoItem.Views = await FetchViews(repoItem.Name);
-                repoItem.OwnerProfiles = await FetchContributors(repoItem.Name);              
+                repoItem.Views = await FetchViews(githubClient,repoItem.Name, owner);
+                repoItem.OwnerProfiles = await FetchContributors(githubClient, repoItem.Name, owner);              
             } 
         }
         
