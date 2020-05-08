@@ -28,7 +28,7 @@ export const linkClass = mergeStyles({
 export const classNames = mergeStyleSets({
     wrapper: {
         background: '#fff',
-        height: '70vh',
+        height: '50vh',
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap',

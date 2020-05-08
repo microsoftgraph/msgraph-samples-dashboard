@@ -25,7 +25,7 @@ exports.linkClass = Styling_1.mergeStyles({
 exports.classNames = Styling_1.mergeStyleSets({
     wrapper: {
         background: '#fff',
-        height: '70vh',
+        height: '50vh',
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap',

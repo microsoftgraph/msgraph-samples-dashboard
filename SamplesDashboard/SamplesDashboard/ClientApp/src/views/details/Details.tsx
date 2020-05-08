@@ -48,7 +48,15 @@ export default class Details extends React.Component<any, any> {
             columns,
             items: this.allItems,
             repositoryDetails: {},
-            isLoading: true
+            isLoading: true,
+            totalUptoDate: 0,
+            totalPatchUpdate: 0,
+            totalMajorUpdate: 0,
+            totalUnknown: 0,
+            uptoDatePercent: 0,
+            patchUpdatePercent: 0,
+            majorUpdatePercent: 0,
+            unknownPercent: 0
         };
     }
 
@@ -77,6 +85,8 @@ export default class Details extends React.Component<any, any> {
                 }               
             }
         }
+        // call the statistics function
+        this.statusStatistics(this.allItems);
         this.setState({
             items: this.allItems,
             repositoryDetails: {
@@ -88,31 +98,128 @@ export default class Details extends React.Component<any, any> {
         });
     }
 
+    // compute status statistics 
+    public statusStatistics(items: IDetailsItem[]) {
+        let uptoDateCount = 0;
+        let patchUpdateCount = 0;
+        let majorUpdateCount = 0;
+        let unknownCount = 0;
+        for (const item of items) {
+            switch (item.status) {
+                    case 1:
+                        uptoDateCount = uptoDateCount + 1;
+                        break;
+                    case 2:
+                        majorUpdateCount = majorUpdateCount + 1;
+                        break;
+                    case 3:
+                        patchUpdateCount = patchUpdateCount + 1;
+                        break;
+                    case 0:
+                        unknownCount = unknownCount + 1;
+                        break;
+                }
+            }
+        const total = this.allItems.length;
+        const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
+        const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
+        const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
+        const unknownStats = parseFloat((unknownCount / total * 100).toFixed(1));
+        this.setState({
+            totalUptoDate: uptoDateCount,
+            totalPatchUpdate: patchUpdateCount,
+            totalMajorUpdate: majorUpdateCount,
+            totalUnknown: unknownCount,
+            uptoDatePercent: uptoDateStats,
+            patchUpdatePercent: patchUpdateStats,
+            majorUpdatePercent: majorUpdateStats,
+            unknownPercent: unknownStats
+        });
+    }
     public render(): JSX.Element {
-        const { columns, items, repositoryDetails, isLoading } = this.state;
+        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalPatchUpdate, totalMajorUpdate, 
+            totalUnknown, uptoDatePercent, patchUpdatePercent, majorUpdatePercent, unknownPercent  } = this.state;
         return (
             <div>     
                     { isLoading ?
                     <div /> :
                     <Fabric>
-                        <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
-                        <div className={descriptionClass}> {repositoryDetails.description} </div>
                         {
-                            repositoryDetails.name.includes('sdk') ? 
-                            <PrimaryButton className={buttonClass}>
-                                <Link to='/?tabIndex=1' className={linkClass}>
-                                <FontIcon iconName='Back' className={iconClass} /> Go Back </Link>
-                            </PrimaryButton> :
-                            <PrimaryButton className={buttonClass}>
-                                <Link to='/' className={linkClass}>
-                                    <FontIcon iconName='Back' className={iconClass} />Go Back </Link>
-                            </PrimaryButton>
+                            repositoryDetails.name.includes('sdk') ?
+                                <PrimaryButton className={buttonClass}>
+                                    <Link to='/?tabIndex=1' className={linkClass}>
+                                        <FontIcon iconName='Back' className={iconClass} /> Go Back </Link>
+                                </PrimaryButton> :
+                                <PrimaryButton className={buttonClass}>
+                                    <Link to='/' className={linkClass}>
+                                        <FontIcon iconName='Back' className={iconClass} />Go Back </Link>
+                                </PrimaryButton>
                         }
-                        <PrimaryButton href={repositoryDetails.url} target='_blank' rel='noopener noreferrer' 
-                        className={buttonClass}>
-                            <FontIcon iconName='OpenInNewTab' className={iconClass} /> 
-                                Go to Repository 
-                        </PrimaryButton> 
+                        <PrimaryButton href={repositoryDetails.url} target='_blank' rel='noopener noreferrer'
+                            className={buttonClass}>
+                            <FontIcon iconName='OpenInNewTab' className={iconClass} />
+                                Go to Repository
+                        </PrimaryButton>
+                        <div className='row'>
+                            <div className='col-sm-3'>
+                                <div className='card'>
+                                    <div className='card-body'>
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.green} />
+                                            Libraries that are up to date: {totalUptoDate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.green}>{uptoDatePercent}% Up To Date</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-3'>
+                                <div className='card'>
+                                    <div className='card-body'>
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.red} />
+                                            Libraries with a patch update: {totalPatchUpdate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.red}>{patchUpdatePercent}% Patch Update</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-3'>
+                                <div className='card'>
+                                    <div className='card-body'>
+
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
+                                            Libraries with a mijor/minor update: {totalMajorUpdate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.yellow}>
+                                                {majorUpdatePercent}% Major/Minor Update
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-3'>
+                                <div className='card'>
+                                    <div className='card-body'>
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.blue} />
+                                            Libraries with unknown versions: {totalUnknown}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.blue}>{unknownPercent}% Uknown</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <PageTitle title={`List of libraries in ${repositoryDetails.name}`} />
+                        <div className={descriptionClass}> {repositoryDetails.description} </div>   
+                        <p className={classNames.detailList}>There are {this.allItems.length} libraries listed </p>
                         <div className={classNames.wrapper}>
                             <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                                 <div>
@@ -202,22 +309,22 @@ function checkStatus(status: number)
     switch (status) {
         case 0:
             return <TooltipHost content='Unknown' id={'Unknown'}>
-                <span><FontIcon iconName='StatusCircleQuestionMark' className={classNames.blue} /> Unknown </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.blue} /> Unknown </span>
             </TooltipHost>;
 
         case 1:
             return <TooltipHost content='This library is up to date' id={'UptoDate'}>
-                <span><FontIcon iconName='CompletedSolid' className={classNames.green} /> Up To Date </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.green} /> Up To Date </span>
             </TooltipHost>;
 
         case 2:
             return <TooltipHost content='This library has a major/minor release update' id={'Update'}>
-                <span><FontIcon iconName='WarningSolid' className={classNames.yellow} /> Update </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Update </span>
             </TooltipHost>;
 
         case 3:
             return <TooltipHost content='This library has a patch release update' id={'UrgentUpdate'}>
-                <span><FontIcon iconName='StatusErrorFull' className={classNames.red} /> Urgent Update </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
             </TooltipHost>;
     }
 }

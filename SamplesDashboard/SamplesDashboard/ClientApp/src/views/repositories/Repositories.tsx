@@ -27,43 +27,43 @@ IRepositoryState> {
         this.allItems = [];
         const columns: IColumn[] = [
             {
-                key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, maxWidth: 300, isRowHeader: true,
+                key: 'name', name: 'Name', fieldName: 'name', minWidth: 200, isRowHeader: true,
                 isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
-                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 100, maxWidth: 100,
+                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             },
             {
-                key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100, maxWidth: 150,
+                key: 'status', name: 'Status', fieldName: 'repositoryStatus', minWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
                 key: 'pullRequestCount', name: 'Open pull requests', fieldName: 'pullRequests', minWidth: 100,
-                maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick
-            },
-            {
-                key: 'issueCount', name: 'Open issues', fieldName: 'issues', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 75, maxWidth: 75,
+                key: 'issueCount', name: 'Open issues', fieldName: 'issues', minWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 75, maxWidth: 75,
+                key: 'forkCount', name: 'Forks', fieldName: 'forks', minWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'viewCount', name: 'Views', fieldName: 'views', minWidth: 75, maxWidth: 75,
+                key: 'starsCount', name: 'Stars', fieldName: 'stargazers', minWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'language', name: 'Language', fieldName: 'language', minWidth: 75, maxWidth: 100,
+                key: 'viewCount', name: 'Views', fieldName: 'views', minWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'featureArea', name: 'Feature area', fieldName: 'featureArea', minWidth: 100, maxWidth: 150,
+                key: 'language', name: 'Language', fieldName: 'language', minWidth: 100,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'featureArea', name: 'Feature area', fieldName: 'featureArea', minWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             }
         ];
@@ -79,10 +79,14 @@ IRepositoryState> {
             columns,
             items: this.allItems,
             isLoading: false,
-            uptoDateCount: 0,
-            patchUpdateCount: 0,
-            majorUpdateCount: 0,
-            urgentUpdateCount: 0
+            totalUptoDate: 0,
+            totalPatchUpdate: 0,
+            totalMajorUpdate: 0,
+            totalUrgentUpdate: 0,
+            uptoDatePercent: 0,
+            patchUpdatePercent: 0,
+            majorUpdatePercent: 0,
+            urgentUpdatePercent: 0
         };
     }
 
@@ -161,43 +165,81 @@ IRepositoryState> {
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
         const urgentUpdateStats = parseFloat((urgentUpdateCount / total * 100).toFixed(1));
         this.setState({
-            uptoDateCount: uptoDateStats,
-            patchUpdateCount: patchUpdateStats,
-            majorUpdateCount: majorUpdateStats,
-            urgentUpdateCount: urgentUpdateStats
+            totalUptoDate: uptoDateCount,
+            totalPatchUpdate: patchUpdateCount,
+            totalMajorUpdate: majorUpdateCount,
+            totalUrgentUpdate: urgentUpdateCount,
+            uptoDatePercent: uptoDateStats,
+            patchUpdatePercent: patchUpdateStats,
+            majorUpdatePercent: majorUpdateStats,
+            urgentUpdatePercent: urgentUpdateStats
         });
     }
 
     public render(): JSX.Element {
-        const { columns, items, isLoading, uptoDateCount, patchUpdateCount, majorUpdateCount, urgentUpdateCount } = 
+        const { columns, items, isLoading, totalUptoDate, totalPatchUpdate, totalMajorUpdate, totalUrgentUpdate,
+            uptoDatePercent, patchUpdatePercent, majorUpdatePercent, urgentUpdatePercent } = 
         this.state;
 
         return (
             <Fabric>
-                <PageTitle title={'List of ' + this.props.title} />
-                <div className='ms-Grid' dir='ltr'>
-                    <div className='row align-items-center'>
-                        <div className='col-sm-4'>
-                            There are {this.allItems.length} repositories listed
-                        </div>
-                        <div className='col-sm-2'>
-                            <FontIcon iconName='StatusCircleInner' className={classNames.green} /> 
-                            {uptoDateCount}% Up To Date
-                        </div>
-                        <div className='col-sm-2'>
-                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> 
-                            {patchUpdateCount}% Patch Update
-                        </div>
-                        <div className='col-sm-2'>
-                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> 
-                            {majorUpdateCount}% Major/Minor Update
-                        </div>
-                        <div className='col-sm-2'>
-                            <FontIcon iconName='StatusCircleInner' className={classNames.red} /> 
-                            {urgentUpdateCount}% Urgent Update
-                        </div>
+                <div className='row'>
+                    <div className='col-sm-3'>
+                        <div className='card'>
+                            <div className='card-body'>   
+                                <p className='card-text'>
+                                    <FontIcon iconName='StatusCircleInner' className={classNames.green} />
+                                    Repositories that are up to date: {totalUptoDate}
+                                </p>
+                                <div className='card-footer'>
+                                    <span className={classNames.green}>{uptoDatePercent}% Up To Date</span>
+                                </div>
+                            </div>
+                        </div>                  
+                    </div>
+                    <div className='col-sm-3'>
+                        <div className='card'>
+                            <div className='card-body'>
+                                <p className='card-text'>
+                                    <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
+                                    Repositories with a patch update: {totalPatchUpdate}        
+                                </p>
+                                <div className='card-footer'>
+                                    <span className={classNames.yellow}>{patchUpdatePercent}% Patch Update</span>
+                                </div>
+                            </div>
+                        </div>         
+                    </div>
+                    <div className='col-sm-3'>
+                        <div className='card'>
+                            <div className='card-body'>
+
+                                <p className='card-text'>
+                                    <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
+                                    Repositories with a mijor/minor update: {totalMajorUpdate}
+                                </p>
+                                <div className='card-footer'>
+                                    <span className={classNames.yellow}>{majorUpdatePercent}% Major/Minor Update</span>
+                                </div>
+                            </div>
+                        </div>     
+                    </div>
+                    <div className='col-sm-3'>
+                        <div className='card'>
+                            <div className='card-body'>                          
+                                <p className='card-text'>
+                                    <FontIcon iconName='StatusCircleInner' className={classNames.red} />
+                                    Repositories with a security alert: {totalUrgentUpdate}
+                                </p>
+                                <div className='card-footer'>
+                                    <span className={classNames.red}>{urgentUpdatePercent}% Urgent Update</span>
+                                </div>
+                            </div>
+                        </div>  
                     </div>
                 </div>
+                <PageTitle title={'List of ' + this.props.title} />
+                <p className={classNames.detailList}>There are {this.allItems.length} repositories listed </p> 
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
