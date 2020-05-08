@@ -216,7 +216,7 @@ IRepositoryState> {
 
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                    Repositories with a mijor/minor update: {totalMajorUpdate}
+                                    Repositories with a major/minor update: {totalMajorUpdate}
                                 </p>
                                 <div className='card-footer'>
                                     <span className={classNames.yellow}>{majorUpdatePercent}% Major/Minor Update</span>

@@ -193,7 +193,7 @@ export default class Details extends React.Component<any, any> {
 
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                            Libraries with a mijor/minor update: {totalMajorUpdate}
+                                            Libraries with a major/minor update: {totalMajorUpdate}
                                         </p>
                                         <div className='card-footer'>
                                             <span className={classNames.yellow}>
