@@ -47,29 +47,16 @@ namespace SamplesDashboardTests
         public async Task ShouldGetHeaderDetailsAsync2()
         {
             //Arrange
-            var sampleName = "uwp-csharp-excel-snippets-rest-sample";
+            var sampleName = "console-csharp-connect-sample";
 
             //Act
             var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
 
             //Assert
             Assert.NotNull(headerDetails);
-            Assert.True(headerDetails["languages"] == "csharp,uwp");
-            Assert.True(headerDetails["services"] == "Excel");
-        }
-
-        [Fact]
-        public async Task ShouldGetViews()
-        {
-            // Arrange
-            var repoName = "msgraph-samples-dashboard";
-
-            // Act
-            var views = await _repositoriesService.FetchViews(repoName);
-
-            //Assert
-            Assert.NotNull(views);
-        }       
+            Assert.True(headerDetails["languages"] == "csharp");
+            Assert.True(headerDetails["services"] == "Microsoft identity platform,Outlook");
+        }    
 
         [Fact]
         public async Task ShouldGetSamples()
@@ -129,7 +116,7 @@ namespace SamplesDashboardTests
             }
         }
 
-        [Fact]
+        [Fact]  
         public async Task ShouldGetDependencies()
         {
             //Arrange
