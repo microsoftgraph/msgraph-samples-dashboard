@@ -60,7 +60,7 @@ IRepositoryState> {
             },
             {
                 key: 'language', name: 'Language', fieldName: 'language', minWidth: 75, maxWidth: 100,
-                isResizable: true, onColumnClick: this.onColumnClick
+                isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             },
             {
                 key: 'featureArea', name: 'Feature area', fieldName: 'featureArea', minWidth: 100,
