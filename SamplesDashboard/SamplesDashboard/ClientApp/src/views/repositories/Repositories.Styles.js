@@ -14,7 +14,7 @@ exports.iconClass = Styling_1.mergeStyles({
 exports.classNames = Styling_1.mergeStyleSets({
     wrapper: {
         background: '#fff',
-        height: '50vh',
+        height: '60vh',
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap',
@@ -36,6 +36,10 @@ exports.classNames = Styling_1.mergeStyleSets({
         boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
         transition: '0.3s',
         margin: '5px'
-    }
+    },
+    yellowText: { color: '#ffaa44' },
+    greenText: { color: '#498205' },
+    redText: { color: '#d13438' },
+    blueText: { color: '#0078d4' }
 });
 //# sourceMappingURL=Repositories.Styles.js.map
