@@ -189,10 +189,10 @@ IRepositoryState> {
                             <div className='card-body'>   
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.green} />
-                                    Repositories that are up to date: {totalUptoDate}
+                                    Up to date: {totalUptoDate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.green}>{uptoDatePercent}% Up To Date</span>
+                                    <span className={classNames.greenText}>{uptoDatePercent}% Up To Date</span>
                                 </div>
                             </div>
                         </div>                  
@@ -202,10 +202,10 @@ IRepositoryState> {
                             <div className='card-body'>
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                    Repositories with a patch update: {totalPatchUpdate}        
+                                    Patch updates: {totalPatchUpdate}        
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.yellow}>{patchUpdatePercent}% Patch Update</span>
+                                    <span className={classNames.yellowText}>{patchUpdatePercent}% Patch Update</span>
                                 </div>
                             </div>
                         </div>         
@@ -216,10 +216,10 @@ IRepositoryState> {
 
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                    Repositories with a major/minor update: {totalMajorUpdate}
+                                     Major/Minor updates: {totalMajorUpdate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.yellow}>{majorUpdatePercent}% Major/Minor Update</span>
+                                    <span className={classNames.yellowText}>{majorUpdatePercent}% Major/Minor Update</span>
                                 </div>
                             </div>
                         </div>     
@@ -229,16 +229,15 @@ IRepositoryState> {
                             <div className='card-body'>                          
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.red} />
-                                    Repositories with a security alert: {totalUrgentUpdate}
+                                    Security alerts: {totalUrgentUpdate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.red}>{urgentUpdatePercent}% Urgent Update</span>
+                                    <span className={classNames.redText}>{urgentUpdatePercent}% Urgent Update</span>
                                 </div>
                             </div>
                         </div>  
                     </div>
                 </div>
-                <PageTitle title={'List of ' + this.props.title} />
                 <p className={classNames.detailList}>There are {this.allItems.length} repositories listed </p> 
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
