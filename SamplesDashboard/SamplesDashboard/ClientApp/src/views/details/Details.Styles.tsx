@@ -13,7 +13,8 @@ export const buttonClass = mergeStyles({
 
 export const descriptionClass = mergeStyles({
     paddingLeft: '10px',
-    paddingBottom: '10px'
+    paddingBottom: '10px' 
+ 
 });
 
 export const linkClass = mergeStyles({
@@ -28,7 +29,7 @@ export const linkClass = mergeStyles({
 export const classNames = mergeStyleSets({
     wrapper: {
         background: '#fff',
-        height: '50vh',
+        height: '57vh',
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap',

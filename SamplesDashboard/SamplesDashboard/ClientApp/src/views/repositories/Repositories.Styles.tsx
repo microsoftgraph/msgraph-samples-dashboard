@@ -15,7 +15,7 @@ export const iconClass = mergeStyles({
 export const classNames = mergeStyleSets({
     wrapper: {
         background: '#fff',
-        height: '50vh',
+        height: '60vh',
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap',
@@ -29,7 +29,7 @@ export const classNames = mergeStyleSets({
     red: [{ color: '#d13438' }, iconClass],
     blue: [{ color: '#0078d4' }, iconClass],
     statsCard: {
-        background: '#fff',       
+        background: '#fff',
         height: '20vh',
         position: 'relative',
         display: 'flex',
@@ -37,5 +37,9 @@ export const classNames = mergeStyleSets({
         boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
         transition: '0.3s',
         margin: '5px'
-    }
+    },
+    yellowText: {color: '#ffaa44' },
+    greenText: { color: '#498205' },
+    redText: { color: '#d13438' },
+    blueText: { color: '#0078d4' }
 });
