@@ -219,7 +219,8 @@ IRepositoryState> {
                                      Major/Minor updates: {totalMajorUpdate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.yellowText}>{majorUpdatePercent}% Major/Minor Update</span>
+                                    <span className={classNames.yellowText}>{majorUpdatePercent}% Major/Minor Update
+                                    </span>
                                 </div>
                             </div>
                         </div>     
@@ -238,7 +239,8 @@ IRepositoryState> {
                         </div>  
                     </div>
                 </div>
-                <p className={classNames.detailList}>There are {this.allItems.length} repositories listed </p> 
+                <p className={classNames.detailList}>There are {this.allItems.length + ' ' + this.props.title} listed
+                </p> 
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>

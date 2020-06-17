@@ -216,9 +216,9 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>
-                        </div>                       
+                        </div>       
+                        <PageTitle title={`List of ${this.allItems.length} libraries in ${repositoryDetails.name}`}/>
                         <div className={descriptionClass}> {repositoryDetails.description} </div>   
-                        <p className={classNames.detailList}>There are {this.allItems.length} libraries listed </p>
                         <div className={classNames.wrapper}>
                             <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                                 <div>
