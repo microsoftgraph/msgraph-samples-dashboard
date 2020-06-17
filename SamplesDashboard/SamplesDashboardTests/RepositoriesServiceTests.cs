@@ -47,15 +47,15 @@ namespace SamplesDashboardTests
         public async Task ShouldGetHeaderDetailsAsync2()
         {
             //Arrange
-            var sampleName = "console-csharp-connect-sample";
+            var sampleName = "python-security-rest-sample";
 
             //Act
             var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
 
             //Assert
             Assert.NotNull(headerDetails);
-            Assert.True(headerDetails["languages"] == "csharp");
-            Assert.True(headerDetails["services"] == "Microsoft identity platform,Outlook");
+            Assert.True(headerDetails["languages"] == "python,html");
+            Assert.True(headerDetails["services"] == "Security");
         }    
 
         [Fact]
