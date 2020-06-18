@@ -14,7 +14,7 @@ exports.iconClass = Styling_1.mergeStyles({
 exports.classNames = Styling_1.mergeStyleSets({
     wrapper: {
         background: '#fff',
-        height: '60vh',
+        height: '58vh',
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap',
