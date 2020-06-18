@@ -192,7 +192,7 @@ IRepositoryState> {
                                     Up to date: {totalUptoDate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.greenText}>{uptoDatePercent}% Up To Date</span>
+                                    <span className={classNames.greenText}>{uptoDatePercent}%</span>
                                 </div>
                             </div>
                         </div>                  
@@ -205,7 +205,7 @@ IRepositoryState> {
                                     Patch updates: {totalPatchUpdate}        
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.yellowText}>{patchUpdatePercent}% Patch Update</span>
+                                    <span className={classNames.yellowText}>{patchUpdatePercent}%</span>
                                 </div>
                             </div>
                         </div>         
@@ -219,7 +219,7 @@ IRepositoryState> {
                                      Major/Minor updates: {totalMajorUpdate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.yellowText}>{majorUpdatePercent}% Major/Minor Update
+                                    <span className={classNames.yellowText}>{majorUpdatePercent}%
                                     </span>
                                 </div>
                             </div>
@@ -233,7 +233,7 @@ IRepositoryState> {
                                     Security alerts: {totalUrgentUpdate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.redText}>{urgentUpdatePercent}% Urgent Update</span>
+                                    <span className={classNames.redText}>{urgentUpdatePercent}% </span>
                                 </div>
                             </div>
                         </div>  

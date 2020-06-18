@@ -166,10 +166,10 @@ export default class Details extends React.Component<any, any> {
                                     <div className='card-body'>
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.green} />
-                                            Libraries that are up to date: {totalUptoDate}
+                                             Up to date: {totalUptoDate}
                                         </p>
                                         <div className='card-footer'>
-                                            <span className={classNames.green}>{uptoDatePercent}% Up To Date</span>
+                                            <span className={classNames.green}>{uptoDatePercent}%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -179,10 +179,10 @@ export default class Details extends React.Component<any, any> {
                                     <div className='card-body'>
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.red} />
-                                            Libraries with a patch update: {totalPatchUpdate}
+                                            Patch updates: {totalPatchUpdate}
                                         </p>
                                         <div className='card-footer'>
-                                            <span className={classNames.red}>{patchUpdatePercent}% Patch Update</span>
+                                            <span className={classNames.red}>{patchUpdatePercent}% </span>
                                         </div>
                                     </div>
                                 </div>
@@ -193,11 +193,11 @@ export default class Details extends React.Component<any, any> {
 
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                            Libraries with a major/minor update: {totalMajorUpdate}
+                                            Major/Minor update: {totalMajorUpdate}
                                         </p>
                                         <div className='card-footer'>
                                             <span className={classNames.yellow}>
-                                                {majorUpdatePercent}% Major/Minor Update
+                                                {majorUpdatePercent}%
                                             </span>
                                         </div>
                                     </div>
@@ -208,10 +208,10 @@ export default class Details extends React.Component<any, any> {
                                     <div className='card-body'>
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.blue} />
-                                            Libraries with unknown versions: {totalUnknown}
+                                            Unknown versions: {totalUnknown}
                                         </p>
                                         <div className='card-footer'>
-                                            <span className={classNames.blue}>{unknownPercent}% Uknown</span>
+                                            <span className={classNames.blue}>{unknownPercent}% </span>
                                         </div>
                                     </div>
                                 </div>
