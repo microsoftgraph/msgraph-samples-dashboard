@@ -15,7 +15,7 @@ export const iconClass = mergeStyles({
 export const classNames = mergeStyleSets({
     wrapper: {
         background: '#fff',
-        height: '60vh',
+        height: '58vh',
         position: 'relative',
         display: 'flex',
         flexWrap: 'wrap',

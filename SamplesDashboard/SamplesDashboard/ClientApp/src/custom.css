@@ -7,8 +7,8 @@
 }
 .card {
     background: #fff;
-    height: 10rem;
-    width: 23vw;
+    height: 8rem;
+    width: 20vw;
     position: relative;
     display: flex;
     flex-wrap: wrap;
@@ -20,6 +20,7 @@
 .card-text {
     font-size: 14px;
     padding-bottom: 0px;
+    text-align: center;
 }
 .card-footer {
     background: #fff;
@@ -27,5 +28,5 @@
     padding: 0.55rem 1rem;
     background-color: rgba(0, 0, 0, 0.03);
     border-top: 1px solid rgba(0, 0, 0, 0.125);
-    
+    text-align: center;
 }
