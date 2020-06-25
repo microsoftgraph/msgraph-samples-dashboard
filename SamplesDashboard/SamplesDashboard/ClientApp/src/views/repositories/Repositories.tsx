@@ -246,8 +246,8 @@ IRepositoryState> {
                         <Sticky stickyPosition={StickyPositionType.Header}>
 
                             <TextField
-                                className={filterListClass}                               
-                                placeholder="Filter by name..."
+                                className={filterListClass}
+                                placeholder='Filter by name...'
                                 onChange={this.onFilterName}
                                 styles={{ root: { maxWidth: '300px' } }}
                             />
