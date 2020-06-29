@@ -186,7 +186,7 @@ IRepositoryState> {
                 <div className='row'>
                     <div className='col-sm-3'>
                         <div className='card'>
-                            <div className='card-body'>   
+                            <div className='card-body'>
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.green} />
                                     Up to date: {totalUptoDate}
@@ -244,9 +244,10 @@ IRepositoryState> {
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
+
                             <TextField
                                 className={filterListClass}
-                                label='Filter by name:'
+                                placeholder='Filter by name...'
                                 onChange={this.onFilterName}
                                 styles={{ root: { maxWidth: '300px' } }}
                             />
