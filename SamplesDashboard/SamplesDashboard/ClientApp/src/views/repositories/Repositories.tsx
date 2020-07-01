@@ -247,7 +247,7 @@ IRepositoryState> {
 
                             <TextField
                                 className={filterListClass}
-                                placeholder='Filter by name...'
+                                label='Filter by name:'
                                 onChange={this.onFilterName}
                                 styles={{ root: { maxWidth: '300px' } }}
                             />
