@@ -387,7 +387,8 @@ namespace SamplesDashboard.Services
             string header = await GetYamlHeader(repoName);
             if (!string.IsNullOrEmpty(header))
             {
-                string[] lines = header.Split("\r\n");
+                string[] stringSeparators = new string[] { "\r\n", "\n" };
+                string[] lines = header.Split(stringSeparators, StringSplitOptions.None);
                 string[] details = new string[] { "languages", "services" };
 
                 Dictionary<string, string> keyValuePairs = new Dictionary<string,string>();
