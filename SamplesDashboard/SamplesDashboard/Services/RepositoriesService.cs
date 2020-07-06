@@ -388,7 +388,7 @@ namespace SamplesDashboard.Services
             if (!string.IsNullOrEmpty(header))
             {
                 string[] stringSeparators = new string[] { "\r\n", "\n" };
-                string[] lines = header.Split(stringSeparators, StringSplitOptions.None);
+                string[] lines = header.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
                 string[] details = new string[] { "languages", "services" };
 
                 Dictionary<string, string> keyValuePairs = new Dictionary<string,string>();
