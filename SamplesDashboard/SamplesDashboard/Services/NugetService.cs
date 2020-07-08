@@ -31,14 +31,14 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="packageName"></param>
         /// <returns>Latest version</returns>
-        public async Task<string> GetLatestPackageVersion(string packageName)
+        public async Task<IEnumerable<NuGetVersion>> GetPackageVersions(string packageName)
         {
             using (SourceCacheContext cache = new SourceCacheContext())
             {
                 FindPackageByIdResource resource = await _nugetRepository.GetResourceAsync<FindPackageByIdResource>();
                 IEnumerable<NuGetVersion> versions = await resource.GetAllVersionsAsync(packageName, cache, NullLogger.Instance, CancellationToken.None);
 
-                return versions.LastOrDefault()?.ToString();
+                return versions;
             }          
         }
     }
