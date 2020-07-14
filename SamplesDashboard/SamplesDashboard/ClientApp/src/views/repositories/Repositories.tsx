@@ -1,6 +1,6 @@
 import {
     DetailsListLayoutMode, FontIcon,
-    IColumn, IDetailsHeaderProps, IRenderFunction, SelectionMode, ShimmeredDetailsList, TooltipHost
+    IColumn, IDetailsHeaderProps, IRenderFunction, SelectionMode, ShimmeredDetailsList, TooltipHost, Stack, IStackStyles, IStackProps
 } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
@@ -180,6 +180,12 @@ IRepositoryState> {
         const { columns, items, isLoading, totalUptoDate, totalPatchUpdate, totalMajorUpdate, totalUrgentUpdate,
             uptoDatePercent, patchUpdatePercent, majorUpdatePercent, urgentUpdatePercent } = 
         this.state;
+        const stackStyles: Partial<IStackStyles> = { root: { width: 650 } };
+        const columnProps: Partial<IStackProps> = {
+            tokens: { childrenGap: 15 },
+            styles: { root: { width: 300 } },
+        };
+        const stackTokens = { childrenGap: 50 };
 
         return (
             <Fabric>
@@ -244,13 +250,24 @@ IRepositoryState> {
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
-
-                            <TextField
-                                className={filterListClass}
-                                label='Filter by name:'
-                                onChange={this.onFilterName}
-                                styles={{ root: { maxWidth: '300px' } }}
-                            />
+                            <Stack horizontal tokens={stackTokens} styles={stackStyles}>
+                                <Stack {...columnProps}>
+                                    <TextField
+                                        className={filterListClass}
+                                        label='Filter by name:'
+                                        onChange={this.onFilterName}
+                                        styles={{ root: { maxWidth: '300px' } }}
+                                    />
+                                </Stack>
+                                <Stack {...columnProps}>
+                                    <TextField
+                                        className={filterListClass}
+                                        label='Filter by owner:'
+                                        onChange={this.onFilterByOwner}
+                                        styles={{ root: { maxWidth: '300px' } }}
+                                    />
+                                </Stack>
+                            </Stack>
                         </Sticky>
                         <div className={classNames.detailList}>
                         <ShimmeredDetailsList
@@ -278,6 +295,13 @@ IRepositoryState> {
         string | undefined): void => {
         this.setState({
             items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems
+        });
+    };
+    private onFilterByOwner = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
+        string | undefined): void => {
+         
+        this.setState({
+            items: text ? this.allItems.filter(i => i.ownerProfiles) : this.allItems
         });
     };
 
