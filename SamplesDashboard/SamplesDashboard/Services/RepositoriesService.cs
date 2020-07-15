@@ -420,7 +420,7 @@ namespace SamplesDashboard.Services
             if (responseMessage.IsSuccessStatusCode)
             {
                 string fileContents = await responseMessage.Content.ReadAsStringAsync();
-                string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
+                string[] parts = fileContents.Split("---\r\n", StringSplitOptions.RemoveEmptyEntries);
 
                 //we have a valid header between ---
                 if (parts.Length > 1)
