@@ -47,6 +47,19 @@ namespace SamplesDashboardTests
         public async Task ShouldGetHeaderDetailsAsync2()
         {
             //Arrange
+            var sampleName = "meetings-capture-sample";
+
+            //Act
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);            
+
+            //Assert
+            Assert.Empty(headerDetails);        
+        }
+
+        [Fact]
+        public async Task ShouldGetHeaderDetailsAsync3()
+        {
+            //Arrange
             var sampleName = "nodejs-webhooks-rest-sample";
 
             //Act
@@ -60,7 +73,7 @@ namespace SamplesDashboardTests
         }
 
         [Fact]
-        public async Task ShouldGetHeaderDetailsAsync3()
+        public async Task ShouldGetHeaderDetailsAsync4()
         {
             //Arrange
             var sampleName = "python-security-rest-sample";
