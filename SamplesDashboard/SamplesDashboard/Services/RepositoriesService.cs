@@ -387,7 +387,8 @@ namespace SamplesDashboard.Services
             string header = await GetYamlHeader(repoName);
             if (!string.IsNullOrEmpty(header))
             {
-                string[] lines = header.Split("\r\n");
+                string[] stringSeparators = new string[] { "\r\n", "\n" };
+                string[] lines = header.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
                 string[] details = new string[] { "languages", "services" };
 
                 Dictionary<string, string> keyValuePairs = new Dictionary<string,string>();
@@ -419,7 +420,8 @@ namespace SamplesDashboard.Services
             if (responseMessage.IsSuccessStatusCode)
             {
                 string fileContents = await responseMessage.Content.ReadAsStringAsync();
-                string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
+                var stringSeparator = new string[] { "---\r\n", "---\n" };
+                string[] parts = fileContents.Split(stringSeparator, StringSplitOptions.RemoveEmptyEntries);
 
                 //we have a valid header between ---
                 if (parts.Length > 1)

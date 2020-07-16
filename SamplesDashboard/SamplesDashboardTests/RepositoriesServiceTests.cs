@@ -41,10 +41,39 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "aspx,csharp");
             Assert.True(headerDetails["services"] == "Microsoft identity platform");
-        }       
+        }
 
         [Fact]
         public async Task ShouldGetHeaderDetailsAsync2()
+        {
+            //Arrange
+            var sampleName = "meetings-capture-sample";
+
+            //Act
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);            
+
+            //Assert
+            Assert.Empty(headerDetails);        
+        }
+
+        [Fact]
+        public async Task ShouldGetHeaderDetailsAsync3()
+        {
+            //Arrange
+            var sampleName = "nodejs-webhooks-rest-sample";
+
+            //Act
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
+            _helper.WriteLine(headerDetails["languages"]);
+
+            //Assert
+            Assert.NotNull(headerDetails);
+            Assert.True(headerDetails["languages"] == "nodejs,javascript");
+            Assert.True(headerDetails["services"] == "Outlook,Office 365,Microsoft identity platform");
+        }
+
+        [Fact]
+        public async Task ShouldGetHeaderDetailsAsync4()
         {
             //Arrange
             var sampleName = "python-security-rest-sample";
