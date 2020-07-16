@@ -14,12 +14,10 @@ namespace SamplesDashboardTests
     public class NugetServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
     {
         private readonly NugetService _nugetService;
-        private readonly ITestOutputHelper _helper;
 
         public NugetServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
         {
-            _helper = helper;
-            _nugetService = applicationFactory.Services.GetService<NugetService>();
+            _nugetService = applicationFactory.Services.GetService<NugetService>();            
         }
 
         [Fact]
@@ -27,13 +25,12 @@ namespace SamplesDashboardTests
         {
             // Arrange
             var packageName = "jQuery";
-
             // Act
-            var latestVersion = await _nugetService.GetLatestPackageVersion(packageName);
+            var nugetVersions = await _nugetService.GetPackageVersions(packageName);
 
             //Assert
-            Assert.NotNull(latestVersion);
-        }    
-
+            Assert.NotNull(nugetVersions);
+        }
+       
     }
 }
