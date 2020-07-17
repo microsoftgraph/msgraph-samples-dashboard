@@ -245,7 +245,36 @@ namespace SamplesDashboard.Services
             var repository = await UpdateRepositoryStatus(graphQLResponse.Data?.Organization.Repository);           
             return repository;
         }
+        /// <summary>
+        /// Gets a list of versions from nuget and computes the latest version
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <param name="currentVersion"></param>
+        /// <returns>latestVersion</returns>
+        public async Task<string> GetLatestNugetVersion(string packageName, string currentVersion)
+        {
+            var nugetPackageVersions = await _nugetService.GetPackageVersions(packageName);
+            var latestVersion = nugetPackageVersions.LastOrDefault()?.ToString();
 
+            //check if current version is preview, return latest version, whether preview or non-preview
+            if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
+            {
+                return latestVersion;
+            }
+            //check if only latest version is preview, set to latest non-preview version
+            else if (latestVersion.Contains("preview"))
+            {
+                var nonPreviewVersions = new List<string>();
+                foreach (var version in nugetPackageVersions)
+                {
+                    if (!version.ToString().Contains("preview"))
+                        nonPreviewVersions.Add(version.ToString());
+                }
+
+                latestVersion = nonPreviewVersions.LastOrDefault();
+            }           
+            return latestVersion;
+        }
         /// <summary>
         /// Gets the repository's details and updates the status field in the dependencies
         /// </summary>
@@ -275,8 +304,8 @@ namespace SamplesDashboard.Services
                     string azureSdkVersion = String.Empty;
                     switch (dependency.packageManager)
                     {
-                        case "NUGET":
-                            latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
+                        case "NUGET":                            
+                            latestVersion = await GetLatestNugetVersion(dependency.packageName, currentVersion);
                             azureSdkVersion = await _azureSdkService.GetAzureSdkVersions(dependency.packageName);                         
                             break;
 
@@ -387,7 +416,8 @@ namespace SamplesDashboard.Services
             string header = await GetYamlHeader(repoName);
             if (!string.IsNullOrEmpty(header))
             {
-                string[] lines = header.Split("\r\n");
+                string[] stringSeparators = new string[] { "\r\n", "\n" };
+                string[] lines = header.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
                 string[] details = new string[] { "languages", "services" };
 
                 Dictionary<string, string> keyValuePairs = new Dictionary<string,string>();
@@ -419,7 +449,8 @@ namespace SamplesDashboard.Services
             if (responseMessage.IsSuccessStatusCode)
             {
                 string fileContents = await responseMessage.Content.ReadAsStringAsync();
-                string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
+                var stringSeparator = new string[] { "---\r\n", "---\n" };
+                string[] parts = fileContents.Split(stringSeparator, StringSplitOptions.RemoveEmptyEntries);
 
                 //we have a valid header between ---
                 if (parts.Length > 1)
