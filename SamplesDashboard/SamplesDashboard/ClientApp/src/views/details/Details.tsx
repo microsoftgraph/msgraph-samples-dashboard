@@ -145,8 +145,8 @@ export default class Details extends React.Component<any, any> {
     }
     public render(): JSX.Element {
         const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate, totalPatchUpdate,
-            totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent, urgentUpdatePercent,
-            unknownPercent  } = this.state;
+            totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent,
+            urgentUpdatePercent, unknownPercent  } = this.state;
         return (
             <div>     
                     { isLoading ?
