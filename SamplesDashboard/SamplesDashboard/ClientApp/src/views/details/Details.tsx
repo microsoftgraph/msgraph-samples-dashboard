@@ -144,8 +144,9 @@ export default class Details extends React.Component<any, any> {
         });
     }
     public render(): JSX.Element {
-        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate,totalPatchUpdate,
-            totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent, urgentUpdatePercent, unknownPercent  } = this.state;
+        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate, totalPatchUpdate,
+            totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent, urgentUpdatePercent,
+            unknownPercent  } = this.state;
         return (
             <div>     
                     { isLoading ?
@@ -342,11 +343,13 @@ function checkStatus(status: number)
             </TooltipHost>;
 
         case 3:
-            return <TooltipHost content='Atleast 1 dependency in this repository has a patch update.' id={'PatchUpdate'}>
+            return <TooltipHost content='Atleast 1 dependency in this repository has a patch update.' 
+            id={'PatchUpdate'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Patch Update </span>
             </TooltipHost>;
         case 4:
-            return <TooltipHost content='This repository has a security alert. Please go to github to update.' id={'UrgentUpdate'}>
+            return <TooltipHost content='This repository has a security alert. Please go to github to update.'
+             id={'UrgentUpdate'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
             </TooltipHost>;
     }
