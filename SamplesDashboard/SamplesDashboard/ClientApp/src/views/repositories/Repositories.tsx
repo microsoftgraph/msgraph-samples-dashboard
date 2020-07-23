@@ -157,7 +157,7 @@ IRepositoryState> {
                         patchUpdateCount = patchUpdateCount + 1;
                         break;
                 }
-            }
+            }            
         }
         const total = this.allItems.length;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
@@ -341,7 +341,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             return displayAdmins(ownerProfiles);            
 
         case 'Status':
-            return checkStatus(status, vulnerabilityAlertsCount);
+            return checkStatus(status);
 
         case 'Language':
             return <span>{language}</span>;
@@ -446,12 +446,7 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
     return comparison;
 }
 
-function checkStatus(status: number, vulnerabilityAlertsCount: number) {
-    if (vulnerabilityAlertsCount > 0) {
-        return <TooltipHost content='This repository has a security alert' id={'UrgentUpdate'}>
-            <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
-        </TooltipHost>;
-    }
+function checkStatus(status: number) {    
     switch (status) {
         case 0:
             return <TooltipHost content='Unknown' id={'Unknown'}>
@@ -464,11 +459,19 @@ function checkStatus(status: number, vulnerabilityAlertsCount: number) {
             </TooltipHost>;
 
         case 2:
-        case 3:
             return <TooltipHost content='At least 1 dependency in this repository has a major/minor release update'
-             id={'Update'}>
+                id={'Update'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Update </span>
             </TooltipHost>;
+        case 3:
+            return <TooltipHost content='Atleast 1 dependency in this repository has a patch update.' id={'PatchUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Patch Update </span>
+            </TooltipHost>;
+        case 4:
+            return <TooltipHost content='This repository has a security alert. Please go to github to update.' id={'UrgentUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
+            </TooltipHost>;
+            
     }
 }
 
