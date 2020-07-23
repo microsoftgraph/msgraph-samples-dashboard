@@ -101,44 +101,51 @@ export default class Details extends React.Component<any, any> {
     // compute status statistics 
     public statusStatistics(items: IDetailsItem[]) {
         let uptoDateCount = 0;
-        let patchUpdateCount = 0;
+        let urgentUpdateCount = 0;
         let majorUpdateCount = 0;
+        let patchUpdateCount = 0;
         let unknownCount = 0;
         for (const item of items) {
+
             switch (item.status) {
-                    case 1:
-                        uptoDateCount = uptoDateCount + 1;
-                        break;
-                    case 2:
-                        majorUpdateCount = majorUpdateCount + 1;
-                        break;
-                    case 3:
-                        patchUpdateCount = patchUpdateCount + 1;
-                        break;
-                    case 0:
-                        unknownCount = unknownCount + 1;
-                        break;
-                }
+                case 1:
+                    uptoDateCount = uptoDateCount + 1;
+                    break;
+                case 2:
+                    majorUpdateCount = majorUpdateCount + 1;
+                    break;
+                case 3:
+                    patchUpdateCount = patchUpdateCount + 1;
+                    break;
+                case 4:
+                    urgentUpdateCount = urgentUpdateCount + 1;
+                case 0:
+                    unknownCount = unknownCount + 1;
+                    break;
             }
+        }
         const total = this.allItems.length;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
-        const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
+        const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
+        const urgentUpdateStats = parseFloat((urgentUpdateCount / total * 100).toFixed(1));
         const unknownStats = parseFloat((unknownCount / total * 100).toFixed(1));
         this.setState({
             totalUptoDate: uptoDateCount,
-            totalPatchUpdate: patchUpdateCount,
             totalMajorUpdate: majorUpdateCount,
+            totalPatchUpdate: patchUpdateCount,
             totalUnknown: unknownCount,
+            totalUrgentUpdate: urgentUpdateCount,
             uptoDatePercent: uptoDateStats,
-            patchUpdatePercent: patchUpdateStats,
             majorUpdatePercent: majorUpdateStats,
+            patchUpdatePercent: patchUpdateCount,
+            urgentUpdatePercent: urgentUpdateStats,
             unknownPercent: unknownStats
         });
     }
     public render(): JSX.Element {
-        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalPatchUpdate, totalMajorUpdate, 
-            totalUnknown, uptoDatePercent, patchUpdatePercent, majorUpdatePercent, unknownPercent  } = this.state;
+        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate,totalPatchUpdate,
+            totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent, urgentUpdatePercent, unknownPercent  } = this.state;
         return (
             <div>     
                     { isLoading ?
@@ -161,8 +168,21 @@ export default class Details extends React.Component<any, any> {
                                 Go to Repository
                         </PrimaryButton>
                         <div className='row'>
-                            <div className='col-sm-3'>
-                                <div className='card'>
+                            <div className='col-sm'>
+                                <div className='card-details'>
+                                    <div className='card-body'>
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.red} />
+                                            Security alerts: {totalUrgentUpdate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.red}>{urgentUpdatePercent}% </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm'>
+                                <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.green} />
@@ -173,27 +193,27 @@ export default class Details extends React.Component<any, any> {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className='col-sm-3'>
-                                <div className='card'>
+                            </div>   
+                            <div className='col-sm'>
+                                <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
-                                            <FontIcon iconName='StatusCircleInner' className={classNames.red} />
-                                            Patch updates: {totalPatchUpdate}
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
+                                             Patch Updates: {totalPatchUpdate}
                                         </p>
                                         <div className='card-footer'>
-                                            <span className={classNames.red}>{patchUpdatePercent}% </span>
+                                            <span className={classNames.yellow}>{patchUpdatePercent}%</span>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className='col-sm-3'>
-                                <div className='card'>
+                            </div> 
+                            <div className='col-sm'>
+                                <div className='card-details'>
                                     <div className='card-body'>
 
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                            Major/Minor update: {totalMajorUpdate}
+                                            Major/Minor Updates: {totalMajorUpdate}
                                         </p>
                                         <div className='card-footer'>
                                             <span className={classNames.yellow}>
@@ -203,8 +223,8 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>
-                            <div className='col-sm-3'>
-                                <div className='card'>
+                            <div className='col-sm'>
+                                <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.blue} />
@@ -317,12 +337,16 @@ function checkStatus(status: number)
             </TooltipHost>;
 
         case 2:
-            return <TooltipHost content='This library has a major/minor release update' id={'Update'}>
+            return <TooltipHost content='This library has a patch or major/minor release update' id={'Update'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Update </span>
             </TooltipHost>;
 
         case 3:
-            return <TooltipHost content='This library has a patch release update' id={'UrgentUpdate'}>
+            return <TooltipHost content='Atleast 1 dependency in this repository has a patch update.' id={'PatchUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Patch Update </span>
+            </TooltipHost>;
+        case 4:
+            return <TooltipHost content='This repository has a security alert. Please go to github to update.' id={'UrgentUpdate'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
             </TooltipHost>;
     }
