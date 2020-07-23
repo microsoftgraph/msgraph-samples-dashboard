@@ -299,12 +299,11 @@ IRepositoryState> {
     };
     private onFilterByOwner = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
         string | undefined): void => {
-         
         this.setState({
-            items: text ? this.allItems.filter(i => i.ownerProfiles) : this.allItems
+            items: text ? this.allItems.filter(i => i.ownerProfiles.includes(text!)) : this.allItems
         });
     };
-
+    
     private onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const { columns, items } = this.state;
         const newColumns: IColumn[] = columns.slice();
