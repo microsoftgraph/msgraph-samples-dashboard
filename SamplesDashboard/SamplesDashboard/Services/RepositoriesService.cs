@@ -336,7 +336,9 @@ namespace SamplesDashboard.Services
 
                     //calculate status normally for repos without security alerts
                     if (vulnerabilityCount == 0)
+                    {
                         dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                    }
 
                     //check if a repo has security alerts
                     else if (vulnerabilityCount > 0)
