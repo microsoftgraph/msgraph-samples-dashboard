@@ -9,6 +9,7 @@ namespace SamplesDashboard.Models
         Unknown = 0,
         UpToDate = 1,
         Update = 2,
-        UrgentUpdate = 3
+        PatchUpdate = 3,
+        UrgentUpdate = 4
     }
 }

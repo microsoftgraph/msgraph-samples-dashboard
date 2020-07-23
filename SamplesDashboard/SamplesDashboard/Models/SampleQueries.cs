@@ -40,7 +40,7 @@ namespace SamplesDashboard
         public Dictionary<string, string> OwnerProfiles { get; set; }
 
         [JsonProperty("vulnerabilityAlerts")]
-        public Issues VulnerabilityAlerts { get; set; }
+        public VulnerabilityAlerts VulnerabilityAlerts { get; set; }
 
         [JsonProperty("issues")]
         public Issues Issues { get; set; }
@@ -70,7 +70,38 @@ namespace SamplesDashboard
 
         public PackageStatus RepositoryStatus { get; internal set; }
     }
+    public partial class VulnerabilityAlerts
+    {
+        [JsonProperty("totalCount")]
+        public long TotalCount { get; set; }
 
+        [JsonProperty("edges")]
+        public Edge[] Edges { get; set; }
+    }
+
+    public partial class Edge
+    {
+        [JsonProperty("node")]
+        public EdgeNode Node { get; set; }
+    }
+
+    public partial class EdgeNode
+    {
+        [JsonProperty("securityVulnerability")]
+        public SecurityVulnerability SecurityVulnerability { get; set; }
+    }
+
+    public partial class SecurityVulnerability
+    {
+        [JsonProperty("package")]
+        public Package Package { get; set; }
+    }
+
+    public partial class Package
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+    }
     public partial class Forks
     {
         [JsonProperty("totalCount")]
@@ -120,6 +151,9 @@ namespace SamplesDashboard
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
+
+        [JsonProperty("vulnerabilityAlerts")]
+        public VulnerabilityAlerts VulnerabilityAlerts { get; set; }
 
         [JsonProperty("dependencyGraphManifests")]
         public DependencyGraphManifests DependencyGraphManifests { get; set; }

@@ -74,7 +74,7 @@ namespace SamplesDashboard.Services
                   search(query: ""org:microsoftgraph"+ $"{name}"+ @" in:name archived:false"", type: REPOSITORY, first: 100 "+ $"{cursorString}" + @" ) {
                         nodes {
                                 ... on Repository {
-                                    name
+                                    name 
                                     vulnerabilityAlerts {
                                         totalCount
                                     }
@@ -213,6 +213,18 @@ namespace SamplesDashboard.Services
                             repository(name: $repo){
                                 description
                                 url
+                                vulnerabilityAlerts(first: 30)  {
+                                    totalCount
+                                    edges {
+                                        node {
+                                            securityVulnerability {
+                                                package {
+                                                    name
+                                                }                        
+                                            }
+                                        }
+                                    }         
+                                }
                                 dependencyGraphManifests(withDependencies: true) {
                                     nodes {
                                         filename
@@ -282,6 +294,7 @@ namespace SamplesDashboard.Services
         /// <returns>An updated repository object with the status field.</returns>
         internal async Task<Repository> UpdateRepositoryStatus(Repository repository)
         {
+            var vulnerabilityCount = repository?.VulnerabilityAlerts?.TotalCount;
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
             if (dependencyGraphManifests == null) 
                 return repository;
@@ -295,7 +308,7 @@ namespace SamplesDashboard.Services
                 PackageStatus highestStatus = PackageStatus.Unknown;
                 // Go through each dependency in the dependency manifest
                 foreach (var dependency in dependencies)
-                {
+                {                   
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
 
@@ -320,7 +333,28 @@ namespace SamplesDashboard.Services
 
                     dependency.latestVersion = latestVersion;
                     dependency.azureSdkVersion = azureSdkVersion;
-                    dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+
+                    //calculate status normally for repos without security alerts
+                    if (vulnerabilityCount == 0)
+                    {
+                        dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                    }
+
+                    //check if a repo has security alerts
+                    else if (vulnerabilityCount > 0)
+                    {
+                        var librariesWithAlerts = repository?.VulnerabilityAlerts.Edges.Select(p => p.Node?.SecurityVulnerability.Package.Name);
+
+                        //if the name of the dependency is in the list of libraries with alerts, set status to urgent update
+                        if (librariesWithAlerts.Contains(dependency.packageName))
+                        {
+                            dependency.status = PackageStatus.UrgentUpdate;
+                        }
+                        else
+                        {
+                            dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                        }                        
+                    }
                 }
                 //getting the highest status from a dependency node
                 highestStatus = HighestStatus(dependencies);
@@ -333,7 +367,7 @@ namespace SamplesDashboard.Services
             }
             return repository;
         }       
-
+        
         /// <summary>
         /// Calculate the status of a repo
         /// </summary>
@@ -341,7 +375,7 @@ namespace SamplesDashboard.Services
         /// <param name="latestVersion">The latest version of the repo</param>
         /// <returns><see cref="PackageStatus"/> of the repo Version </returns>
         internal PackageStatus CalculateStatus(string repoVersion, string latestVersion)
-        {
+        {            
             if (string.IsNullOrEmpty(repoVersion) || string.IsNullOrEmpty(latestVersion))
                 return PackageStatus.Unknown;
 
@@ -366,7 +400,7 @@ namespace SamplesDashboard.Services
                 //Unable to determine the versions
                 return PackageStatus.Unknown;
             }
-
+           
             int status = repo.CompareTo(latest);
 
             if (status == 0)
@@ -377,7 +411,7 @@ namespace SamplesDashboard.Services
             else if (repo.Major == latest.Major && repo.Minor == latest.Minor)
             {
                 //Difference is only in the build version therefore package requires an urgent update 
-                return PackageStatus.UrgentUpdate;
+                return PackageStatus.PatchUpdate;
             }
             else if (status < 0)
             {
