@@ -300,9 +300,20 @@ IRepositoryState> {
     private onFilterByOwner = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
         string | undefined): void => {
         this.setState({
-            items: text ? this.allItems.filter(i => i.ownerProfiles.includes(text!)) : this.allItems
+            items: text ? this.allItems.filter(i => this.filterItems(i, text!!)): this.allItems
         });
     };
+
+    private filterItems = (item: IRepositoryItem, text: string): boolean => {
+        let found = false;
+        for (const key in item.ownerProfiles) {
+            if (key.includes(text)) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
     
     private onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const { columns, items } = this.state;
