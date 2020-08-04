@@ -306,8 +306,11 @@ IRepositoryState> {
 
     private filterItems = (item: IRepositoryItem, text: string): boolean => {
         let found = false;
+        // ownerProfiles format: {gitHubUserName:"gitHubUrl"}
+        // Check that atleast 1 owner matches. 
         for (const key in item.ownerProfiles) {
-            if (key.includes(text)) {
+            // Ensure that you compare in the same case.
+            if (key.toLowerCase().includes(text.toLowerCase())) {
                 found = true;
                 break;
             }
