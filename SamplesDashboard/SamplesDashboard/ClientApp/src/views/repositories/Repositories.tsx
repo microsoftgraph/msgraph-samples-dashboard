@@ -294,19 +294,18 @@ IRepositoryState> {
     private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: 
         string | undefined): void => {
         this.setState({
-            items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems
+            items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text.toLowerCase()) > -1) : this.allItems
         });
     };
     private onFilterByOwner = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
         string | undefined): void => {
         this.setState({
-            items: text ? this.allItems.filter(i => this.filterItems(i, text!!)): this.allItems
+            items: text ? this.allItems.filter(i => this.filterItems(i, text)): this.allItems
         });
     };
 
     private filterItems = (item: IRepositoryItem, text: string): boolean => {
         let found = false;
-        // ownerProfiles format: {gitHubUserName:"gitHubUrl"}
         // Check that atleast 1 owner matches. 
         for (const key in item.ownerProfiles) {
             // Ensure that you compare in the same case.
