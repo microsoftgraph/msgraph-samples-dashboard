@@ -1,6 +1,6 @@
 import {
     DetailsListLayoutMode, FontIcon,
-    IColumn, IDetailsHeaderProps, IRenderFunction,IStackStyles, IStackProps, SelectionMode,
+    IColumn, IDetailsHeaderProps, IRenderFunction, IStackProps, IStackStyles, SelectionMode, 
     ShimmeredDetailsList, Stack, TooltipHost} from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
