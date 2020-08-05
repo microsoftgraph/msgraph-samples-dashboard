@@ -1,7 +1,7 @@
 import {
     DetailsListLayoutMode, FontIcon,
-    IColumn, IDetailsHeaderProps, IRenderFunction, SelectionMode, ShimmeredDetailsList, TooltipHost, Stack, IStackStyles, IStackProps
-} from 'office-ui-fabric-react';
+    IColumn, IDetailsHeaderProps, IRenderFunction,IStackStyles, IStackProps, SelectionMode,
+    ShimmeredDetailsList, Stack, TooltipHost} from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
@@ -294,13 +294,14 @@ IRepositoryState> {
     private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: 
         string | undefined): void => {
         this.setState({
-            items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text.toLowerCase()) > -1) : this.allItems
+            items: text ? this.allItems.filter(i => i.name.toLowerCase()
+            .indexOf(text.toLowerCase()) > -1) : this.allItems
         });
     };
     private onFilterByOwner = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
         string | undefined): void => {
         this.setState({
-            items: text ? this.allItems.filter(i => this.filterItems(i, text)): this.allItems
+            items: text ? this.allItems.filter(i => this.filterItems(i, text)) : this.allItems
         });
     };
 
