@@ -170,9 +170,14 @@ namespace SamplesDashboard.Services
             var contributorList = contributors.Select(p => new { p.Login, p.HtmlUrl }).Take(3).ToDictionary(p => p.Login, p => p.HtmlUrl);
 
             //Remove dependabot from the list
-            if (contributorList.ContainsKey("dependabot[bot]"))
+            if (contributorList.ContainsKey("dependabot[bot]") || contributorList.ContainsKey("dependabot-preview[bot]"))
             {
-                contributorList.Remove("dependabot[bot]");                
+                var keysToRemove = contributorList.Where(r => r.Key == "dependabot[bot]" || r.Key == "dependabot-preview[bot]")
+                                   .Select(r => r.Key).ToList();
+                foreach(var key in keysToRemove)
+                {
+                    contributorList.Remove(key);
+                }                
             }
             return contributorList;
         }
