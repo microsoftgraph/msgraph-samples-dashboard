@@ -168,6 +168,12 @@ namespace SamplesDashboard.Services
         {
             var contributors = await githubclient.Repository.GetAllContributors(owner, repoName);
             var contributorList = contributors.Select(p => new { p.Login, p.HtmlUrl }).Take(3).ToDictionary(p => p.Login, p => p.HtmlUrl);
+
+            //Remove dependabot from the list
+            if (contributorList.ContainsKey("dependabot[bot]"))
+            {
+                contributorList.Remove("dependabot[bot]");                
+            }
             return contributorList;
         }
 
