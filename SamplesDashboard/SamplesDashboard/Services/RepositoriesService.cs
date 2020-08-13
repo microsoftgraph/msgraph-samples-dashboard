@@ -74,7 +74,7 @@ namespace SamplesDashboard.Services
                   search(query: ""org:microsoftgraph"+ $"{name}"+ @" in:name archived:false"", type: REPOSITORY, first: 100 "+ $"{cursorString}" + @" ) {
                         nodes {
                                 ... on Repository {
-                                    name
+                                    name 
                                     vulnerabilityAlerts {
                                         totalCount
                                     }
@@ -168,6 +168,17 @@ namespace SamplesDashboard.Services
         {
             var contributors = await githubclient.Repository.GetAllContributors(owner, repoName);
             var contributorList = contributors.Select(p => new { p.Login, p.HtmlUrl }).Take(3).ToDictionary(p => p.Login, p => p.HtmlUrl);
+
+            //Remove dependabot from the list
+            if (contributorList.ContainsKey("dependabot[bot]") || contributorList.ContainsKey("dependabot-preview[bot]"))
+            {
+                var keysToRemove = contributorList.Where(r => r.Key == "dependabot[bot]" || r.Key == "dependabot-preview[bot]")
+                                   .Select(r => r.Key).ToList();
+                foreach(var key in keysToRemove)
+                {
+                    contributorList.Remove(key);
+                }                
+            }
             return contributorList;
         }
 
@@ -213,6 +224,18 @@ namespace SamplesDashboard.Services
                             repository(name: $repo){
                                 description
                                 url
+                                vulnerabilityAlerts(first: 30)  {
+                                    totalCount
+                                    edges {
+                                        node {
+                                            securityVulnerability {
+                                                package {
+                                                    name
+                                                }                        
+                                            }
+                                        }
+                                    }         
+                                }
                                 dependencyGraphManifests(withDependencies: true) {
                                     nodes {
                                         filename
@@ -245,7 +268,36 @@ namespace SamplesDashboard.Services
             var repository = await UpdateRepositoryStatus(graphQLResponse.Data?.Organization.Repository);           
             return repository;
         }
+        /// <summary>
+        /// Gets a list of versions from nuget and computes the latest version
+        /// </summary>
+        /// <param name="packageName"></param>
+        /// <param name="currentVersion"></param>
+        /// <returns>latestVersion</returns>
+        public async Task<string> GetLatestNugetVersion(string packageName, string currentVersion)
+        {
+            var nugetPackageVersions = await _nugetService.GetPackageVersions(packageName);
+            var latestVersion = nugetPackageVersions.LastOrDefault()?.ToString();
 
+            //check if current version is preview, return latest version, whether preview or non-preview
+            if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
+            {
+                return latestVersion;
+            }
+            //check if only latest version is preview, set to latest non-preview version
+            else if (latestVersion.Contains("preview"))
+            {
+                var nonPreviewVersions = new List<string>();
+                foreach (var version in nugetPackageVersions)
+                {
+                    if (!version.ToString().Contains("preview"))
+                        nonPreviewVersions.Add(version.ToString());
+                }
+
+                latestVersion = nonPreviewVersions.LastOrDefault();
+            }           
+            return latestVersion;
+        }
         /// <summary>
         /// Gets the repository's details and updates the status field in the dependencies
         /// </summary>
@@ -253,6 +305,7 @@ namespace SamplesDashboard.Services
         /// <returns>An updated repository object with the status field.</returns>
         internal async Task<Repository> UpdateRepositoryStatus(Repository repository)
         {
+            var vulnerabilityCount = repository?.VulnerabilityAlerts?.TotalCount;
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
             if (dependencyGraphManifests == null) 
                 return repository;
@@ -266,7 +319,7 @@ namespace SamplesDashboard.Services
                 PackageStatus highestStatus = PackageStatus.Unknown;
                 // Go through each dependency in the dependency manifest
                 foreach (var dependency in dependencies)
-                {
+                {                   
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
 
@@ -275,8 +328,8 @@ namespace SamplesDashboard.Services
                     string azureSdkVersion = String.Empty;
                     switch (dependency.packageManager)
                     {
-                        case "NUGET":
-                            latestVersion = await _nugetService.GetLatestPackageVersion(dependency.packageName);
+                        case "NUGET":                            
+                            latestVersion = await GetLatestNugetVersion(dependency.packageName, currentVersion);
                             azureSdkVersion = await _azureSdkService.GetAzureSdkVersions(dependency.packageName);                         
                             break;
 
@@ -291,7 +344,28 @@ namespace SamplesDashboard.Services
 
                     dependency.latestVersion = latestVersion;
                     dependency.azureSdkVersion = azureSdkVersion;
-                    dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+
+                    //calculate status normally for repos without security alerts
+                    if (vulnerabilityCount == 0)
+                    {
+                        dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                    }
+
+                    //check if a repo has security alerts
+                    else if (vulnerabilityCount > 0)
+                    {
+                        var librariesWithAlerts = repository?.VulnerabilityAlerts.Edges.Select(p => p.Node?.SecurityVulnerability.Package.Name);
+
+                        //if the name of the dependency is in the list of libraries with alerts, set status to urgent update
+                        if (librariesWithAlerts.Contains(dependency.packageName))
+                        {
+                            dependency.status = PackageStatus.UrgentUpdate;
+                        }
+                        else
+                        {
+                            dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                        }                        
+                    }
                 }
                 //getting the highest status from a dependency node
                 highestStatus = HighestStatus(dependencies);
@@ -304,7 +378,7 @@ namespace SamplesDashboard.Services
             }
             return repository;
         }       
-
+        
         /// <summary>
         /// Calculate the status of a repo
         /// </summary>
@@ -312,7 +386,7 @@ namespace SamplesDashboard.Services
         /// <param name="latestVersion">The latest version of the repo</param>
         /// <returns><see cref="PackageStatus"/> of the repo Version </returns>
         internal PackageStatus CalculateStatus(string repoVersion, string latestVersion)
-        {
+        {            
             if (string.IsNullOrEmpty(repoVersion) || string.IsNullOrEmpty(latestVersion))
                 return PackageStatus.Unknown;
 
@@ -337,7 +411,7 @@ namespace SamplesDashboard.Services
                 //Unable to determine the versions
                 return PackageStatus.Unknown;
             }
-
+           
             int status = repo.CompareTo(latest);
 
             if (status == 0)
@@ -348,7 +422,7 @@ namespace SamplesDashboard.Services
             else if (repo.Major == latest.Major && repo.Minor == latest.Minor)
             {
                 //Difference is only in the build version therefore package requires an urgent update 
-                return PackageStatus.UrgentUpdate;
+                return PackageStatus.PatchUpdate;
             }
             else if (status < 0)
             {
@@ -387,7 +461,8 @@ namespace SamplesDashboard.Services
             string header = await GetYamlHeader(repoName);
             if (!string.IsNullOrEmpty(header))
             {
-                string[] lines = header.Split("\r\n");
+                string[] stringSeparators = new string[] { "\r\n", "\n" };
+                string[] lines = header.Split(stringSeparators, StringSplitOptions.RemoveEmptyEntries);
                 string[] details = new string[] { "languages", "services" };
 
                 Dictionary<string, string> keyValuePairs = new Dictionary<string,string>();
@@ -419,7 +494,8 @@ namespace SamplesDashboard.Services
             if (responseMessage.IsSuccessStatusCode)
             {
                 string fileContents = await responseMessage.Content.ReadAsStringAsync();
-                string[] parts = fileContents.Split("---", StringSplitOptions.RemoveEmptyEntries);
+                var stringSeparator = new string[] { "---\r\n", "---\n" };
+                string[] parts = fileContents.Split(stringSeparator, StringSplitOptions.RemoveEmptyEntries);
 
                 //we have a valid header between ---
                 if (parts.Length > 1)

@@ -1,7 +1,7 @@
 import {
     DetailsListLayoutMode, FontIcon,
-    IColumn, IDetailsHeaderProps, IRenderFunction, SelectionMode, ShimmeredDetailsList, TooltipHost
-} from 'office-ui-fabric-react';
+    IColumn, IDetailsHeaderProps, IRenderFunction, IStackProps, IStackStyles, SelectionMode, 
+    ShimmeredDetailsList, Stack, TooltipHost } from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
@@ -157,7 +157,7 @@ IRepositoryState> {
                         patchUpdateCount = patchUpdateCount + 1;
                         break;
                 }
-            }
+            }            
         }
         const total = this.allItems.length;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
@@ -180,13 +180,19 @@ IRepositoryState> {
         const { columns, items, isLoading, totalUptoDate, totalPatchUpdate, totalMajorUpdate, totalUrgentUpdate,
             uptoDatePercent, patchUpdatePercent, majorUpdatePercent, urgentUpdatePercent } = 
         this.state;
+        const stackStyles: Partial<IStackStyles> = { root: { width: 650 } };
+        const columnProps: Partial<IStackProps> = {
+            tokens: { childrenGap: 15 },
+            styles: { root: { width: 300 } },
+        };
+        const stackTokens = { childrenGap: 50 };
 
         return (
             <Fabric>
                 <div className='row'>
                     <div className='col-sm-3'>
                         <div className='card'>
-                            <div className='card-body'>   
+                            <div className='card-body'>
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.green} />
                                     Up to date: {totalUptoDate}
@@ -244,12 +250,24 @@ IRepositoryState> {
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
-                            <TextField
-                                className={filterListClass}
-                                label='Filter by name:'
-                                onChange={this.onFilterName}
-                                styles={{ root: { maxWidth: '300px' } }}
-                            />
+                            <Stack horizontal tokens={stackTokens} styles={stackStyles}>
+                                <Stack {...columnProps}>
+                                    <TextField
+                                        className={filterListClass}
+                                        label='Filter by name:'
+                                        onChange={this.onFilterName}
+                                        styles={{ root: { maxWidth: '300px' } }}
+                                    />
+                                </Stack>
+                                <Stack {...columnProps}>
+                                    <TextField
+                                        className={filterListClass}
+                                        label='Filter by owner:'
+                                        onChange={this.onFilterByOwner}
+                                        styles={{ root: { maxWidth: '300px' } }}
+                                    />
+                                </Stack>
+                            </Stack>
                         </Sticky>
                         <div className={classNames.detailList}>
                         <ShimmeredDetailsList
@@ -276,10 +294,30 @@ IRepositoryState> {
     private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: 
         string | undefined): void => {
         this.setState({
-            items: text ? this.allItems.filter(i => i.name.toLowerCase().indexOf(text) > -1) : this.allItems
+            items: text ? this.allItems.filter(i => i.name.toLowerCase()
+            .indexOf(text.toLowerCase()) > -1) : this.allItems
+        });
+    };
+    private onFilterByOwner = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
+        string | undefined): void => {
+        this.setState({
+            items: text ? this.allItems.filter(i => this.filterItems(i, text)) : this.allItems
         });
     };
 
+    private filterItems = (item: IRepositoryItem, text: string): boolean => {
+        let found = false;
+        // Check that atleast 1 owner matches. 
+        for (const key in item.ownerProfiles) {
+            // Ensure that you compare in the same case.
+            if (key.toLowerCase().includes(text.toLowerCase())) {
+                found = true;
+                break;
+            }
+        }
+        return found;
+    }
+    
     private onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const { columns, items } = this.state;
         const newColumns: IColumn[] = columns.slice();
@@ -340,7 +378,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
             return displayAdmins(ownerProfiles);            
 
         case 'Status':
-            return checkStatus(status, vulnerabilityAlertsCount);
+            return checkStatus(status);
 
         case 'Language':
             return <span>{language}</span>;
@@ -445,12 +483,7 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
     return comparison;
 }
 
-function checkStatus(status: number, vulnerabilityAlertsCount: number) {
-    if (vulnerabilityAlertsCount > 0) {
-        return <TooltipHost content='This repository has a security alert' id={'UrgentUpdate'}>
-            <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
-        </TooltipHost>;
-    }
+function checkStatus(status: number) {    
     switch (status) {
         case 0:
             return <TooltipHost content='Unknown' id={'Unknown'}>
@@ -463,11 +496,21 @@ function checkStatus(status: number, vulnerabilityAlertsCount: number) {
             </TooltipHost>;
 
         case 2:
-        case 3:
             return <TooltipHost content='At least 1 dependency in this repository has a major/minor release update'
-             id={'Update'}>
+                id={'Update'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Update </span>
             </TooltipHost>;
+        case 3:
+            return <TooltipHost content='Atleast 1 dependency in this repository has a patch update.'
+             id={'PatchUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Patch Update </span>
+            </TooltipHost>;
+        case 4:
+            return <TooltipHost content='This repository has a security alert. Please go to github to update.' 
+            id={'UrgentUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
+            </TooltipHost>;
+            
     }
 }
 

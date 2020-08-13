@@ -3,7 +3,7 @@ import { IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 export interface IRepositoryItem {
     key: number;
     name: string;
-    ownerProfiles: any;
+    ownerProfiles: any[];
     repositoryStatus: any;
     language: string;
     pullRequests: any;

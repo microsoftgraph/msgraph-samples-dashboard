@@ -41,10 +41,39 @@ namespace SamplesDashboardTests
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "aspx,csharp");
             Assert.True(headerDetails["services"] == "Microsoft identity platform");
-        }       
+        }
 
         [Fact]
         public async Task ShouldGetHeaderDetailsAsync2()
+        {
+            //Arrange
+            var sampleName = "meetings-capture-sample";
+
+            //Act
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);            
+
+            //Assert
+            Assert.Empty(headerDetails);        
+        }
+
+        [Fact]
+        public async Task ShouldGetHeaderDetailsAsync3()
+        {
+            //Arrange
+            var sampleName = "nodejs-webhooks-rest-sample";
+
+            //Act
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
+            _helper.WriteLine(headerDetails["languages"]);
+
+            //Assert
+            Assert.NotNull(headerDetails);
+            Assert.True(headerDetails["languages"] == "nodejs,javascript");
+            Assert.True(headerDetails["services"] == "Outlook,Office 365,Microsoft identity platform");
+        }
+
+        [Fact]
+        public async Task ShouldGetHeaderDetailsAsync4()
         {
             //Arrange
             var sampleName = "python-security-rest-sample";
@@ -156,25 +185,25 @@ namespace SamplesDashboardTests
         [InlineData("1.2.3.4", "1.2.3.4", PackageStatus.UpToDate)]
         [InlineData("1.2.1", "1.3.1", PackageStatus.Update)]
         [InlineData("2.2.1", "3.0.0", PackageStatus.Update)]
-        [InlineData("1.2.0", "1.2.1", PackageStatus.UrgentUpdate)]
-        [InlineData("1.2.0", "v1.2.1", PackageStatus.UrgentUpdate)]
-        [InlineData("v1.2.0", "v1.2.1", PackageStatus.UrgentUpdate)]
+        [InlineData("1.2.0", "1.2.1", PackageStatus.PatchUpdate)]
+        [InlineData("1.2.0", "v1.2.1", PackageStatus.PatchUpdate)]
+        [InlineData("v1.2.0", "v1.2.1", PackageStatus.PatchUpdate)]
         [InlineData("1.2.0", "2.1.0-Preview.1", PackageStatus.Update)]
         [InlineData("1.2.0", "2.1.0-alpha.1", PackageStatus.Update)]
-        [InlineData("2.1.0", "2.1.0-Preview.1", PackageStatus.UrgentUpdate)]
-        [InlineData("2.1.0", "2.1.0-2", PackageStatus.UrgentUpdate)]
+        [InlineData("2.1.0", "2.1.0-Preview.1", PackageStatus.PatchUpdate)]
+        [InlineData("2.1.0", "2.1.0-2", PackageStatus.PatchUpdate)]
         [InlineData("2.1.0", "3.1.0-2", PackageStatus.Update)]
         [InlineData("2.1.0", "1.8<2.1", PackageStatus.Unknown)]
         [InlineData("2.1.0", "Unknown", PackageStatus.Unknown)]
         [InlineData("2.1.0", "", PackageStatus.Unknown)]
         [InlineData("2.1.0", null, PackageStatus.Unknown)]
-        [InlineData("2.0,< 3.0", "2.0.2", PackageStatus.UrgentUpdate)]
+        [InlineData("2.0,< 3.0", "2.0.2", PackageStatus.PatchUpdate)]
         public void ShouldDetermineStatusFromVersion(string sampleVersion, string latestVersion, PackageStatus expectedStatus)
         {
-            // Act
+            //Act
             var repositoryStatus = _repositoriesService.CalculateStatus(sampleVersion, latestVersion);
 
-            // Assert
+            //Assert
             Assert.Equal(expectedStatus, repositoryStatus);
         }
 
@@ -189,7 +218,7 @@ namespace SamplesDashboardTests
             var latestVersion = _repositoriesService.UpdateRepositoryStatus(dependency).ToString();
 
             Assert.NotNull(latestVersion);
-        }
+        }       
     }
 }
  
