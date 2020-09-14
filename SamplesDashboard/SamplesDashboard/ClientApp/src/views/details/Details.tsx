@@ -91,7 +91,7 @@ export default class Details extends React.Component<any, any> {
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState({
-                items: this.allItems,
+            items: this.allItems.sort((a, b) => (a.packageName.toLowerCase() > b.packageName.toLowerCase()) ? 1 : -1),
                 repositoryDetails: {
                 name: repositoryName,
                 description: data.description,
@@ -392,6 +392,10 @@ function checkStatus(status: number)
             </TooltipHost>;
     }
 }
+//function sortByLibrary<T>(items: T[]) {
+//    const sortedLibraries = items.sort((a, b) => (a.packageName > b.packageName) ? 1: -1);
+//    return sortedLibraries;
+//}
 
 function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
     const key = columnKey as keyof T;
