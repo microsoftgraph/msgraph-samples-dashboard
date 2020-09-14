@@ -91,12 +91,13 @@ export default class Details extends React.Component<any, any> {
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState({
-            items: this.allItems.sort((a, b) => (a.packageName.toLowerCase() > b.packageName.toLowerCase()) ? 1 : -1),
-                repositoryDetails: {
-                name: repositoryName,
-                description: data.description,
-                url: data.url
-            },
+            items: this.allItems.sort((a, b) => (a.packageName.toLowerCase() >
+                b.packageName.toLowerCase()) ? 1 : -1),
+            repositoryDetails: {
+            name: repositoryName,
+            description: data.description,
+            url: data.url
+        },
 
             isLoading: false
         });        
