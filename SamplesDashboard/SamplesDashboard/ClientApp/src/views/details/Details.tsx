@@ -1,13 +1,13 @@
 import { DetailsListLayoutMode, Fabric, FontIcon, 
     IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
     ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TooltipHost, FontSizes, Stack, TextField } from 'office-ui-fabric-react';
+    StickyPositionType, TooltipHost, FontSizes, TextField } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import { Link } from 'react-router-dom';
 import authService from '../../components/api-authorization/AuthorizeService';
 import PageTitle from '../../components/layout/PageTitle';
-import { IDetailsItem, IRepositoryItem } from '../../types/samples';
+import { IDetailsItem } from '../../types/samples';
 import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
 import { filterListClass } from '../repositories/Repositories.Styles';
 
@@ -54,15 +54,17 @@ export default class Details extends React.Component<any, any> {
             totalPatchUpdate: 0,
             totalMajorUpdate: 0,
             totalUnknown: 0,
+            totalUrgentUpdate: 0,
+            urgentUpdatePercent:0,
             uptoDatePercent: 0,
             patchUpdatePercent: 0,
             majorUpdatePercent: 0,
-            unknownPercent: 0,
+            unknownPercent: 0
         };
     }
 
     public async componentDidMount() {    
-        this.fetchData();        
+        this.fetchData(); 
     }
 
     // fetch repository libraries
@@ -76,8 +78,7 @@ export default class Details extends React.Component<any, any> {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }
         );
-        const data = await response.json();       
-        
+        const data = await response.json();
         if (data.dependencyGraphManifests.nodes[0]) {
             let index;
             for (index in data.dependencyGraphManifests.nodes) {
@@ -101,7 +102,7 @@ export default class Details extends React.Component<any, any> {
         });        
     }
 
-    // compute status statistics 
+    // compute status statistics
     public statusStatistics(items: IDetailsItem[]) {
         let uptoDateCount = 0;
         let urgentUpdateCount = 0;
@@ -109,12 +110,15 @@ export default class Details extends React.Component<any, any> {
         let patchUpdateCount = 0;
         let unknownCount = 0;
         
-        if (items.length == 0) {
+        if (items.length === 0) {
             return null;
         }
         for (const item of items) {
             switch (item.status) {
-                case 1:
+                case 0:
+                    unknownCount = unknownCount + 1;
+                    break;
+                case 1:                    
                     uptoDateCount = uptoDateCount + 1;
                     break;
                 case 2:
@@ -125,10 +129,7 @@ export default class Details extends React.Component<any, any> {
                     break;
                 case 4:
                     urgentUpdateCount = urgentUpdateCount + 1;
-                    break;
-                case 0:
-                    unknownCount = unknownCount + 1;
-                    break;
+                    break;               
             }
         }
         const total = this.allItems.length;     
@@ -136,7 +137,7 @@ export default class Details extends React.Component<any, any> {
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
         const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
         const urgentUpdateStats = parseFloat((urgentUpdateCount / total * 100).toFixed(1));
-        const unknownStats = parseFloat((unknownCount / total * 100).toFixed(1));
+        const unknownStats = parseFloat((unknownCount / total * 100).toFixed(1));       
         this.setState({
             totalUptoDate: uptoDateCount,
             totalMajorUpdate: majorUpdateCount,
@@ -339,7 +340,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
     const currentVersion = item.latestVersion;
     const azureSdkVersion = item.azureSdkVersion;
     const status = item.status;
-    const requirements = version.slice(2);  
+    const requirements = version.slice(2);
 
     switch (col.name) {
        
@@ -357,10 +358,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
 
         case 'Status':
             return checkStatus(status);
-    }
-    if (item === null) {
-        return <span>No data Available</span>
-    }
+    }   
 }
 // checks the value of the status and displays the appropriate status
 function checkStatus(status: number)
