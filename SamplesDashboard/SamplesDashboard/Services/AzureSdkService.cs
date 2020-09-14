@@ -82,13 +82,17 @@ namespace SamplesDashboard.Services
             string azureSdkVersion = String.Empty;
 
             var sdks = await FetchAzureSdkVersions();
-            foreach (var sdk in sdks)
+            if (sdks != null)
             {
-                if (sdk.Key == packageName)
+                foreach (var sdk in sdks)
                 {
-                    azureSdkVersion = sdk.Value;
+                    if (sdk.Key == packageName)
+                    {
+                        azureSdkVersion = sdk.Value;
+                    }
                 }
             }
+            
             return azureSdkVersion;
         }
 

@@ -417,11 +417,11 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
                     <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;
-
     }
 }
+
 function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
-    const key = columnKey as keyof T;
+    const key = columnKey as keyof T;    
     const itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
     return itemsSorted;
 }
