@@ -2,15 +2,15 @@ import {
     DetailsListLayoutMode, Fabric, FontIcon, FontSizes,
     IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
     ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TooltipHost, TextField } from 'office-ui-fabric-react';
+    StickyPositionType, TextField, TooltipHost } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import { Link } from 'react-router-dom';
 import authService from '../../components/api-authorization/AuthorizeService';
 import PageTitle from '../../components/layout/PageTitle';
 import { IDetailsItem } from '../../types/samples';
-import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
 import { filterListClass } from '../repositories/Repositories.Styles';
+import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
 
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
@@ -319,7 +319,7 @@ export default class Details extends React.Component<any, any> {
             items: newItems
         });
     } 
-};
+}
 
 // Enables the column headers to remain sticky
 const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
