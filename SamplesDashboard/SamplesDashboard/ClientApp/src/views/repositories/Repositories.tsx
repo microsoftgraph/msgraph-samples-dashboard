@@ -11,7 +11,6 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import authService from '../../components/api-authorization/AuthorizeService';
-import PageTitle from '../../components/layout/PageTitle';
 import { IRepositoryItem, IRepositoryState } from '../../types/samples';
 import { classNames, filterListClass } from '../repositories/Repositories.Styles';
 
@@ -371,7 +370,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     if (item.vulnerabilityAlerts == null) {
         return null;
     };
-    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;  
+    const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;
 
     switch (col.name) {
         case 'Name':
