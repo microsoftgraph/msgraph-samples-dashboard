@@ -1,14 +1,15 @@
 import { DetailsListLayoutMode, Fabric, FontIcon, 
     IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
     ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TooltipHost } from 'office-ui-fabric-react';
+    StickyPositionType, TooltipHost, FontSizes, Stack, TextField } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import { Link } from 'react-router-dom';
 import authService from '../../components/api-authorization/AuthorizeService';
 import PageTitle from '../../components/layout/PageTitle';
-import { IDetailsItem } from '../../types/samples';
+import { IDetailsItem, IRepositoryItem } from '../../types/samples';
 import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
+import { filterListClass } from '../repositories/Repositories.Styles';
 
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
@@ -56,12 +57,12 @@ export default class Details extends React.Component<any, any> {
             uptoDatePercent: 0,
             patchUpdatePercent: 0,
             majorUpdatePercent: 0,
-            unknownPercent: 0
+            unknownPercent: 0,
         };
     }
 
     public async componentDidMount() {    
-        this.fetchData();
+        this.fetchData();        
     }
 
     // fetch repository libraries
@@ -75,7 +76,8 @@ export default class Details extends React.Component<any, any> {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             }
         );
-        const data = await response.json();
+        const data = await response.json();       
+        
         if (data.dependencyGraphManifests.nodes[0]) {
             let index;
             for (index in data.dependencyGraphManifests.nodes) {
@@ -88,14 +90,15 @@ export default class Details extends React.Component<any, any> {
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState({
-            items: this.allItems,
-            repositoryDetails: {
+                items: this.allItems,
+                repositoryDetails: {
                 name: repositoryName,
                 description: data.description,
                 url: data.url
             },
+
             isLoading: false
-        });
+        });        
     }
 
     // compute status statistics 
@@ -105,8 +108,11 @@ export default class Details extends React.Component<any, any> {
         let majorUpdateCount = 0;
         let patchUpdateCount = 0;
         let unknownCount = 0;
+        
+        if (items.length == 0) {
+            return null;
+        }
         for (const item of items) {
-
             switch (item.status) {
                 case 1:
                     uptoDateCount = uptoDateCount + 1;
@@ -119,12 +125,13 @@ export default class Details extends React.Component<any, any> {
                     break;
                 case 4:
                     urgentUpdateCount = urgentUpdateCount + 1;
+                    break;
                 case 0:
                     unknownCount = unknownCount + 1;
                     break;
             }
         }
-        const total = this.allItems.length;
+        const total = this.allItems.length;     
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
         const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
@@ -138,7 +145,7 @@ export default class Details extends React.Component<any, any> {
             totalUrgentUpdate: urgentUpdateCount,
             uptoDatePercent: uptoDateStats,
             majorUpdatePercent: majorUpdateStats,
-            patchUpdatePercent: patchUpdateCount,
+            patchUpdatePercent: patchUpdateStats,
             urgentUpdatePercent: urgentUpdateStats,
             unknownPercent: unknownStats
         });
@@ -146,7 +153,7 @@ export default class Details extends React.Component<any, any> {
     public render(): JSX.Element {
         const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate, totalPatchUpdate,
             totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent,
-            urgentUpdatePercent, unknownPercent  } = this.state;
+            urgentUpdatePercent, unknownPercent } = this.state;
         return (
             <div>     
                     { isLoading ?
@@ -169,7 +176,7 @@ export default class Details extends React.Component<any, any> {
                                 Go to Repository
                         </PrimaryButton>
                         <div className='row'>
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
@@ -182,7 +189,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
@@ -195,7 +202,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>   
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
@@ -208,7 +215,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div> 
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
 
@@ -224,7 +231,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
@@ -238,29 +245,57 @@ export default class Details extends React.Component<any, any> {
                                 </div>
                             </div>
                         </div>       
-                        <PageTitle title={`List of ${this.allItems.length} libraries in ${repositoryDetails.name}`}/>
-                        <div className={descriptionClass}> {repositoryDetails.description} </div>   
+                        <PageTitle title={`List of ${this.allItems.length} libraries in ${repositoryDetails.name}`} />
+                        <div className={descriptionClass}> {repositoryDetails.description} </div>                         
                         <div className={classNames.wrapper}>
-                            <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
-                                <div>
-                                    <ShimmeredDetailsList
-                                        items={items}
-                                        columns={columns}
-                                        selectionMode={SelectionMode.none}
-                                        layoutMode={DetailsListLayoutMode.justified}
-                                        isHeaderVisible={true}
-                                        onRenderItemColumn={renderItemColumn}
-                                        enableShimmer={isLoading}
-                                        onRenderDetailsHeader={onRenderDetailsHeader}
-                                    />
-                                </div>
-                            </ScrollablePane>   
+                            {this.allItems.length === 0 ?
+                                <div style={{
+                                    display: 'flex',
+                                    width: '100%',
+                                    minHeight: '200px',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    fontSize: FontSizes.large
+                                }}>
+                                    <p>No data available</p>
+                                </div> :
+                                <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+                                    <Sticky stickyPosition={StickyPositionType.Header}>                                        
+                                        <TextField
+                                            className={filterListClass}
+                                            label='Filter by library:'
+                                            onChange={this.onFilterName}
+                                            styles={{ root: { maxWidth: '300px' } }}
+                                        />                                            
+                                    </Sticky>
+                                        <div>
+                                            <ShimmeredDetailsList
+                                                items={items}
+                                                columns={columns}
+                                                selectionMode={SelectionMode.none}
+                                                layoutMode={DetailsListLayoutMode.justified}
+                                                isHeaderVisible={true}
+                                                onRenderItemColumn={renderItemColumn}
+                                                enableShimmer={isLoading}
+                                                onRenderDetailsHeader={onRenderDetailsHeader}
+                                            />
+                                        </div>
+                                    </ScrollablePane>
+                                }                               
                         </div>
                     </Fabric>
                     }
             </div>
         );
     }
+
+    private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
+        string | undefined): void => {
+        this.setState({
+            items: text ? this.allItems.filter(i => i.packageName.toLowerCase()
+                .indexOf(text.toLowerCase()) > -1) : this.allItems
+        });
+    };
 
     private onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const { columns, items } = this.state;
@@ -280,8 +315,9 @@ export default class Details extends React.Component<any, any> {
             columns: newColumns,
             items: newItems
         });
-    };
-}
+    };  
+};
+
 // Enables the column headers to remain sticky
 const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
     if (!props) {
@@ -303,7 +339,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
     const currentVersion = item.latestVersion;
     const azureSdkVersion = item.azureSdkVersion;
     const status = item.status;
-    const requirements = version.slice(2);
+    const requirements = version.slice(2);  
 
     switch (col.name) {
        
@@ -321,6 +357,9 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
 
         case 'Status':
             return checkStatus(status);
+    }
+    if (item === null) {
+        return <span>No data Available</span>
     }
 }
 // checks the value of the status and displays the appropriate status
@@ -347,6 +386,7 @@ function checkStatus(status: number)
             id={'PatchUpdate'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Patch Update </span>
             </TooltipHost>;
+
         case 4:
             return <TooltipHost content='This repository has a security alert. Please go to github to update.'
              id={'UrgentUpdate'}>
