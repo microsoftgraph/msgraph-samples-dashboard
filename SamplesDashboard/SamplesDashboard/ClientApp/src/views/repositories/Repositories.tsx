@@ -143,21 +143,23 @@ IRepositoryState> {
         let majorUpdateCount = 0;
         let urgentUpdateCount = 0;
         for (const item of items) {
-            if (item.vulnerabilityAlerts.totalCount > 0) {
-                urgentUpdateCount = urgentUpdateCount + 1;
-            } else {
-                switch (item.repositoryStatus) {
-                    case 1:
-                        uptoDateCount = uptoDateCount + 1;
-                        break;
-                    case 2:
-                        majorUpdateCount = majorUpdateCount + 1;
-                        break;
-                    case 3:
-                        patchUpdateCount = patchUpdateCount + 1;
-                        break;
+            if (item.vulnerabilityAlerts != null) {
+                if (item.vulnerabilityAlerts.totalCount > 0) {
+                    urgentUpdateCount = urgentUpdateCount + 1;
+                } else {
+                    switch (item.repositoryStatus) {
+                        case 1:
+                            uptoDateCount = uptoDateCount + 1;
+                            break;
+                        case 2:
+                            majorUpdateCount = majorUpdateCount + 1;
+                            break;
+                        case 3:
+                            patchUpdateCount = patchUpdateCount + 1;
+                            break;
+                    }
                 }
-            }            
+            }           
         }
         const total = this.allItems.length;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
@@ -366,6 +368,9 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const views = item.views;
     const url = item.url;
     const featureArea = item.featureArea;
+    if (item.vulnerabilityAlerts == null) {
+        return null;
+    };
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;  
 
     switch (col.name) {
@@ -406,7 +411,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
         case 'Feature area':
             return <span> {featureArea} </span>;
 
-        case 'Security Alerts':
+        case 'Security Alerts':           
             if (vulnerabilityAlertsCount > 0) {
                 return <a href={`${url}/network/alerts`} target='_blank' rel='noopener noreferrer'>
                     <FontIcon iconName='WarningSolid' className={classNames.yellow} /> 
