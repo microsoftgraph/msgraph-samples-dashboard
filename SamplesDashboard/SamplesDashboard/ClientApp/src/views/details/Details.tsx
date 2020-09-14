@@ -1,7 +1,8 @@
-import { DetailsListLayoutMode, Fabric, FontIcon, 
+import {
+    DetailsListLayoutMode, Fabric, FontIcon, FontSizes,
     IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
     ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TooltipHost, FontSizes, TextField } from 'office-ui-fabric-react';
+    StickyPositionType, TooltipHost, TextField } from 'office-ui-fabric-react';
 import * as React from 'react';
 
 import { Link } from 'react-router-dom';
@@ -55,7 +56,7 @@ export default class Details extends React.Component<any, any> {
             totalMajorUpdate: 0,
             totalUnknown: 0,
             totalUrgentUpdate: 0,
-            urgentUpdatePercent:0,
+            urgentUpdatePercent: 0,
             uptoDatePercent: 0,
             patchUpdatePercent: 0,
             majorUpdatePercent: 0,
@@ -248,7 +249,7 @@ export default class Details extends React.Component<any, any> {
                             </div>
                         </div>       
                         <PageTitle title={`List of ${this.allItems.length} libraries in ${repositoryDetails.name}`} />
-                        <div className={descriptionClass}> {repositoryDetails.description} </div>                         
+                        <div className={descriptionClass}> {repositoryDetails.description} </div>
                         <div className={classNames.wrapper}>
                             {this.allItems.length === 0 ?
                                 <div style={{
@@ -262,7 +263,7 @@ export default class Details extends React.Component<any, any> {
                                     <p>No data available</p>
                                 </div> :
                                 <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
-                                    <Sticky stickyPosition={StickyPositionType.Header}>                                        
+                                    <Sticky stickyPosition={StickyPositionType.Header}>
                                         <TextField
                                             className={filterListClass}
                                             label='Filter by library:'
@@ -317,7 +318,7 @@ export default class Details extends React.Component<any, any> {
             columns: newColumns,
             items: newItems
         });
-    };  
+    } 
 };
 
 // Enables the column headers to remain sticky
@@ -393,10 +394,6 @@ function checkStatus(status: number)
             </TooltipHost>;
     }
 }
-//function sortByLibrary<T>(items: T[]) {
-//    const sortedLibraries = items.sort((a, b) => (a.packageName > b.packageName) ? 1: -1);
-//    return sortedLibraries;
-//}
 
 function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
     const key = columnKey as keyof T;

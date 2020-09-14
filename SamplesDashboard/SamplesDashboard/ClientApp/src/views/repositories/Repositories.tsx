@@ -142,7 +142,7 @@ IRepositoryState> {
         let majorUpdateCount = 0;
         let urgentUpdateCount = 0;
         for (const item of items) {
-            if (item.vulnerabilityAlerts != null) {
+            if (item.vulnerabilityAlerts !== null) {
                 if (item.vulnerabilityAlerts.totalCount > 0) {
                     urgentUpdateCount = urgentUpdateCount + 1;
                 } else {
@@ -367,9 +367,9 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const views = item.views;
     const url = item.url;
     const featureArea = item.featureArea;
-    if (item.vulnerabilityAlerts == null) {
+    if (item.vulnerabilityAlerts === null) {
         return null;
-    };
+    }
     const vulnerabilityAlertsCount = item.vulnerabilityAlerts.totalCount;
 
     switch (col.name) {
