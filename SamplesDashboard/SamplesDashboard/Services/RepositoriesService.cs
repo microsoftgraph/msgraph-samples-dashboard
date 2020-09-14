@@ -293,23 +293,26 @@ namespace SamplesDashboard.Services
         {
             var nugetPackageVersions = await _nugetService.GetPackageVersions(packageName);
             var latestVersion = nugetPackageVersions.LastOrDefault()?.ToString();
-
-            //check if current version is preview, return latest version, whether preview or non-preview
-            if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
+            if(latestVersion != null)
             {
-                return latestVersion;
-            }
-            //check if only latest version is preview, set to latest non-preview version
-            else if (latestVersion.Contains("preview"))
-            {
-                var nonPreviewVersions = new List<string>();
-                foreach (var version in nugetPackageVersions)
+                //check if current version is preview, return latest version, whether preview or non-preview
+                if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
                 {
-                    if (!version.ToString().Contains("preview"))
-                        nonPreviewVersions.Add(version.ToString());
+                    return latestVersion;
                 }
-                latestVersion = nonPreviewVersions.LastOrDefault();
-            }           
+                //check if only latest version is preview, set to latest non-preview version
+                else if (latestVersion.Contains("preview"))
+                {
+                    var nonPreviewVersions = new List<string>();
+                    foreach (var version in nugetPackageVersions)
+                    {
+                        if (!version.ToString().Contains("preview"))
+                            nonPreviewVersions.Add(version.ToString());
+                    }
+                    latestVersion = nonPreviewVersions.LastOrDefault();
+                }
+            }
+                  
             return latestVersion;
         }
         /// <summary>
