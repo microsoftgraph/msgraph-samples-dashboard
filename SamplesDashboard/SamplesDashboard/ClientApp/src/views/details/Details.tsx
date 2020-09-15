@@ -92,18 +92,20 @@ export default class Details extends React.Component<any, any> {
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState({
-            items: this.allItems.sort((a, b) => (a.packageName.toLowerCase() >
-                b.packageName.toLowerCase()) ? 1 : -1),
+            items: this.sortItems(this.allItems),
             repositoryDetails: {
             name: repositoryName,
             description: data.description,
-            url: data.url
-        },
-
+                url: data.url
+            },
             isLoading: false
         });
     }
 
+    public sortItems(items: IDetailsItem[]) {
+        const sortedItems = items.sort((a, b) => (a.packageName.toLowerCase() > b.packageName.toLowerCase()) ? 1 : -1);
+        return sortedItems;
+    }
     // compute status statistics
     public statusStatistics(items: IDetailsItem[]) {
         let uptoDateCount = 0;
