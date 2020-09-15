@@ -71,7 +71,7 @@ namespace SamplesDashboard.Services
             {
                 Query = @"
 	            {              
-                  search(query: ""org:microsoftgraph" + $"{name}" + @" in:name archived:false"", type: REPOSITORY, first: 100 " + $"{cursorString}" + @" ) {
+                  search(query: ""org:microsoftgraph" + $"{name}" + @" in:name archived:false fork:true"", type: REPOSITORY, first: 100 " + $"{cursorString}" + @" ) {
                         nodes {
                                 ... on Repository {
                                     name 
@@ -311,10 +311,10 @@ namespace SamplesDashboard.Services
                     }
                     latestVersion = nonPreviewVersions.LastOrDefault();
                 }
-            }
-                  
+            }                  
             return latestVersion;
         }
+
         /// <summary>
         /// Gets the repository's details and updates the status field in the dependencies
         /// </summary>
@@ -359,10 +359,9 @@ namespace SamplesDashboard.Services
                             latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
                             break;
                     }
-
                     dependency.latestVersion = latestVersion;
                     dependency.azureSdkVersion = azureSdkVersion;
-
+                  
                     //calculate status normally for repos without security alerts
                     if (vulnerabilityCount == 0)
                     {
