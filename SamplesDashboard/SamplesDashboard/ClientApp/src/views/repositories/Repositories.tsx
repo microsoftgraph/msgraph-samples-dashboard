@@ -142,7 +142,7 @@ IRepositoryState> {
         let majorUpdateCount = 0;
         let urgentUpdateCount = 0;
         for (const item of items) {
-            if (item.vulnerabilityAlerts?.totalCount > 0) {
+            if (item.vulnerabilityAlerts && item.vulnerabilityAlerts && item.vulnerabilityAlerts.totalCount > 0) {
                 urgentUpdateCount++;
             }
             else {
