@@ -142,23 +142,22 @@ IRepositoryState> {
         let majorUpdateCount = 0;
         let urgentUpdateCount = 0;
         for (const item of items) {
-            if (item.vulnerabilityAlerts !== null) {
-                if (item.vulnerabilityAlerts.totalCount > 0) {
-                    urgentUpdateCount = urgentUpdateCount + 1;
-                } else {
-                    switch (item.repositoryStatus) {
-                        case 1:
-                            uptoDateCount = uptoDateCount + 1;
-                            break;
-                        case 2:
-                            majorUpdateCount = majorUpdateCount + 1;
-                            break;
-                        case 3:
-                            patchUpdateCount = patchUpdateCount + 1;
-                            break;
-                    }
+            if (item.vulnerabilityAlerts?.totalCount > 0) {
+                urgentUpdateCount++;
+            }
+            else {
+                switch (item.repositoryStatus) {
+                    case 1:
+                        uptoDateCount++;
+                        break;
+                    case 2:
+                        majorUpdateCount++;
+                        break;
+                    case 3:
+                        patchUpdateCount++;
+                        break;
                 }
-            }           
+            }
         }
         const total = this.allItems.length;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
@@ -410,7 +409,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
         case 'Feature area':
             return <span> {featureArea} </span>;
 
-        case 'Security Alerts':           
+        case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
                 return <a href={`${url}/network/alerts`} target='_blank' rel='noopener noreferrer'>
                     <FontIcon iconName='WarningSolid' className={classNames.yellow} /> 
@@ -421,7 +420,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
 }
 
 function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
-    const key = columnKey as keyof T;    
+    const key = columnKey as keyof T;
     const itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
     return itemsSorted;
 }

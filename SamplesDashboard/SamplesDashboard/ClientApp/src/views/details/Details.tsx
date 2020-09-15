@@ -101,7 +101,7 @@ export default class Details extends React.Component<any, any> {
         },
 
             isLoading: false
-        });        
+        });
     }
 
     // compute status statistics
@@ -118,23 +118,23 @@ export default class Details extends React.Component<any, any> {
         for (const item of items) {
             switch (item.status) {
                 case 0:
-                    unknownCount = unknownCount + 1;
+                    unknownCount++;
                     break;
                 case 1:                    
-                    uptoDateCount = uptoDateCount + 1;
+                    uptoDateCount++;
                     break;
                 case 2:
-                    majorUpdateCount = majorUpdateCount + 1;
+                    majorUpdateCount++;
                     break;
                 case 3:
-                    patchUpdateCount = patchUpdateCount + 1;
+                    patchUpdateCount++;
                     break;
                 case 4:
-                    urgentUpdateCount = urgentUpdateCount + 1;
+                    urgentUpdateCount++;
                     break;               
             }
         }
-        const total = this.allItems.length;     
+        const total = this.allItems.length;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
         const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
