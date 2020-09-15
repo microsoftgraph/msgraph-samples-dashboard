@@ -143,7 +143,7 @@ namespace SamplesDashboard.Services
                 repositories.AddRange(nextRepos);
             }
 
-            //remove localized repos
+            //remove localized repos to reduce repetition of samples
             foreach (var repo in repositories.ToList())
             {
                 //var localizedrepos;
@@ -337,7 +337,7 @@ namespace SamplesDashboard.Services
 
                 // Go through each dependency in the dependency manifest
                 foreach (var dependency in dependencies)
-                {                    
+                {
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
                     
@@ -361,7 +361,7 @@ namespace SamplesDashboard.Services
                     }
                     dependency.latestVersion = latestVersion;
                     dependency.azureSdkVersion = azureSdkVersion;
-                  
+                    
                     //calculate status normally for repos without security alerts
                     if (vulnerabilityCount == 0)
                     {
