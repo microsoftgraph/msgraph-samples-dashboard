@@ -2,15 +2,16 @@ import {
     DetailsListLayoutMode, Fabric, FontIcon, FontSizes,
     IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
     ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TextField, TooltipHost } from 'office-ui-fabric-react';
+    StickyPositionType, TextField, TooltipHost
+} from 'office-ui-fabric-react';
 import * as React from 'react';
-
 import { Link } from 'react-router-dom';
 import authService from '../../components/api-authorization/AuthorizeService';
 import PageTitle from '../../components/layout/PageTitle';
 import { IDetailsItem } from '../../types/samples';
 import { filterListClass } from '../repositories/Repositories.Styles';
 import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
+import { RepositoryStatus } from './Details.types';
 
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
@@ -119,19 +120,19 @@ export default class Details extends React.Component<any, any> {
         }
         for (const item of items) {
             switch (item.status) {
-                case 0:
+                case RepositoryStatus.unknown:
                     unknownCount++;
                     break;
-                case 1:                    
+                case RepositoryStatus.uptoDate:                    
                     uptoDateCount++;
                     break;
-                case 2:
+                case RepositoryStatus.majorUpdate:
                     majorUpdateCount++;
                     break;
-                case 3:
+                case RepositoryStatus.patchUpdate:
                     patchUpdateCount++;
                     break;
-                case 4:
+                case RepositoryStatus.urgentUpdate:
                     urgentUpdateCount++;
                     break;               
             }
