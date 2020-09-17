@@ -98,7 +98,7 @@ export default class Details extends React.Component<any, any> {
             repositoryDetails: {
             name: repositoryName,
             description: data.description,
-                url: data.url
+            url: data.url
             },
             isLoading: false
         });
