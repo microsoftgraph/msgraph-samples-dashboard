@@ -13,9 +13,8 @@ using Semver;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Models;
-using System.IO;
-using Newtonsoft.Json;
 using Octokit;
+using System.Text.RegularExpressions;
 
 namespace SamplesDashboard.Services
 {
@@ -146,8 +145,8 @@ namespace SamplesDashboard.Services
             //remove localized repos to reduce repetition of samples
             foreach (var repo in repositories.ToList())
             {
-                //var localizedrepos;
-                if (repo.Name.Contains("."))
+                Regex regex = new Regex (@".[a-z]{2}-[A-Z]{2}");
+                if(regex.IsMatch(repo?.Name))
                 {
                     repositories.Remove(repo);
                 }
@@ -165,7 +164,7 @@ namespace SamplesDashboard.Services
             var views = await githubclient.Repository.Traffic.GetViews(owner, repoName, new RepositoryTrafficRequest(TrafficDayOrWeek.Week));
             return views?.Count;
         }
-
+        
         /// <summary>
         /// Uses githubclient to fetch a list of contributors
         /// </summary>
