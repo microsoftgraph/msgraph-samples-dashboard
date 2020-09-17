@@ -1,14 +1,18 @@
-import { DetailsListLayoutMode, Fabric, FontIcon, 
+import {
+    DetailsListLayoutMode, Fabric, FontIcon, FontSizes,
     IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
     ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TooltipHost } from 'office-ui-fabric-react';
+    StickyPositionType, TextField, TooltipHost
+} from 'office-ui-fabric-react';
 import * as React from 'react';
-
 import { Link } from 'react-router-dom';
 import authService from '../../components/api-authorization/AuthorizeService';
 import PageTitle from '../../components/layout/PageTitle';
 import { IDetailsItem } from '../../types/samples';
+import { copyAndSort } from '../../utilities/copy-and-sort';
+import { filterListClass } from '../repositories/Repositories.Styles';
 import { buttonClass, classNames, descriptionClass, iconClass, linkClass } from './Details.Styles';
+import { RepositoryStatus } from './Details.types';
 
 export default class Details extends React.Component<any, any> {
     private allItems: IDetailsItem[];
@@ -53,6 +57,8 @@ export default class Details extends React.Component<any, any> {
             totalPatchUpdate: 0,
             totalMajorUpdate: 0,
             totalUnknown: 0,
+            totalUrgentUpdate: 0,
+            urgentUpdatePercent: 0,
             uptoDatePercent: 0,
             patchUpdatePercent: 0,
             majorUpdatePercent: 0,
@@ -61,7 +67,7 @@ export default class Details extends React.Component<any, any> {
     }
 
     public async componentDidMount() {    
-        this.fetchData();
+        this.fetchData(); 
     }
 
     // fetch repository libraries
@@ -88,40 +94,44 @@ export default class Details extends React.Component<any, any> {
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState({
-            items: this.allItems,
+            items: copyAndSort(this.allItems, 'packageName'),
             repositoryDetails: {
-                name: repositoryName,
-                description: data.description,
-                url: data.url
+            name: repositoryName,
+            description: data.description,
+            url: data.url
             },
             isLoading: false
         });
     }
-
-    // compute status statistics 
+  
+    // compute status statistics
     public statusStatistics(items: IDetailsItem[]) {
         let uptoDateCount = 0;
         let urgentUpdateCount = 0;
         let majorUpdateCount = 0;
         let patchUpdateCount = 0;
         let unknownCount = 0;
+        
+        if (items.length === 0) {
+            return null;
+        }
         for (const item of items) {
-
             switch (item.status) {
-                case 1:
-                    uptoDateCount = uptoDateCount + 1;
+                case RepositoryStatus.unknown:
+                    unknownCount++;
                     break;
-                case 2:
-                    majorUpdateCount = majorUpdateCount + 1;
+                case RepositoryStatus.uptoDate:                    
+                    uptoDateCount++;
                     break;
-                case 3:
-                    patchUpdateCount = patchUpdateCount + 1;
+                case RepositoryStatus.majorUpdate:
+                    majorUpdateCount++;
                     break;
-                case 4:
-                    urgentUpdateCount = urgentUpdateCount + 1;
-                case 0:
-                    unknownCount = unknownCount + 1;
+                case RepositoryStatus.patchUpdate:
+                    patchUpdateCount++;
                     break;
+                case RepositoryStatus.urgentUpdate:
+                    urgentUpdateCount++;
+                    break;               
             }
         }
         const total = this.allItems.length;
@@ -129,7 +139,7 @@ export default class Details extends React.Component<any, any> {
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
         const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
         const urgentUpdateStats = parseFloat((urgentUpdateCount / total * 100).toFixed(1));
-        const unknownStats = parseFloat((unknownCount / total * 100).toFixed(1));
+        const unknownStats = parseFloat((unknownCount / total * 100).toFixed(1));       
         this.setState({
             totalUptoDate: uptoDateCount,
             totalMajorUpdate: majorUpdateCount,
@@ -138,7 +148,7 @@ export default class Details extends React.Component<any, any> {
             totalUrgentUpdate: urgentUpdateCount,
             uptoDatePercent: uptoDateStats,
             majorUpdatePercent: majorUpdateStats,
-            patchUpdatePercent: patchUpdateCount,
+            patchUpdatePercent: patchUpdateStats,
             urgentUpdatePercent: urgentUpdateStats,
             unknownPercent: unknownStats
         });
@@ -146,7 +156,7 @@ export default class Details extends React.Component<any, any> {
     public render(): JSX.Element {
         const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate, totalPatchUpdate,
             totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent,
-            urgentUpdatePercent, unknownPercent  } = this.state;
+            urgentUpdatePercent, unknownPercent } = this.state;
         return (
             <div>     
                     { isLoading ?
@@ -169,7 +179,7 @@ export default class Details extends React.Component<any, any> {
                                 Go to Repository
                         </PrimaryButton>
                         <div className='row'>
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
@@ -182,7 +192,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
@@ -195,7 +205,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>   
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
@@ -208,7 +218,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div> 
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
 
@@ -224,7 +234,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>
-                            <div className='col-sm'>
+                            <div className='col-sm-2'>
                                 <div className='card-details'>
                                     <div className='card-body'>
                                         <p className='card-text'>
@@ -238,29 +248,57 @@ export default class Details extends React.Component<any, any> {
                                 </div>
                             </div>
                         </div>       
-                        <PageTitle title={`List of ${this.allItems.length} libraries in ${repositoryDetails.name}`}/>
-                        <div className={descriptionClass}> {repositoryDetails.description} </div>   
+                        <PageTitle title={`List of ${this.allItems.length} libraries in ${repositoryDetails.name}`} />
+                        <div className={descriptionClass}> {repositoryDetails.description} </div>
                         <div className={classNames.wrapper}>
-                            <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
-                                <div>
-                                    <ShimmeredDetailsList
-                                        items={items}
-                                        columns={columns}
-                                        selectionMode={SelectionMode.none}
-                                        layoutMode={DetailsListLayoutMode.justified}
-                                        isHeaderVisible={true}
-                                        onRenderItemColumn={renderItemColumn}
-                                        enableShimmer={isLoading}
-                                        onRenderDetailsHeader={onRenderDetailsHeader}
-                                    />
-                                </div>
-                            </ScrollablePane>   
+                            {this.allItems.length === 0 ?
+                                <div style={{
+                                    display: 'flex',
+                                    width: '100%',
+                                    minHeight: '200px',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    fontSize: FontSizes.large
+                                }}>
+                                    <p>No data available</p>
+                                </div> :
+                                <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
+                                    <Sticky stickyPosition={StickyPositionType.Header}>
+                                        <TextField
+                                            className={filterListClass}
+                                            label='Filter by library:'
+                                            onChange={this.onFilterName}
+                                            styles={{ root: { maxWidth: '300px' } }}
+                                        />                                            
+                                    </Sticky>
+                                        <div>
+                                            <ShimmeredDetailsList
+                                                items={items}
+                                                columns={columns}
+                                                selectionMode={SelectionMode.none}
+                                                layoutMode={DetailsListLayoutMode.justified}
+                                                isHeaderVisible={true}
+                                                onRenderItemColumn={renderItemColumn}
+                                                enableShimmer={isLoading}
+                                                onRenderDetailsHeader={onRenderDetailsHeader}
+                                            />
+                                        </div>
+                                    </ScrollablePane>
+                                }                               
                         </div>
                     </Fabric>
                     }
             </div>
         );
     }
+
+    private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
+        string | undefined): void => {
+        this.setState({
+            items: text ? this.allItems.filter(i => i.packageName.toLowerCase()
+                .indexOf(text.toLowerCase()) > -1) : this.allItems
+        });
+    };
 
     private onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const { columns, items } = this.state;
@@ -280,8 +318,9 @@ export default class Details extends React.Component<any, any> {
             columns: newColumns,
             items: newItems
         });
-    };
+    } 
 }
+
 // Enables the column headers to remain sticky
 const onRenderDetailsHeader: IRenderFunction<IDetailsHeaderProps> = (props, defaultRender) => {
     if (!props) {
@@ -321,7 +360,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
 
         case 'Status':
             return checkStatus(status);
-    }
+    }   
 }
 // checks the value of the status and displays the appropriate status
 function checkStatus(status: number)
@@ -347,6 +386,7 @@ function checkStatus(status: number)
             id={'PatchUpdate'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Patch Update </span>
             </TooltipHost>;
+
         case 4:
             return <TooltipHost content='This repository has a security alert. Please go to github to update.'
              id={'UrgentUpdate'}>
@@ -355,47 +395,6 @@ function checkStatus(status: number)
     }
 }
 
-function copyAndSort<T>(items: T[], columnKey: string, isSortedDescending?: boolean): T[] {
-    const key = columnKey as keyof T;
-    const itemsSorted = items.slice(0).sort((a: T, b: T) => (compare(a[key], b[key], isSortedDescending)));
-    return itemsSorted;
-}
-
-function compare(a: any, b: any, isSortedDescending?: boolean) {
-    // Handle the possible scenario of blank inputs 
-    // and keep them at the bottom of the lists
-    if (!a) { return 1; }
-    if (!b) { return -1; }
-
-    let valueA: any;
-    let valueB: any;
-    let comparison = 0;
-
-    if (typeof a === 'string' || a instanceof String) {
-        // Use toUpperCase() to ignore character casing
-        valueA = a.toUpperCase();
-        valueB = b.toUpperCase();
-        // its an item of type number
-    } else if (typeof a === 'number' && typeof b === 'number') {
-        valueA = a;
-        valueB = b;
-    } else {
-        // its an object which has a totalCount property
-        valueA = a.totalCount;
-        valueB = b.totalCount;
-    }
-
-    if (valueA > valueB) {
-        comparison = 1;
-    } else if (valueA < valueB) {
-        comparison = -1;
-    }
-
-    if (isSortedDescending) {
-        comparison = comparison * -1;
-    }
-    return comparison;
-}
 
 
 

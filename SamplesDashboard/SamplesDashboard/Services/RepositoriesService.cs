@@ -13,9 +13,8 @@ using Semver;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Models;
-using System.IO;
-using Newtonsoft.Json;
 using Octokit;
+using System.Text.RegularExpressions;
 
 namespace SamplesDashboard.Services
 {
@@ -65,13 +64,13 @@ namespace SamplesDashboard.Services
             if (!string.IsNullOrEmpty(endCursor))
             {
                 cursorString = $", after:\"{endCursor}\"";
-            }           
+            }
 
             var request = new GraphQLRequest
             {
                 Query = @"
 	            {              
-                  search(query: ""org:microsoftgraph"+ $"{name}"+ @" in:name archived:false"", type: REPOSITORY, first: 100 "+ $"{cursorString}" + @" ) {
+                  search(query: ""org:microsoftgraph" + $"{name}" + @" in:name archived:false fork:true"", type: REPOSITORY, first: 100 " + $"{cursorString}" + @" ) {
                         nodes {
                                 ... on Repository {
                                     name 
@@ -127,11 +126,11 @@ namespace SamplesDashboard.Services
             {
                 Task headerTask = SetHeadersAndStatus(githubClient, repoItem, "microsoftgraph");
                 TaskList.Add(headerTask);
-            } 
-
+            }
             await Task.WhenAll(TaskList);
-            //returning a list of only repos with dependencies
-            var repos = graphQLResponse?.Data?.Search.Nodes.Where(nodeItem => (nodeItem.HasDependendencies == true)).ToList();           
+
+            //returning a list of all repos
+            var repositories = graphQLResponse?.Data?.Search.Nodes.ToList();
 
             //Taking the next 100 repos(paginating using endCursor object)
             var hasNextPage = graphQLResponse?.Data?.Search.PageInfo.HasNextPage;
@@ -140,23 +139,32 @@ namespace SamplesDashboard.Services
             if (hasNextPage == true)
             {
                 var nextRepos = await GetRepositories(name, endCursor);
-                repos.AddRange(nextRepos);
-            }       
+                repositories.AddRange(nextRepos);
+            }
 
-            return repos;            
+            //remove localized repos to reduce repetition of samples
+            foreach (var repo in repositories.ToList())
+            {
+                Regex regex = new Regex (@".[a-z]{2}-[A-Z]{2}");
+                if(regex.IsMatch(repo?.Name))
+                {
+                    repositories.Remove(repo);
+                }
+            }           
+            return repositories;
         }
         /// <summary>
         /// Creates a github client to make calls to the API and access traffic view data
         /// </summary>
         /// <param name="repoName"></param>
-        /// <returns>View count</returns>
+        /// <returns>View count</returns> 
         internal async Task<int?> FetchViews(GitHubClient githubclient, string repoName, string owner)
         {
             //use client to fetch views
             var views = await githubclient.Repository.Traffic.GetViews(owner, repoName, new RepositoryTrafficRequest(TrafficDayOrWeek.Week));
             return views?.Count;
-        } 
-
+        }
+        
         /// <summary>
         /// Uses githubclient to fetch a list of contributors
         /// </summary>
@@ -174,10 +182,10 @@ namespace SamplesDashboard.Services
             {
                 var keysToRemove = contributorList.Where(r => r.Key == "dependabot[bot]" || r.Key == "dependabot-preview[bot]")
                                    .Select(r => r.Key).ToList();
-                foreach(var key in keysToRemove)
+                foreach (var key in keysToRemove)
                 {
                     contributorList.Remove(key);
-                }                
+                }
             }
             return contributorList;
         }
@@ -187,30 +195,35 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="repoItem">A specific repo item from the repos list</param>
         /// <returns> A list of repos.</returns>
-        private async Task SetHeadersAndStatus(GitHubClient githubClient, Node repoItem, string owner) 
-        {            
+        private async Task SetHeadersAndStatus(GitHubClient githubClient, Node repoItem, string owner)
+        {
             Repository repository;
             if (!_cache.TryGetValue(repoItem.Name, out repository))
             {
-                repository = await GetRepository(repoItem.Name);            
+                repository = await GetRepository(repoItem.Name);
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
                 _cache.Set(repoItem.Name, repository, cacheEntryOptions);
             }
 
-            if (repository?.DependencyGraphManifests?.Nodes?.Length > 0)
+            if (repository?.DependencyGraphManifests?.Nodes?.Length == 0 || repository?.DependencyGraphManifests?.Nodes == null)
+            {
+                repoItem.HasDependendencies = false;
+            }
+            else if (repository?.DependencyGraphManifests?.Nodes?.Length > 0)
             {
                 repoItem.HasDependendencies = true;
                 repoItem.RepositoryStatus = repository.highestStatus;
-                var headerDetails = await GetHeaderDetails(repoItem.Name);
-                repoItem.Language = headerDetails.GetValueOrDefault("languages");
-                repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
-                repoItem.Views = await FetchViews(githubClient,repoItem.Name, owner);
-                repoItem.OwnerProfiles = await FetchContributors(githubClient, repoItem.Name, owner);              
-            } 
+            }
+
+            var headerDetails = await GetHeaderDetails(repoItem.Name);
+            repoItem.Language = headerDetails.GetValueOrDefault("languages");
+            repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
+            repoItem.Views = await FetchViews(githubClient, repoItem.Name, owner);
+            repoItem.OwnerProfiles = await FetchContributors(githubClient, repoItem.Name, owner);
         }
-        
+
         /// <summary>
-        /// Uses client object and repoName passed inthe url to return the repo's dependencies
+        /// Uses client object and repoName passed in the url to return the repo's dependencies
         /// </summary>
         /// <param name="repoName">The name of that repo</param>
         /// <returns> A list of dependencies. </returns>
@@ -263,11 +276,12 @@ namespace SamplesDashboard.Services
                 Variables = new { repo = repoName }
             };
 
-            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request); 
-           
-            var repository = await UpdateRepositoryStatus(graphQLResponse.Data?.Organization.Repository);           
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
+
+            var repository = await UpdateRepositoryStatus(graphQLResponse.Data?.Organization.Repository);
             return repository;
-        }
+        }       
+
         /// <summary>
         /// Gets a list of versions from nuget and computes the latest version
         /// </summary>
@@ -278,26 +292,28 @@ namespace SamplesDashboard.Services
         {
             var nugetPackageVersions = await _nugetService.GetPackageVersions(packageName);
             var latestVersion = nugetPackageVersions.LastOrDefault()?.ToString();
-
-            //check if current version is preview, return latest version, whether preview or non-preview
-            if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
+            if(latestVersion != null)
             {
-                return latestVersion;
-            }
-            //check if only latest version is preview, set to latest non-preview version
-            else if (latestVersion.Contains("preview"))
-            {
-                var nonPreviewVersions = new List<string>();
-                foreach (var version in nugetPackageVersions)
+                //check if current version is preview, return latest version, whether preview or non-preview
+                if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
                 {
-                    if (!version.ToString().Contains("preview"))
-                        nonPreviewVersions.Add(version.ToString());
+                    return latestVersion;
                 }
-
-                latestVersion = nonPreviewVersions.LastOrDefault();
-            }           
+                //check if only latest version is preview, set to latest non-preview version
+                else if (latestVersion.Contains("preview"))
+                {
+                    var nonPreviewVersions = new List<string>();
+                    foreach (var version in nugetPackageVersions)
+                    {
+                        if (!version.ToString().Contains("preview"))
+                            nonPreviewVersions.Add(version.ToString());
+                    }
+                    latestVersion = nonPreviewVersions.LastOrDefault();
+                }
+            }                  
             return latestVersion;
         }
+
         /// <summary>
         /// Gets the repository's details and updates the status field in the dependencies
         /// </summary>
@@ -316,13 +332,14 @@ namespace SamplesDashboard.Services
                 var dependencies = dependencyManifest?.Dependencies?.Nodes;
                 if (dependencies == null) 
                     continue;
-                PackageStatus highestStatus = PackageStatus.Unknown;
+                PackageStatus highestStatus = PackageStatus.Unknown;                                           
+
                 // Go through each dependency in the dependency manifest
                 foreach (var dependency in dependencies)
-                {                   
+                {
                     var currentVersion = dependency.requirements;
                     if (string.IsNullOrEmpty(currentVersion)) continue;
-
+                    
                     //getting latest versions from the respective packagemanagers,azure sdks and the default values from github
                     string latestVersion;
                     string azureSdkVersion = String.Empty;
@@ -341,10 +358,9 @@ namespace SamplesDashboard.Services
                             latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
                             break;
                     }
-
                     dependency.latestVersion = latestVersion;
                     dependency.azureSdkVersion = azureSdkVersion;
-
+                    
                     //calculate status normally for repos without security alerts
                     if (vulnerabilityCount == 0)
                     {
