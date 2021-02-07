@@ -52,50 +52,47 @@ namespace SamplesDashboard.Services
         /// <returns>installation token</returns>
         internal async Task<string> GetGithubAppToken()
         {
-            string token;
-            if (!_cache.TryGetValue("githubToken", out token))
+            if (_cache.TryGetValue("githubToken", out string token)) return token;
+            var KeyIdentifier = _configuration["KeyIdentifier"];
+
+            //create azurekeyvault client
+            var client = GetAzureKeyVaultClient();
+            var certificateBundle = await client.GetSecretAsync(KeyIdentifier);
+
+            //insert missing newlines that cause a problem on reading the certificate
+            var sections = certificateBundle.Value.Split("-----BEGIN RSA PRIVATE KEY-----", StringSplitOptions.RemoveEmptyEntries);
+            sections = sections[0].Split("-----END RSA PRIVATE KEY-----", StringSplitOptions.RemoveEmptyEntries);
+
+            //insert missing newlines that cause a problem on reading the certificate
+            string key = "-----BEGIN RSA PRIVATE KEY-----\r\n" + sections[0] + "\r\n-----END RSA PRIVATE KEY-----";
+
+            var utcNow = DateTime.UtcNow;
+            var payload = new Dictionary<string, object>
             {
-                var KeyIdentifier = _configuration["KeyIdentifier"];
+                {"iat", ToUtcSeconds(utcNow)},
+                {"exp", ToUtcSeconds(utcNow.AddSeconds(600))},
+                {"iss", 62050}
+            };
 
-                //create azurekeyvault client
-                var client = GetAzureKeyVaultClient();
-                var certificateBundle = await client.GetSecretAsync(KeyIdentifier);
+            var jwtToken = JWTHelper.CreateEncodedJwtToken(key, payload);
 
-                //insert missing newlines that cause a problem on reading the certificate
-                var sections = certificateBundle.Value.Split("-----BEGIN RSA PRIVATE KEY-----", StringSplitOptions.RemoveEmptyEntries);
-                sections = sections[0].Split("-----END RSA PRIVATE KEY-----", StringSplitOptions.RemoveEmptyEntries);
+            // Pass the JWT as a Bearer token to Octokit.net
+            var appClient = new GitHubClient(new ProductHeaderValue(_configuration.GetValue<string>("product")))
+            {
+                Credentials = new Credentials(jwtToken, AuthenticationType.Bearer)
+            };
 
-                //insert missing newlines that cause a problem on reading the certificate
-                string key = "-----BEGIN RSA PRIVATE KEY-----\r\n" + sections[0] + "\r\n-----END RSA PRIVATE KEY-----";
+            // Get a list of installations for the authenticated GitHubApp and installationID for microsoftgraph
+            var installations = await appClient.GitHubApps.GetAllInstallationsForCurrent();
+            var id = installations.Where(installation => installation.Account.Login == "microsoftgraph").FirstOrDefault().Id;
 
-                var utcNow = DateTime.UtcNow;
-                var payload = new Dictionary<string, object>
-                {
-                    {"iat", ToUtcSeconds(utcNow)},
-                    {"exp", ToUtcSeconds(utcNow.AddSeconds(600))},
-                    {"iss", 62050}
-                };
+            // Create an Installation token for the microsoftgraph installation instance
+            var response = await appClient.GitHubApps.CreateInstallationToken(id);
+            token = response.Token;
 
-                var jwtToken = JWTHelper.CreateEncodedJwtToken(key, payload);
-
-                // Pass the JWT as a Bearer token to Octokit.net
-                var appClient = new GitHubClient(new ProductHeaderValue(_configuration.GetValue<string>("product")))
-                {
-                    Credentials = new Credentials(jwtToken, AuthenticationType.Bearer)
-                };
-
-                // Get a list of installations for the authenticated GitHubApp and installationID for microsoftgraph
-                var installations = await appClient.GitHubApps.GetAllInstallationsForCurrent();
-                var id = installations.Where(installation => installation.Account.Login == "microsoftgraph").FirstOrDefault().Id;
-
-                // Create an Installation token for the microsoftgraph installation instance
-                var response = await appClient.GitHubApps.CreateInstallationToken(id);
-                token = response.Token;
-
-                //set cache to expire at the same time as the token
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(response.ExpiresAt);
-                _cache.Set("githubToken", token, cacheEntryOptions);
-            }
+            //set cache to expire at the same time as the token
+            var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(response.ExpiresAt);
+            _cache.Set("githubToken", token, cacheEntryOptions);
 
             return token;
         }
