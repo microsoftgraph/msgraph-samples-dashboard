@@ -56,7 +56,7 @@ export class Login extends Component {
                     return (<div>Processing login callback</div>);
                 case LoginActions.Profile:
                 case LoginActions.Register:
-                    return (<div></div>);
+                    return (<div/>);
                 default:
                     throw new Error(`Invalid action '${action}'`);
             }
