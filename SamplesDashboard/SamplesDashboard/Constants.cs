@@ -14,8 +14,8 @@ namespace SamplesDashboard
             "sdk", "microsoft-graph-explorer", "devx-api", "raptor", "msgraph-cli", "samples-dashboard"
         };
         private static readonly IEnumerable<string> SamplesList = new[] {"sample", "training"};
-        public static readonly string Sdks = BuildQueryString(Constants.SdkList);
-        public static readonly string Samples = BuildQueryString(Constants.SamplesList);
+        public static readonly string Sdks = BuildQueryString(SdkList);
+        public static readonly string Samples = BuildQueryString(SamplesList);
         public const string Timeout = "timeout";
     }
 }
