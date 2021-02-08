@@ -3,7 +3,7 @@
 // ------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using static SamplesDashboard.Helper.Helper;
+using SamplesDashboard.Extensions;
 
 namespace SamplesDashboard
 {
@@ -14,8 +14,8 @@ namespace SamplesDashboard
             "sdk", "microsoft-graph-explorer", "devx-api", "raptor", "msgraph-cli", "samples-dashboard"
         };
         private static readonly IEnumerable<string> SamplesList = new[] {"sample", "training"};
-        public static readonly string Sdks = BuildQueryString(SdkList);
-        public static readonly string Samples = BuildQueryString(SamplesList);
+        public static readonly string Sdks = SdkList.BuildQueryString();
+        public static readonly string Samples = SamplesList.BuildQueryString();
         public const string Timeout = "timeout";
     }
 }

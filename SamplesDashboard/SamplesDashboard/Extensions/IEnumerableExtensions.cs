@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SamplesDashboard.Helper
+namespace SamplesDashboard.Extensions
 {
-    public static class Helper
+    public static class IEnumerableExtensions
     {
-        public static string BuildQueryString(IEnumerable<string> names)
+        public static string BuildQueryString(this IEnumerable<string> names)
         {
             var flattenedString = new StringBuilder();
             foreach (var name in names)
