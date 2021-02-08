@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System;
+using System.Text;
 using GraphQL;
 using GraphQL.Client.Http;
 using Semver;
@@ -56,10 +57,10 @@ namespace SamplesDashboard.Services
         /// Gets the client object used to run the repos query and return the repos list 
         /// </summary>
         /// <returns> A list of repos.</returns>
-        public async Task<List<Node>> GetRepositories(string name, string endCursor = null)
+        public async Task<List<Node>> GetRepositories(string names, string endCursor = null)
         {
             // Request to fetch the list of repos for graph
-            string cursorString = "";
+            var cursorString = "";
 
             if (!string.IsNullOrEmpty(endCursor))
             {
@@ -70,7 +71,7 @@ namespace SamplesDashboard.Services
             {
                 Query = @"
 	            {              
-                  search(query: ""org:microsoftgraph" + $"{name}" + @" in:name archived:false fork:true"", type: REPOSITORY, first: 100 " + $"{cursorString}" + @" ) {
+                  search(query: ""org:microsoftgraph" + $" {names}" + @" in:name archived:false fork:true"", type: REPOSITORY, first: 100 " + $"{cursorString}" + @" ) {
                         nodes {
                                 ... on Repository {
                                     name 
@@ -109,7 +110,7 @@ namespace SamplesDashboard.Services
                     }
                 }"
             };
-            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
+            var graphQlResponse = await _graphQlClient.SendQueryAsync<Data>(request);
 
             // get githubapp token 
             var token = await _githubAuthService.GetGithubAppToken();
@@ -121,31 +122,26 @@ namespace SamplesDashboard.Services
             };
 
             // Fetch yaml headers and compute header values in parallel
-            List<Task> TaskList = new List<Task>();
-            foreach (var repoItem in graphQLResponse?.Data?.Search.Nodes)
-            {
-                Task headerTask = SetHeadersAndStatus(githubClient, repoItem, "microsoftgraph");
-                TaskList.Add(headerTask);
-            }
-            await Task.WhenAll(TaskList);
+            var taskList = (from repoItem in graphQlResponse?.Data?.Search.Nodes select SetHeadersAndStatus(githubClient, repoItem, "microsoftgraph")).ToList();
+            await Task.WhenAll(taskList);
 
             //returning a list of all repos
-            var repositories = graphQLResponse?.Data?.Search.Nodes.ToList();
+            var repositories = graphQlResponse?.Data?.Search.Nodes.ToList();
 
             //Taking the next 100 repos(paginating using endCursor object)
-            var hasNextPage = graphQLResponse?.Data?.Search.PageInfo.HasNextPage;
-            endCursor = graphQLResponse?.Data?.Search.PageInfo.EndCursor;
+            var hasNextPage = graphQlResponse?.Data?.Search.PageInfo.HasNextPage;
+            endCursor = graphQlResponse?.Data?.Search.PageInfo.EndCursor;
 
             if (hasNextPage == true)
             {
-                var nextRepos = await GetRepositories(name, endCursor);
-                repositories.AddRange(nextRepos);
+                var nextRepos = await GetRepositories(names, endCursor);
+                repositories?.AddRange(nextRepos);
             }
 
             //remove localized repos to reduce repetition of samples
-            foreach (var repo in repositories.ToList())
+            foreach (var repo in repositories!.ToList())
             {
-                Regex regex = new Regex (@".[a-z]{2}-[A-Z]{2}");
+                var regex = new Regex (@".[a-z]{2}-[A-Z]{2}");
                 if(regex.IsMatch(repo?.Name))
                 {
                     repositories.Remove(repo);
@@ -153,10 +149,13 @@ namespace SamplesDashboard.Services
             }           
             return repositories;
         }
+
         /// <summary>
         /// Creates a github client to make calls to the API and access traffic view data
         /// </summary>
+        /// <param name="githubclient"></param>
         /// <param name="repoName"></param>
+        /// <param name="owner"></param>
         /// <returns>View count</returns> 
         internal async Task<int?> FetchViews(GitHubClient githubclient, string repoName, string owner)
         {
@@ -197,8 +196,7 @@ namespace SamplesDashboard.Services
         /// <returns> A list of repos.</returns>
         private async Task SetHeadersAndStatus(GitHubClient githubClient, Node repoItem, string owner)
         {
-            Repository repository;
-            if (!_cache.TryGetValue(repoItem.Name, out repository))
+            if (!_cache.TryGetValue(repoItem.Name, out Repository repository))
             {
                 repository = await GetRepository(repoItem.Name);
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
@@ -292,25 +290,20 @@ namespace SamplesDashboard.Services
         {
             var nugetPackageVersions = await _nugetService.GetPackageVersions(packageName);
             var latestVersion = nugetPackageVersions.LastOrDefault()?.ToString();
-            if(latestVersion != null)
+            if (latestVersion == null) return latestVersion;
+            
+            //check if current version is preview, return latest version, whether preview or non-preview
+            if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
             {
-                //check if current version is preview, return latest version, whether preview or non-preview
-                if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
-                {
-                    return latestVersion;
-                }
-                //check if only latest version is preview, set to latest non-preview version
-                else if (latestVersion.Contains("preview"))
-                {
-                    var nonPreviewVersions = new List<string>();
-                    foreach (var version in nugetPackageVersions)
-                    {
-                        if (!version.ToString().Contains("preview"))
-                            nonPreviewVersions.Add(version.ToString());
-                    }
-                    latestVersion = nonPreviewVersions.LastOrDefault();
-                }
-            }                  
+                return latestVersion;
+            }
+            //check if only latest version is preview, set to latest non-preview version
+            else if (latestVersion.Contains("preview"))
+            {
+                var nonPreviewVersions = (from version in nugetPackageVersions where !version.ToString()
+                    .Contains("preview") select version.ToString()).ToList();
+                latestVersion = nonPreviewVersions.LastOrDefault();
+            }
             return latestVersion;
         }
 
@@ -509,9 +502,9 @@ namespace SamplesDashboard.Services
 
             if (responseMessage.IsSuccessStatusCode)
             {
-                string fileContents = await responseMessage.Content.ReadAsStringAsync();
+                var fileContents = await responseMessage.Content.ReadAsStringAsync();
                 var stringSeparator = new string[] { "---\r\n", "---\n" };
-                string[] parts = fileContents.Split(stringSeparator, StringSplitOptions.RemoveEmptyEntries);
+                var parts = fileContents.Split(stringSeparator, StringSplitOptions.RemoveEmptyEntries);
 
                 //we have a valid header between ---
                 if (parts.Length > 1)
@@ -530,8 +523,8 @@ namespace SamplesDashboard.Services
         /// <returns>A list of the searchterm specified.</returns>
         private List<string> SearchTerm(string term, string[] lines)
         {
-            bool foundHeader = false;
-            List<string> myList = new List<string>();
+            var foundHeader = false;
+            var myList = new List<string>();
 
             foreach (var line in lines)
             {
