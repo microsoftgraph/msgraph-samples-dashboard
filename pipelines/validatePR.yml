@@ -17,10 +17,10 @@ variables:
 
 steps:
 - task: UseDotNet@2
-  displayName: "Use dotnetcore3"
+  displayName: "Use dotnet 5"
   inputs:
     packageType: sdk
-    version: 3.x
+    version: 5.x
 
 - task: UseNode@1
   inputs:
