@@ -1,7 +1,16 @@
 import {
-    DetailsListLayoutMode, FontIcon,
-    IColumn, IDetailsHeaderProps, IRenderFunction, IStackProps, IStackStyles, SelectionMode, 
-    ShimmeredDetailsList, Stack, TooltipHost } from 'office-ui-fabric-react';
+    DetailsListLayoutMode,
+    FontIcon,
+    IColumn,
+    IDetailsHeaderProps,
+    IRenderFunction,
+    IStackProps,
+    IStackStyles,
+    SelectionMode,
+    ShimmeredDetailsList,
+    Stack,
+    TooltipHost
+} from 'office-ui-fabric-react';
 import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
 import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
 import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
@@ -14,7 +23,7 @@ import authService from '../../components/api-authorization/AuthorizeService';
 import { IRepositoryItem, IRepositoryState } from '../../types/samples';
 import { copyAndSort } from '../../utilities/copy-and-sort';
 import { RepositoryStatus } from '../details/Details.types';
-import { classNames, filterListClass } from '../repositories/Repositories.Styles';
+import { classNames, filterListClass } from './Repositories.Styles';
 
 initializeIcons();
 
@@ -107,8 +116,7 @@ IRepositoryState> {
             {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             });
-        const data = await response.json();
-        this.allItems = data;
+        this.allItems = await response.json();
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState(
@@ -126,8 +134,7 @@ IRepositoryState> {
             {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             });
-        const data = await response.json();       
-        this.allItems = data;
+        this.allItems = await response.json();
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState(
@@ -289,7 +296,7 @@ IRepositoryState> {
         );
     }
 
-    private getKey(item: any, index?: number): string {
+    private static getKey(item: any, index?: number): string {
         return item.key;
     }
 
@@ -438,7 +445,7 @@ function displayAdmins(ownerProfiles: any)
             }            
         }
 
-        return <div dangerouslySetInnerHTML={{ __html: div.innerHTML }}></div>;
+        return <div dangerouslySetInnerHTML={{__html: div.innerHTML}}/>;
     }
     else {
         return <span>{}</span>;

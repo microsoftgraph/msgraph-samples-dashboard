@@ -47,7 +47,7 @@ namespace SamplesDashboard.Controllers
 
                 // Save data in cache.
                 _cache.Set( Constants.Samples, samples, cacheEntryOptions);
-                _logger.LogInformation($"{nameof(RepositoriesController)} :samples cache refreshed");
+                _logger.LogInformation("RepositoriesController :samples cache refreshed");
             }
 
             return Ok(samples);
@@ -68,7 +68,7 @@ namespace SamplesDashboard.Controllers
 
                 // Save data in cache.
                 _cache.Set(Constants.Sdks, sdkList, cacheEntryOptions);
-                _logger.LogInformation($"{nameof(RepositoriesController)} :sdks cache refreshed");
+                _logger.LogInformation("RepositoriesController :sdks cache refreshed");
             }
 
             return Ok(sdkList);
@@ -78,17 +78,16 @@ namespace SamplesDashboard.Controllers
         [Route("api/[controller]/{id}")]
         public async Task<IActionResult> GetRepositoriesAsync(string id)
         {
-            Repository repository;
-            if (!_cache.TryGetValue(id, out repository))
+            if (!_cache.TryGetValue(id, out Repository repository))
             {                
                 repository = await _repositoriesService.GetRepository(id);
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
                 _cache.Set(id, repository, cacheEntryOptions);
-                _logger.LogInformation($"{nameof(RepositoriesController)} : {id} : repositories cache refreshed");
+                _logger.LogInformation($"RepositoriesController : {id} : repositories cache refreshed");
 
             }
             return Ok(repository);
-        }              
+        }
     }
 
     public class Dto

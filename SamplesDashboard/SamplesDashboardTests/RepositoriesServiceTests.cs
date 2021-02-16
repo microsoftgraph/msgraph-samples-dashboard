@@ -139,9 +139,9 @@ namespace SamplesDashboardTests
             var sdkList = sdks.Select(n => n.Name);
 
             //Assert
-            foreach (string sdk in sdkList)
+            foreach (var sdk in sdkList)
             {
-                Assert.True(sdk.Contains("sdk", StringComparison.OrdinalIgnoreCase));
+                Assert.Contains(Constants.Sdks, s => sdk.Contains(s, StringComparison.OrdinalIgnoreCase));
             }
         }
 
