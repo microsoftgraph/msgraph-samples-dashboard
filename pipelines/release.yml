@@ -68,7 +68,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
     testAssemblyVer2: |
-      **/net5.0/**.Test.dll
+      **/net5.0/**Tests.dll
       !**/*TestAdapter.dll
       !**/obj/**
     diagnosticsEnabled: true
