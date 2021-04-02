@@ -34,15 +34,15 @@ namespace SamplesDashboard.Controllers
         [Produces("application/json")]
         [Route("api/samples")]
         [HttpGet]
-        public async Task<IActionResult> GetSamplesListAsync()        
+        public async Task<IActionResult> GetSamplesListAsync()
         {
 
             if (!_cache.TryGetValue(Constants.Samples, out var samples))
-            {   
+            {
 
                 samples = await _repositoriesService.GetRepositories(Constants.Samples);
 
-                //Read timeout from config file 
+                //Read timeout from config file
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
 
                 // Save data in cache.
@@ -57,13 +57,13 @@ namespace SamplesDashboard.Controllers
         [Route("api/sdks")]
         [HttpGet]
         public async Task<IActionResult> GetSdksListAsync()
-        {     
+        {
 
             if (!_cache.TryGetValue(Constants.Sdks, out var sdkList))
             {
                 sdkList = await _repositoriesService.GetRepositories(Constants.Sdks);
 
-                //Read timeout from config file 
+                //Read timeout from config file
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
 
                 // Save data in cache.
@@ -79,7 +79,7 @@ namespace SamplesDashboard.Controllers
         public async Task<IActionResult> GetRepositoriesAsync(string id)
         {
             if (!_cache.TryGetValue(id, out Repository repository))
-            {                
+            {
                 repository = await _repositoriesService.GetRepository(id);
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
                 _cache.Set(id, repository, cacheEntryOptions);
@@ -95,9 +95,9 @@ namespace SamplesDashboard.Controllers
         public Dto()
         {
             this.Dependencies = new List<DependenciesNode>();
-            Features = new List<string>();           
+            Features = new List<string>();
         }
-      
+
         public Node Sample { get; set; }
         public List<DependenciesNode> Dependencies { get; set; }
         public List<string> Features { get; set; }

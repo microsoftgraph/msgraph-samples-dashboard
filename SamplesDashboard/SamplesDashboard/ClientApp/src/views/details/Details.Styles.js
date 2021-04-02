@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Styling_1 = require("office-ui-fabric-react/lib/Styling");
 exports.iconClass = Styling_1.mergeStyles({
     fontSize: 15,
@@ -34,9 +34,10 @@ exports.classNames = Styling_1.mergeStyleSets({
         margin: '5px'
     },
     detailList: { padding: '10px' },
-    yellow: [{ color: '#ffaa44' }, exports.iconClass],
     green: [{ color: '#498205' }, exports.iconClass],
+    yellowGreen: [{ color: '#8cbd18' }, exports.iconClass],
+    yellow: [{ color: '#ffaa44' }, exports.iconClass],
+    orange: [{ color: '#fd7e14' }, exports.iconClass],
     red: [{ color: '#d13438' }, exports.iconClass],
     blue: [{ color: '#0078d4' }, exports.iconClass]
 });
-//# sourceMappingURL=Details.Styles.js.map

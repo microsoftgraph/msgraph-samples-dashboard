@@ -6,6 +6,7 @@ import {
     IRenderFunction,
     IStackProps,
     IStackStyles,
+    ITooltipHostProps,
     SelectionMode,
     ShimmeredDetailsList,
     Stack,
@@ -20,14 +21,14 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import authService from '../../components/api-authorization/AuthorizeService';
-import { IRepositoryItem, IRepositoryState } from '../../types/samples';
+import { IRepositoryItem, IRepositoryState, IDetailsItem } from '../../types/samples';
 import { copyAndSort } from '../../utilities/copy-and-sort';
 import { RepositoryStatus } from '../details/Details.types';
 import { classNames, filterListClass } from './Repositories.Styles';
 
 initializeIcons();
 
-export default class Repositories extends React.Component<{ isAuthenticated: boolean, title: string }, 
+export default class Repositories extends React.Component<{ isAuthenticated: boolean, title: string },
 IRepositoryState> {
     private allItems: IRepositoryItem[];
 
@@ -41,7 +42,7 @@ IRepositoryState> {
                 isResizable: true, isSorted: false, isSortedDescending: false, onColumnClick: this.onColumnClick
             },
             {
-                key: 'login', name: 'Owner', fieldName: 'admins', minWidth: 100, maxWidth: 150,
+                key: 'login', name: 'Owners', fieldName: 'admins', minWidth: 100, maxWidth: 150,
                 isResizable: true, onColumnClick: this.onColumnClick, isMultiline: true
             },
             {
@@ -49,11 +50,27 @@ IRepositoryState> {
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'pullRequestCount', name: 'Open pull requests', fieldName: 'pullRequests', minWidth: 100,
-                maxWidth: 150, isResizable: true, onColumnClick: this.onColumnClick
+                key: 'lastUpdated', name: 'Last Updated', fieldName: 'lastUpdated', minWidth: 100, maxWidth: 150,
+                isResizable: true, onColumnClick: this.onColumnClick
             },
             {
-                key: 'issueCount', name: 'Open issues', fieldName: 'issues', minWidth: 75, maxWidth: 150,
+                key: 'identityLibs', name: 'Identity Libs', fieldName: 'identityStatus', minWidth: 100, maxWidth: 150,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'graphSdks', name: 'Graph SDKs', fieldName: 'graphStatus', minWidth: 100, maxWidth: 150,
+                isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'vulnerabilityAlerts',
+                minWidth: 75, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'pullRequestCount', name: 'Open PRs', fieldName: 'pullRequests', minWidth: 75,
+                maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick
+            },
+            {
+                key: 'issueCount', name: 'Open issues', fieldName: 'issues', minWidth: 75, maxWidth: 100,
                 isResizable: true, onColumnClick: this.onColumnClick
             },
             {
@@ -78,23 +95,18 @@ IRepositoryState> {
             }
         ];
 
-        if (this.props.isAuthenticated) {
-            columns.push({
-                key: 'vulnerabilityAlertsCount', name: 'Security Alerts', fieldName: 'vulnerabilityAlerts',
-                minWidth: 75, maxWidth: 100, isResizable: true, onColumnClick: this.onColumnClick
-            });
-        }
-
         this.state = {
             columns,
             items: this.allItems,
             isLoading: false,
             totalUptoDate: 0,
             totalPatchUpdate: 0,
+            totalMinorUpdate: 0,
             totalMajorUpdate: 0,
             totalUrgentUpdate: 0,
             uptoDatePercent: 0,
             patchUpdatePercent: 0,
+            minorUpdatePercent: 0,
             majorUpdatePercent: 0,
             urgentUpdatePercent: 0
         };
@@ -117,6 +129,7 @@ IRepositoryState> {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             });
         this.allItems = await response.json();
+        this.allItems = copyAndSort(this.allItems, "name", false);
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState(
@@ -135,21 +148,24 @@ IRepositoryState> {
                 headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
             });
         this.allItems = await response.json();
+        this.allItems = copyAndSort(this.allItems, "name", false);
         // call the statistics function
         this.statusStatistics(this.allItems);
         this.setState(
             {
                 items: this.allItems,
                 isLoading: false
-            }); 
+            });
     }
 
-    // compute status statistics 
+    // compute status statistics
     public statusStatistics(items: IRepositoryItem[]) {
         let uptoDateCount = 0;
         let patchUpdateCount = 0;
+        let minorUpdateCount = 0;
         let majorUpdateCount = 0;
         let urgentUpdateCount = 0;
+        let unknownCount = 0;
         for (const item of items) {
             if (item.vulnerabilityAlerts && item.vulnerabilityAlerts && item.vulnerabilityAlerts.totalCount > 0) {
                 urgentUpdateCount++;
@@ -162,32 +178,41 @@ IRepositoryState> {
                     case RepositoryStatus.majorUpdate:
                         majorUpdateCount++;
                         break;
+                    case RepositoryStatus.minorUpdate:
+                        minorUpdateCount++;
+                        break;
                     case RepositoryStatus.patchUpdate:
                         patchUpdateCount++;
+                        break;
+                    case RepositoryStatus.unknown:
+                        unknownCount++;
                         break;
                 }
             }
         }
-        const total = this.allItems.length;
+        const total = this.allItems.length - unknownCount;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
         const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
+        const minorUpdateStats = parseFloat((minorUpdateCount / total * 100).toFixed(1));
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
         const urgentUpdateStats = parseFloat((urgentUpdateCount / total * 100).toFixed(1));
         this.setState({
             totalUptoDate: uptoDateCount,
             totalPatchUpdate: patchUpdateCount,
+            totalMinorUpdate: minorUpdateCount,
             totalMajorUpdate: majorUpdateCount,
             totalUrgentUpdate: urgentUpdateCount,
             uptoDatePercent: uptoDateStats,
             patchUpdatePercent: patchUpdateStats,
+            minorUpdatePercent: minorUpdateStats,
             majorUpdatePercent: majorUpdateStats,
             urgentUpdatePercent: urgentUpdateStats
         });
     }
 
     public render(): JSX.Element {
-        const { columns, items, isLoading, totalUptoDate, totalPatchUpdate, totalMajorUpdate, totalUrgentUpdate,
-            uptoDatePercent, patchUpdatePercent, majorUpdatePercent, urgentUpdatePercent } = 
+        const { columns, items, isLoading, totalUptoDate, totalPatchUpdate, totalMinorUpdate, totalMajorUpdate, totalUrgentUpdate,
+            uptoDatePercent, patchUpdatePercent, minorUpdatePercent, majorUpdatePercent, urgentUpdatePercent } =
         this.state;
         const stackStyles: Partial<IStackStyles> = { root: { width: 650 } };
         const columnProps: Partial<IStackProps> = {
@@ -199,7 +224,7 @@ IRepositoryState> {
         return (
             <Fabric>
                 <div className='row'>
-                    <div className='col-sm-3'>
+                    <div className='col-sm-2'>
                         <div className='card'>
                             <div className='card-body'>
                                 <p className='card-text'>
@@ -210,39 +235,51 @@ IRepositoryState> {
                                     <span className={classNames.greenText}>{uptoDatePercent}%</span>
                                 </div>
                             </div>
-                        </div>                  
+                        </div>
                     </div>
-                    <div className='col-sm-3'>
+                    <div className='col-sm-2'>
                         <div className='card'>
                             <div className='card-body'>
                                 <p className='card-text'>
-                                    <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                    Patch updates: {totalPatchUpdate}        
+                                    <FontIcon iconName='StatusCircleInner' className={classNames.yellowGreen} />
+                                    Patch updates: {totalPatchUpdate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.yellowText}>{patchUpdatePercent}%</span>
+                                    <span className={classNames.yellowGreenText}>{patchUpdatePercent}%</span>
                                 </div>
                             </div>
-                        </div>         
+                        </div>
                     </div>
-                    <div className='col-sm-3'>
+                    <div className='col-sm-2'>
                         <div className='card'>
                             <div className='card-body'>
-
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                     Major/Minor updates: {totalMajorUpdate}
+                                    Minor updates: {totalMinorUpdate}
                                 </p>
                                 <div className='card-footer'>
-                                    <span className={classNames.yellowText}>{majorUpdatePercent}%
+                                    <span className={classNames.yellowText}>{minorUpdatePercent}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='col-sm-2'>
+                        <div className='card'>
+                            <div className='card-body'>
+                                <p className='card-text'>
+                                    <FontIcon iconName='StatusCircleInner' className={classNames.orange} />
+                                     Major updates: {totalMajorUpdate}
+                                </p>
+                                <div className='card-footer'>
+                                    <span className={classNames.orangeText}>{majorUpdatePercent}%
                                     </span>
                                 </div>
                             </div>
-                        </div>     
+                        </div>
                     </div>
-                    <div className='col-sm-3'>
+                    <div className='col-sm-2'>
                         <div className='card'>
-                            <div className='card-body'>                          
+                            <div className='card-body'>
                                 <p className='card-text'>
                                     <FontIcon iconName='StatusCircleInner' className={classNames.red} />
                                     Security alerts: {totalUrgentUpdate}
@@ -251,11 +288,11 @@ IRepositoryState> {
                                     <span className={classNames.redText}>{urgentUpdatePercent}% </span>
                                 </div>
                             </div>
-                        </div>  
+                        </div>
                     </div>
                 </div>
                 <p className={classNames.detailList}>There are {this.allItems.length + ' ' + this.props.title} listed
-                </p> 
+                </p>
                 <div className={classNames.wrapper}>
                     <ScrollablePane scrollbarVisibility={ScrollbarVisibility.auto}>
                         <Sticky stickyPosition={StickyPositionType.Header}>
@@ -300,7 +337,7 @@ IRepositoryState> {
         return item.key;
     }
 
-    private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?: 
+    private onFilterName = (ev: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, text?:
         string | undefined): void => {
         this.setState({
             items: text ? this.allItems.filter(i => i.name.toLowerCase()
@@ -316,7 +353,7 @@ IRepositoryState> {
 
     private filterItems = (item: IRepositoryItem, text: string): boolean => {
         let found = false;
-        // Check that atleast 1 owner matches. 
+        // Check that at least 1 owner matches.
         for (const key in item.ownerProfiles) {
             // Ensure that you compare in the same case.
             if (key.toLowerCase().includes(text.toLowerCase())) {
@@ -326,7 +363,7 @@ IRepositoryState> {
         }
         return found;
     }
-    
+
     private onColumnClick = (ev: React.MouseEvent<HTMLElement>, column: IColumn): void => {
         const { columns, items } = this.state;
         const newColumns: IColumn[] = columns.slice();
@@ -375,6 +412,8 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
     const views = item.views;
     const url = item.url;
     const featureArea = item.featureArea;
+    const lastUpdated = item.lastUpdated;
+
     if (!item.vulnerabilityAlerts) {
         return null;
     }
@@ -386,33 +425,42 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
                 <Link to={`/samples/${name}`} ><span>{name} </ span></Link>
             </div>;
 
-        case 'Owner':            
-            return displayAdmins(ownerProfiles);            
+        case 'Owners':
+            return displayAdmins(ownerProfiles);
 
         case 'Status':
             return checkStatus(status);
 
+        case 'Last Updated':
+            return <span>{displayDateTime(lastUpdated)}</span>
+
+        case 'Identity Libs':
+            return checkIdentityOrGraphStatus(item.identityStatus);
+
+        case 'Graph SDKs':
+            return checkIdentityOrGraphStatus(item.graphStatus);
+
         case 'Language':
             return <span>{language}</span>;
 
-        case 'Open pull requests':
-            return <a href={`${url}/pulls`} target='_blank' rel='noopener noreferrer'> 
+        case 'Open PRs':
+            return <a href={`${url}/pulls`} target='_blank' rel='noopener noreferrer'>
                 <span>{pullRequestCount} </span></a>;
 
         case 'Open issues':
-            return <a href={`${url}/issues`} target='_blank' rel='noopener noreferrer'> 
+            return <a href={`${url}/issues`} target='_blank' rel='noopener noreferrer'>
             <span>{issueCount}</span></a>;
 
         case 'Forks':
-            return <a href={`${url}/network/members`} target='_blank' rel='noopener noreferrer'> 
+            return <a href={`${url}/network/members`} target='_blank' rel='noopener noreferrer'>
             <span>{forkCount} </span></a>;
 
         case 'Stars':
-            return <a href={`${url}/stargazers`} target='_blank' rel='noopener noreferrer'> 
-            <FontIcon iconName='FavoriteStarFill' className={classNames.yellow} /><span>{starsCount} </span></a>;
+            return <a href={`${url}/stargazers`} target='_blank' rel='noopener noreferrer'>
+            <span><FontIcon iconName='FavoriteStarFill' className={classNames.yellow} />{starsCount}</span></a>;
 
         case 'Views':
-            return <a href={`${url}/graphs/traffic`} target='_blank' rel='noopener noreferrer'> 
+            return <a href={`${url}/graphs/traffic`} target='_blank' rel='noopener noreferrer'>
             <span>{views} </span></a>;
 
         case 'Feature area':
@@ -421,7 +469,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
                 return <a href={`${url}/network/alerts`} target='_blank' rel='noopener noreferrer'>
-                    <FontIcon iconName='WarningSolid' className={classNames.yellow} /> 
+                    <FontIcon iconName='WarningSolid' className={classNames.yellow} />
                     <span>{vulnerabilityAlertsCount} </span></a>;
             }
             return <span>{vulnerabilityAlertsCount} </span>;
@@ -439,10 +487,15 @@ function displayAdmins(ownerProfiles: any)
                 user.href = value;
                 user.target = '_blank';
                 user.rel = 'noopener noreferrer';
-                user.text = key.concat(', ');
+                user.text = key;//.concat(', ');
 
+                if (div.hasChildNodes()) {
+                    const comma = document.createElement('span');
+                    comma.textContent = ', ';
+                    div.appendChild(comma);
+                }
                 div.appendChild(user);
-            }            
+            }
         }
 
         return <div dangerouslySetInnerHTML={{__html: div.innerHTML}}/>;
@@ -451,35 +504,100 @@ function displayAdmins(ownerProfiles: any)
         return <span>{}</span>;
     }
 }
-function checkStatus(status: number) {    
+
+function checkStatus(status: number) {
     switch (status) {
+        // Unknown
         case 0:
             return <TooltipHost content='Unknown' id={'Unknown'}>
                 <span><FontIcon iconName='StatusCircleQuestionMark' className={classNames.blue} /> Unknown </span>
             </TooltipHost>;
 
+        // Up-to-date
         case 1:
             return <TooltipHost content='All dependencies in this repository are up to date' id={'UptoDate'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.green} /> Up To Date </span>
             </TooltipHost>;
 
+        // Patch update
         case 2:
-            return <TooltipHost content='At least 1 dependency in this repository has a major/minor release update'
-                id={'Update'}>
-                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Update </span>
-            </TooltipHost>;
-        case 3:
-            return <TooltipHost content='Atleast 1 dependency in this repository has a patch update.'
+            return <TooltipHost content='At least 1 dependency in this repository has a patch update.'
              id={'PatchUpdate'}>
-                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Patch Update </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellowGreen} /> Patch Update </span>
             </TooltipHost>;
+
+        // Minor update
+        case 3:
+            return <TooltipHost content='At least 1 dependency in this repository has a minor release update'
+                id={'MinorUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Minor update </span>
+            </TooltipHost>;
+
+        // Major update
         case 4:
-            return <TooltipHost content='This repository has a security alert. Please go to github to update.' 
+            return <TooltipHost content='At least 1 dependency in this repository has a major release update'
+                id={'Update'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.orange} /> Major update </span>
+            </TooltipHost>;
+
+        // Urgent update (security)
+        case 5:
+            return <TooltipHost content='This repository has a security alert. Please go to github to update.'
             id={'UrgentUpdate'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
             </TooltipHost>;
-            
+
     }
 }
 
+function checkIdentityOrGraphStatus(status: number) {
+    switch (status) {
+        // Unknown
+        case 0:
+            return <TooltipHost content='None' id={'None'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.blue} /> None found </span>
+            </TooltipHost>;
 
+        // Up-to-date
+        case 1:
+            return <TooltipHost content='All dependencies in this repository are up to date' id={'UptoDate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.green} /> Up To Date </span>
+            </TooltipHost>;
+
+        // Patch update
+        case 2:
+            return <TooltipHost content='At least 1 dependency in this repository has a patch update.'
+             id={'PatchUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellowGreen} /> Patch Update </span>
+            </TooltipHost>;
+
+        // Minor update
+        case 3:
+            return <TooltipHost content='At least 1 dependency in this repository has a minor release update'
+                id={'MinorUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Minor update </span>
+            </TooltipHost>;
+
+        // Major update
+        case 4:
+            return <TooltipHost content='At least 1 dependency in this repository has a major release update'
+                id={'Update'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.orange} /> Major update </span>
+            </TooltipHost>;
+
+        // Urgent update (security)
+        case 5:
+            return <TooltipHost content='This repository has a security alert. Please go to github to update.'
+            id={'UrgentUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
+            </TooltipHost>;
+
+    }
+}
+
+function displayDateTime(dateTimeString: string) {
+    const dateTime = new Date(dateTimeString);
+    return <TooltipHost content={dateTime.toTimeString()} id='foo'>
+        <span>{dateTime.toDateString()}</span>
+    </TooltipHost>;
+}

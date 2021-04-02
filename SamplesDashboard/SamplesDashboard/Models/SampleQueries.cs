@@ -51,7 +51,7 @@ namespace SamplesDashboard
         [JsonProperty("stargazers")]
         public Issues Stargazers { get; set; }
 
-        public int? Views { get; set; }        
+        public int? Views { get; set; }
 
         [JsonProperty("url")]
         public Uri Url { get; set; }
@@ -60,15 +60,25 @@ namespace SamplesDashboard
         public Contributors Contributors { get; set; }
 
         [JsonProperty("forks")]
-        public Forks Forks { get; set; }        
+        public Forks Forks { get; set; }
+
+        [JsonProperty("defaultBranchRef")]
+        public Branch DefaultBranch { get; set; }
+
+        [JsonProperty("pushedAt")]
+        public DateTimeOffset LastUpdated { get; set; }
 
         public string Language { get; internal set; }
 
         public string FeatureArea { get; internal set; }
 
-        public bool HasDependendencies { get; set; }
+        public bool HasDependencies { get; set; }
 
         public PackageStatus RepositoryStatus { get; internal set; }
+
+        public PackageStatus IdentityStatus { get; set; }
+
+        public PackageStatus GraphStatus { get; set; }
     }
     public partial class VulnerabilityAlerts
     {
@@ -117,9 +127,9 @@ namespace SamplesDashboard
     public partial class ViewData
     {
         [JsonProperty("count")]
-        public int Count { get; set; }       
-    }  
-    
+        public int Count { get; set; }
+    }
+
     public partial class PageInfo
     {
         [JsonProperty("endCursor")]
@@ -127,12 +137,12 @@ namespace SamplesDashboard
 
         [JsonProperty("hasNextPage")]
         public bool HasNextPage { get; set; }
-    }    
+    }
 
     public partial class Contributors
     {
         [JsonProperty("login")]
-        public string Login { get; set; }       
+        public string Login { get; set; }
 
         [JsonProperty("url")]
         public Uri HtmlUrl { get; set; }
@@ -146,6 +156,9 @@ namespace SamplesDashboard
 
     public class Repository
     {
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
         [JsonProperty("description")]
         public string Description { get; set; }
 
@@ -158,7 +171,14 @@ namespace SamplesDashboard
         [JsonProperty("dependencyGraphManifests")]
         public DependencyGraphManifests DependencyGraphManifests { get; set; }
 
+        [JsonProperty("defaultBranchRef")]
+        public Branch DefaultBranch { get; set; }
+
         public PackageStatus highestStatus { get; set; }
+
+        public PackageStatus IdentityStatus { get; set; }
+
+        public PackageStatus GraphStatus { get; set; }
     }
 
     public class DependencyGraphManifests
@@ -204,7 +224,7 @@ namespace SamplesDashboard
 
         public Releases releases { get; set; }
 
-    }   
+    }
 
     public class Releases
     {
@@ -215,5 +235,15 @@ namespace SamplesDashboard
     {
         public string name { get; set; }
         public string tagName { get; set; }
+    }
+
+    public class Branch
+    {
+        public string Name { get; set; }
+    }
+
+    public enum SupportedDependencyFileType
+    {
+        Unsupported, Gradle, PodFile
     }
 }

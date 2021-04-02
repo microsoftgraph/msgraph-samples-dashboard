@@ -30,7 +30,7 @@ export default class Home extends React.Component<any> {
                         <Repositories isAuthenticated={true} title={'samples'} />
                     </div>
                 </PivotItem>
-                <PivotItem headerText='Code Projects'>
+                <PivotItem headerText='SDKs'>
                     <div>
                         <Repositories isAuthenticated={true} title={'sdks'} />
                     </div>

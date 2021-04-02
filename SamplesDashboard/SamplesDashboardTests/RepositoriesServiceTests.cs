@@ -32,9 +32,10 @@ namespace SamplesDashboardTests
         {
             //Arrange
             var sampleName = "aspnetcore-connect-sample";
+            var branchName = "main";
 
             //Act
-            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName, branchName);
             _helper.WriteLine(headerDetails["languages"]);
 
             //Assert
@@ -48,12 +49,13 @@ namespace SamplesDashboardTests
         {
             //Arrange
             var sampleName = "meetings-capture-sample";
+            var branchName = "master";
 
             //Act
-            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);            
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName, branchName);
 
             //Assert
-            Assert.Empty(headerDetails);        
+            Assert.Empty(headerDetails);
         }
 
         [Fact]
@@ -61,9 +63,10 @@ namespace SamplesDashboardTests
         {
             //Arrange
             var sampleName = "nodejs-webhooks-rest-sample";
+            var branchName = "main";
 
             //Act
-            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName, branchName);
             _helper.WriteLine(headerDetails["languages"]);
 
             //Assert
@@ -77,15 +80,16 @@ namespace SamplesDashboardTests
         {
             //Arrange
             var sampleName = "python-security-rest-sample";
+            var branchName = "master";
 
             //Act
-            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName);
+            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName, branchName);
 
             //Assert
             Assert.NotNull(headerDetails);
             Assert.True(headerDetails["languages"] == "python,html");
             Assert.True(headerDetails["services"] == "Security");
-        }    
+        }
 
         [Fact]
         public async Task ShouldGetSamples()
@@ -145,7 +149,7 @@ namespace SamplesDashboardTests
             }
         }
 
-        [Fact]  
+        [Fact]
         public async Task ShouldGetDependencies()
         {
             //Arrange
@@ -178,21 +182,21 @@ namespace SamplesDashboardTests
             //Assert
             Assert.NotNull(repository);
             Assert.Empty(nodes);
-        }       
+        }
 
         [Theory]
         [InlineData("1.2.3", "1.2.3", PackageStatus.UpToDate)]
         [InlineData("1.2.3.4", "1.2.3.4", PackageStatus.UpToDate)]
-        [InlineData("1.2.1", "1.3.1", PackageStatus.Update)]
-        [InlineData("2.2.1", "3.0.0", PackageStatus.Update)]
+        [InlineData("1.2.1", "1.3.1", PackageStatus.MinorVersionUpdate)]
+        [InlineData("2.2.1", "3.0.0", PackageStatus.MajorVersionUpdate)]
         [InlineData("1.2.0", "1.2.1", PackageStatus.PatchUpdate)]
         [InlineData("1.2.0", "v1.2.1", PackageStatus.PatchUpdate)]
         [InlineData("v1.2.0", "v1.2.1", PackageStatus.PatchUpdate)]
-        [InlineData("1.2.0", "2.1.0-Preview.1", PackageStatus.Update)]
-        [InlineData("1.2.0", "2.1.0-alpha.1", PackageStatus.Update)]
+        [InlineData("1.2.0", "2.1.0-Preview.1", PackageStatus.MajorVersionUpdate)]
+        [InlineData("1.2.0", "2.1.0-alpha.1", PackageStatus.MajorVersionUpdate)]
         [InlineData("2.1.0", "2.1.0-Preview.1", PackageStatus.PatchUpdate)]
         [InlineData("2.1.0", "2.1.0-2", PackageStatus.PatchUpdate)]
-        [InlineData("2.1.0", "3.1.0-2", PackageStatus.Update)]
+        [InlineData("2.1.0", "3.1.0-2", PackageStatus.MajorVersionUpdate)]
         [InlineData("2.1.0", "1.8<2.1", PackageStatus.Unknown)]
         [InlineData("2.1.0", "Unknown", PackageStatus.Unknown)]
         [InlineData("2.1.0", "", PackageStatus.Unknown)]
@@ -213,12 +217,26 @@ namespace SamplesDashboardTests
             //Arrange
             var sample = "msgraph-training-phpapp";
 
-            //Act 
+            //Act
             var dependency = await _repositoriesService.GetRepository(sample);
             var latestVersion = _repositoriesService.UpdateRepositoryStatus(dependency).ToString();
 
             Assert.NotNull(latestVersion);
-        }       
+        }
+
+        [Fact]
+        public async Task ShouldGetDependenciesFromGradleFile()
+        {
+            // Arrange
+            var repoName = "msgraph-training-android";
+            var defaultBranch = "main";
+            var dependencyFile = "/demo/GraphTutorial/app/build.gradle";
+
+            // Act
+            var dependencies = await _repositoriesService.BuildDependencyGraphFromFile(repoName, defaultBranch, dependencyFile);
+
+            Assert.NotNull(dependencies);
+            Assert.NotEmpty(dependencies);
+        }
     }
 }
- 

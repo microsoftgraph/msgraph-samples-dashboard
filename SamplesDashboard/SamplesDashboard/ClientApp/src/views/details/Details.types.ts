@@ -1,3 +1,3 @@
 export enum RepositoryStatus{
-    unknown, uptoDate, majorUpdate, patchUpdate, urgentUpdate
+    unknown, uptoDate, patchUpdate, minorUpdate, majorUpdate, urgentUpdate
 }

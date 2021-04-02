@@ -14,7 +14,9 @@ export interface IRepositoryItem {
     url: string;
     featureArea: string;
     vulnerabilityAlerts: any;
-   
+    lastUpdated: any;
+    identityStatus: any;
+    graphStatus: any;
 }
 
 export interface IDetailsItem {
@@ -36,10 +38,12 @@ export interface IRepositoryState {
     isLoading: boolean;
     totalUptoDate: number;
     totalPatchUpdate: number;
+    totalMinorUpdate: number;
     totalMajorUpdate: number;
     totalUrgentUpdate: number;
     uptoDatePercent: number;
     patchUpdatePercent: number;
+    minorUpdatePercent: number;
     majorUpdatePercent: number;
     urgentUpdatePercent: number;
 }

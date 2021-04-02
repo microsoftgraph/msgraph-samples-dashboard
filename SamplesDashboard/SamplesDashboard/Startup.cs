@@ -75,8 +75,8 @@ namespace SamplesDashboard
                 c.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue(Configuration.GetValue<string>("product"), Configuration.GetValue<string>("product_version")));
             })
                 .AddPolicyHandler(Policies.GithubRetryPolicy)
-                .AddHttpMessageHandler<GithubAuthHandler>();          
-          
+                .AddHttpMessageHandler<GithubAuthHandler>();
+
             services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions()
             {
                 EndPoint = new Uri("https://api.github.com/graphql"),
@@ -85,8 +85,10 @@ namespace SamplesDashboard
             services.AddSingleton<RepositoriesService>();
             services.AddSingleton<NugetService>();
             services.AddSingleton<NpmService>();
+            services.AddSingleton<MavenService>();
             services.AddSingleton<AzureSdkService>();
             services.AddSingleton<GithubAuthService>();
+            services.AddSingleton<MicrosoftOpenSourceService>();
             services.AddHostedService<RepositoryHostedService>();
             services.AddScoped<GithubAuthHandler>();
 
@@ -124,7 +126,7 @@ namespace SamplesDashboard
             app.UseAuthentication();
             app.UseIdentityServer();
             app.UseAuthorization();
-            app.UseCors(); 
+            app.UseCors();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
