@@ -20,7 +20,7 @@ namespace SamplesDashboard.Services
     {
         private readonly IHttpClientFactory _clientFactory;
         private readonly IConfiguration _config;
-        private IMemoryCache _cache;
+        private readonly IMemoryCache _cache;
 
         public MavenService(IHttpClientFactory clientFactory, IConfiguration config, IMemoryCache memoryCache)
         {
@@ -36,19 +36,18 @@ namespace SamplesDashboard.Services
         /// <returns>latest package version</returns>
         public async Task<string> GetLatestVersion(string packageName)
         {
-            MavenQuery mavenData;
-            if (!_cache.TryGetValue($"maven: {packageName}", out mavenData))
+            if (!_cache.TryGetValue($"maven: {packageName}", out MavenQuery mavenData))
             {
                 var httpClient = _clientFactory.CreateClient();
 
                 var packageParts = packageName.Split(':');
                 var apiUrl = $"https://search.maven.org/solrsearch/select?q=g:%22{packageParts[0]}%22%20AND%20a:%22{packageParts[1]}%22&rows=1&wt=json";
-                HttpResponseMessage responseMessage = await httpClient.GetAsync(apiUrl);
+                var responseMessage = await httpClient.GetAsync(apiUrl);
 
                 if (responseMessage.IsSuccessStatusCode)
                 {
 
-                    using (var stream = await responseMessage.Content.ReadAsStreamAsync())
+                    await using var stream = await responseMessage.Content.ReadAsStreamAsync();
                     using (var streamReader = new StreamReader(stream))
                     using (var jsonTextReader = new JsonTextReader(streamReader))
 
@@ -62,12 +61,8 @@ namespace SamplesDashboard.Services
                 }
             }
 
-            if (mavenData?.Response?.NumFound > 0)
-            {
-                return mavenData?.Response?.Docs[0]?.LatestVersion;
-            }
-
-            return "";
+            return mavenData?.Response?.NumFound > 0?
+                mavenData?.Response?.Docs[0]?.LatestVersion : "";
         }
     }
 }

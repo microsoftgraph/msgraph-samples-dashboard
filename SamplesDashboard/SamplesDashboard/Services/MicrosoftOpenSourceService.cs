@@ -22,6 +22,9 @@ namespace SamplesDashboard.Services
         private readonly IConfiguration _config;
         private readonly ILogger<MicrosoftOpenSourceService> _logger;
         private readonly IConfidentialClientApplication _cca;
+
+        // This single scope is the permission scope needed to call the
+        // Microsoft Open Source GitHub portal API. Don't change this.
         private static readonly string[] _scopes =
             { "api://5bc5e692-fe67-4053-8d49-9e2863718bfb/.default" };
 
@@ -52,8 +55,13 @@ namespace SamplesDashboard.Services
             try
             {
                 var tokenResponse = await _cca
-                .AcquireTokenForClient(_scopes)
-                .ExecuteAsync();
+                    .AcquireTokenForClient(_scopes)
+                    .ExecuteAsync();
+
+                if (tokenResponse == null)
+                {
+                    throw new MsalException(MsalError.AuthenticationFailed, "AcquireTokenForClient returned null");
+                }
 
                 var client = _clientFactory.CreateClient();
 
