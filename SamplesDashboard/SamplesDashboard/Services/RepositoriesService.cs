@@ -33,6 +33,7 @@ namespace SamplesDashboard.Services
         private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
         private readonly MavenService _mavenService;
+        private readonly CocoaPodsService _cocoaPodsService;
         private readonly AzureSdkService _azureSdkService;
         private readonly IMemoryCache _cache;
         private readonly IConfiguration _config;
@@ -46,6 +47,7 @@ namespace SamplesDashboard.Services
             NugetService nugetService,
             NpmService npmService,
             MavenService mavenService,
+            CocoaPodsService cocoaPodsService,
             AzureSdkService azureSdkService,
             GithubAuthService githubAuthService,
             MicrosoftOpenSourceService msOpenSourceService,
@@ -58,6 +60,7 @@ namespace SamplesDashboard.Services
             _nugetService = nugetService;
             _npmService = npmService;
             _mavenService = mavenService;
+            _cocoaPodsService = cocoaPodsService;
             _azureSdkService = azureSdkService;
             _cache = memoryCache;
             _config = config;
@@ -452,6 +455,10 @@ namespace SamplesDashboard.Services
                             latestVersion = await _mavenService.GetLatestVersion(dependency.packageName);
                             break;
 
+                        case "COCOAPODS":
+                            latestVersion = await _cocoaPodsService.GetLatestVersion(dependency.packageName);
+                            break;
+
                         default:
                             latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
                             break;
@@ -487,7 +494,7 @@ namespace SamplesDashboard.Services
                         repository.IdentityStatus = dependency.status;
                     }
                     // Check if dependency is Graph SDK
-                    else if (IsGraphSdk(dependency) && dependency.status > repository.IdentityStatus)
+                    else if (IsGraphSdk(dependency) && dependency.status > repository.GraphStatus)
                     {
                         repository.GraphStatus = dependency.status;
                     }
@@ -707,7 +714,8 @@ namespace SamplesDashboard.Services
                         case SupportedDependencyFileType.Gradle:
                             return BuildGradleDependencies(dependencyFile, lines);
                         case SupportedDependencyFileType.PodFile:
-                            // TODO: Implement
+                            return BuildPodfileDependencies(dependencyFile, lines);
+                        default:
                             break;
                     }
                 }
@@ -749,7 +757,6 @@ namespace SamplesDashboard.Services
                 if (line.Trim().StartsWith("implementation '"))
                 {
                     var match = Regex.Match(line, "'(.*):(.*)'");
-                    var foo = match.Captures[0].Value;
 
                     if (match.Success && match.Groups.Count == 3)
                     {
@@ -780,10 +787,37 @@ namespace SamplesDashboard.Services
         /// <param name="dependencyFile">The relative path to the Podfile</param>
         /// <param name="lines">The contents of the Podfile</param>
         /// <returns> The dependency graph manifest </returns>
-        internal DependencyGraphManifestsNode[] BuildPodfileDependencies(string[] lines)
+        internal DependencyGraphManifestsNode[] BuildPodfileDependencies(string dependencyFile, string[] lines)
         {
-            // TODO: Implement
-            throw new NotImplementedException();
+            var dependencies = new List<DependenciesNode>();
+
+            foreach (var line in lines)
+            {
+                if (line.Trim().ToLower().StartsWith("pod"))
+                {
+                    var match = Regex.Match(line.ToLower(), @"pod\s*'(\w*)',\s*'\D*([\d\.]*)'");
+
+                    if (match.Success && match.Groups.Count == 3)
+                    {
+                        dependencies.Add(new DependenciesNode{
+                            packageManager = "COCOAPODS",
+                            packageName = match.Groups[1].Value,
+                            requirements = $"=={match.Groups[2].Value}"
+                        });
+                    }
+                }
+            }
+
+            var manifestList = new List<DependencyGraphManifestsNode> {
+                new DependencyGraphManifestsNode {
+                    Filename = dependencyFile,
+                    Dependencies = new Dependencies {
+                        Nodes = dependencies.ToArray()
+                    }
+                }
+            };
+
+            return manifestList.ToArray();
         }
     }
 }

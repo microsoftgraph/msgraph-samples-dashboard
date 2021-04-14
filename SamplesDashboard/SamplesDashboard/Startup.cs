@@ -86,6 +86,7 @@ namespace SamplesDashboard
             services.AddSingleton<NugetService>();
             services.AddSingleton<NpmService>();
             services.AddSingleton<MavenService>();
+            services.AddSingleton<CocoaPodsService>();
             services.AddSingleton<AzureSdkService>();
             services.AddSingleton<GithubAuthService>();
             services.AddSingleton<MicrosoftOpenSourceService>();
