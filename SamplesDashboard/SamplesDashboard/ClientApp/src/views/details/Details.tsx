@@ -55,13 +55,15 @@ export default class Details extends React.Component<any, any> {
             isLoading: true,
             totalUptoDate: 0,
             totalPatchUpdate: 0,
+            totalMinorUpdate: 0,
             totalMajorUpdate: 0,
-            totalUnknown: 0,
             totalUrgentUpdate: 0,
-            urgentUpdatePercent: 0,
+            totalUnknown: 0,
             uptoDatePercent: 0,
             patchUpdatePercent: 0,
+            minorUpdatePercent: 0,
             majorUpdatePercent: 0,
+            urgentUpdatePercent: 0,
             unknownPercent: 0
         };
     }
@@ -107,9 +109,10 @@ export default class Details extends React.Component<any, any> {
     // compute status statistics
     public statusStatistics(items: IDetailsItem[]) {
         let uptoDateCount = 0;
-        let urgentUpdateCount = 0;
-        let majorUpdateCount = 0;
         let patchUpdateCount = 0;
+        let minorUpdateCount = 0;
+        let majorUpdateCount = 0;
+        let urgentUpdateCount = 0;
         let unknownCount = 0;
 
         if (items.length === 0) {
@@ -122,6 +125,9 @@ export default class Details extends React.Component<any, any> {
                     break;
                 case RepositoryStatus.uptoDate:
                     uptoDateCount++;
+                    break;
+                case RepositoryStatus.minorUpdate:
+                    minorUpdateCount++;
                     break;
                 case RepositoryStatus.majorUpdate:
                     majorUpdateCount++;
@@ -136,6 +142,7 @@ export default class Details extends React.Component<any, any> {
         }
         const total = this.allItems.length;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
+        const minorUpdateStats = parseFloat((minorUpdateCount / total * 100).toFixed(1));
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
         const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
         const urgentUpdateStats = parseFloat((urgentUpdateCount / total * 100).toFixed(1));
@@ -143,19 +150,21 @@ export default class Details extends React.Component<any, any> {
         this.setState({
             totalUptoDate: uptoDateCount,
             totalMajorUpdate: majorUpdateCount,
+            totalMinorUpdate: minorUpdateCount,
             totalPatchUpdate: patchUpdateCount,
             totalUnknown: unknownCount,
             totalUrgentUpdate: urgentUpdateCount,
             uptoDatePercent: uptoDateStats,
             majorUpdatePercent: majorUpdateStats,
+            minorUpdatePercent: minorUpdateStats,
             patchUpdatePercent: patchUpdateStats,
             urgentUpdatePercent: urgentUpdateStats,
             unknownPercent: unknownStats
         });
     }
     public render(): JSX.Element {
-        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate, totalPatchUpdate,
-            totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent,
+        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate, totalMinorUpdate, totalPatchUpdate,
+            totalUnknown, totalUrgentUpdate, uptoDatePercent, minorUpdatePercent, majorUpdatePercent, patchUpdatePercent,
             urgentUpdatePercent, unknownPercent } = this.state;
         return (
             <div>
@@ -183,19 +192,6 @@ export default class Details extends React.Component<any, any> {
                                 <div className='card'>
                                     <div className='card-body'>
                                         <p className='card-text'>
-                                            <FontIcon iconName='StatusCircleInner' className={classNames.red} />
-                                            Security alerts: {totalUrgentUpdate}
-                                        </p>
-                                        <div className='card-footer'>
-                                            <span className={classNames.red}>{urgentUpdatePercent}% </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='col-sm-2'>
-                                <div className='card'>
-                                    <div className='card-body'>
-                                        <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.green} />
                                              Up to date: {totalUptoDate}
                                         </p>
@@ -209,11 +205,11 @@ export default class Details extends React.Component<any, any> {
                                 <div className='card'>
                                     <div className='card-body'>
                                         <p className='card-text'>
-                                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.yellowGreen} />
                                              Patch Updates: {totalPatchUpdate}
                                         </p>
                                         <div className='card-footer'>
-                                            <span className={classNames.yellow}>{patchUpdatePercent}%</span>
+                                            <span className={classNames.yellowGreen}>{patchUpdatePercent}%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -224,12 +220,41 @@ export default class Details extends React.Component<any, any> {
 
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                            Major/Minor Updates: {totalMajorUpdate}
+                                            Minor Updates: {totalMinorUpdate}
                                         </p>
                                         <div className='card-footer'>
                                             <span className={classNames.yellow}>
+                                                {minorUpdatePercent}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-2'>
+                                <div className='card'>
+                                    <div className='card-body'>
+
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.orange} />
+                                            Major Updates: {totalMajorUpdate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.orange}>
                                                 {majorUpdatePercent}%
                                             </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-2'>
+                                <div className='card'>
+                                    <div className='card-body'>
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.red} />
+                                            Security alerts: {totalUrgentUpdate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.red}>{urgentUpdatePercent}% </span>
                                         </div>
                                     </div>
                                 </div>
