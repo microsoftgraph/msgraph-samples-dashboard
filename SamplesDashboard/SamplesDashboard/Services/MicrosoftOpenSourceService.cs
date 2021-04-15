@@ -38,9 +38,9 @@ namespace SamplesDashboard.Services
             _logger = logger;
 
             _cca = ConfidentialClientApplicationBuilder
-                .Create(_config["AuthenticationConfig:Microsoft:ClientId"])
-                .WithClientSecret(_config["AuthenticationConfig:Microsoft:ClientSecret"])
-                .WithTenantId(_config["AuthenticationConfig:Microsoft:TenantId"])
+                .Create(_config["AzureClientId"])
+                .WithClientSecret(_config["AzureClientSecret"])
+                .WithTenantId(_config["TenantId"])
                 .Build();
         }
 
