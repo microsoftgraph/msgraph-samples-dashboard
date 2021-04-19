@@ -120,7 +120,7 @@ namespace SamplesDashboard.Services
                                     defaultBranchRef {
                                         name
                                     },
-                                    pushedAt
+                                    updatedAt
                                 }
                             }
                         pageInfo {
@@ -289,6 +289,7 @@ namespace SamplesDashboard.Services
             if (repository?.DependencyGraphManifests?.Nodes?.Length == 0 || repository?.DependencyGraphManifests?.Nodes == null)
             {
                 repoItem.HasDependencies = false;
+                repoItem.RepositoryStatus = repository.highestStatus;
             }
             else if (repository?.DependencyGraphManifests?.Nodes?.Length > 0)
             {
@@ -298,7 +299,8 @@ namespace SamplesDashboard.Services
                 repoItem.GraphStatus = repository.GraphStatus;
             }
 
-            var headerDetails = await GetHeaderDetails(repoItem.Name, repoItem.DefaultBranch?.Name ?? "master");
+            var headerDetails = await GetHeaderDetails(repoItem.Name,
+                repoItem.DefaultBranch == null ? "master" : repoItem.DefaultBranch.Name);
             repoItem.Language = headerDetails.GetValueOrDefault("languages");
             repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
             repoItem.Views = await FetchViews(githubClient, repoItem.Name, owner);
@@ -403,14 +405,24 @@ namespace SamplesDashboard.Services
         /// <returns>An updated repository object with the status field.</returns>
         internal async Task<Repository> UpdateRepositoryStatus(Repository repository)
         {
-            var headerDetails = await GetHeaderDetails(repository.Name, repository.DefaultBranch?.Name ?? "master");
+            var headerDetails = await GetHeaderDetails(repository.Name,
+                repository.DefaultBranch == null ? "master" : repository.DefaultBranch.Name);
             repository.IdentityStatus = PackageStatus.Unknown;
             repository.GraphStatus = PackageStatus.Unknown;
+            repository.highestStatus = PackageStatus.Unknown;
             var vulnerabilityCount = repository?.VulnerabilityAlerts?.TotalCount;
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
             if (dependencyGraphManifests == null || dependencyGraphManifests.Count() == 0)
             {
                 var dependencyFile = headerDetails.GetValueOrDefault("dependencyFile");
+                if (dependencyFile == "noDependencies")
+                {
+                    // Repository doesn't use dependencies, mark as
+                    // up to date
+                    repository.highestStatus = PackageStatus.UpToDate;
+                    return repository;
+                }
+
                 if (string.IsNullOrEmpty(dependencyFile))
                 {
                     return repository;
@@ -608,7 +620,7 @@ namespace SamplesDashboard.Services
                 Dictionary<string, string> keyValuePairs = new Dictionary<string,string>{
                     { "languages", yml.Languages == null ? "" : string.Join(',', yml.Languages) },
                     { "services", yml.Extensions?.Services == null ? "" : string.Join(',', yml.Extensions.Services) },
-                    { "dependencyFile", yml.DependencyFile }
+                    { "dependencyFile", yml.NoDependencies ? "noDependencies" : yml.DependencyFile }
                 };
 
                 return keyValuePairs;
@@ -754,7 +766,7 @@ namespace SamplesDashboard.Services
 
             foreach(var line in lines)
             {
-                if (line.Trim().StartsWith("implementation '"))
+                if (line.Trim().StartsWith("implementation"))
                 {
                     var match = Regex.Match(line, "'(.*):(.*)'");
 

@@ -65,7 +65,7 @@ namespace SamplesDashboard
         [JsonProperty("defaultBranchRef")]
         public Branch DefaultBranch { get; set; }
 
-        [JsonProperty("pushedAt")]
+        [JsonProperty("updatedAt")]
         public DateTimeOffset LastUpdated { get; set; }
 
         public string Language { get; internal set; }

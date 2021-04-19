@@ -73,7 +73,7 @@ namespace SamplesDashboard.Services
                 }
             }
 
-            return "";
+            return packageVersion ?? "";
         }
     }
 }

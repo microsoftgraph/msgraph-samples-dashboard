@@ -29,5 +29,6 @@ extensions:
     services:
     - Security
 dependencyFile: demo/GraphTutorial/app/build.gradle
+noDependencies: true
 ---
 ```
