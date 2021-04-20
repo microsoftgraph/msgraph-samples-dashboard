@@ -433,6 +433,10 @@ namespace SamplesDashboard.Services
                     repository.DefaultBranch?.Name ?? "master", dependencyFile);
 
                 repository.DependencyGraphManifests.Nodes = dependencyGraphManifests;
+                if (dependencyGraphManifests == null)
+                {
+                    return repository;
+                }
             }
 
             // Go through the various dependency manifests in the repo
