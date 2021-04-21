@@ -16,13 +16,14 @@ pool:
 
 variables:
   buildConfiguration: 'Release'
+  buildPlatform: 'Any CPU'
 
 steps:
 - task: UseDotNet@2
-  displayName: "Use dotnetcore3"
+  displayName: "Use dotnet 5"
   inputs:
     packageType: sdk
-    version: 3.x
+    version: 5.x
 
 - task: UseNode@1
   inputs:
@@ -62,12 +63,15 @@ steps:
     workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
     customCommand: 'run lint'
 
-- task: DotNetCoreCLI@2
-  displayName: "Run Tests"
+- task: VSTest@2
   inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --logger trx'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    testAssemblyVer2: |
+      **/net5.0/**Tests.dll
+      !**/*TestAdapter.dll
+      !**/obj/**
+    diagnosticsEnabled: true
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"

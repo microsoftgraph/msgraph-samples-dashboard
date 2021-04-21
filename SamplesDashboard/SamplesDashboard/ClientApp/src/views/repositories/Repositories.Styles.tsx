@@ -9,7 +9,8 @@ export const iconClass = mergeStyles({
     fontSize: 15,
     height: 15,
     width: 15,
-    margin: '0 5px'
+    margin: '0 5px',
+    verticalAlign: 'sub'
 });
 
 export const classNames = mergeStyleSets({
@@ -24,8 +25,10 @@ export const classNames = mergeStyleSets({
         margin: '5px'
     },
     detailList: { padding: '10px' },
-    yellow: [{ color: '#ffaa44' }, iconClass],
     green: [{ color: '#498205' }, iconClass],
+    yellowGreen: [{ color: '#8cbd18' }, iconClass],
+    yellow: [{ color: '#ffaa44' }, iconClass],
+    orange: [{ color: '#fd7e14' }, iconClass],
     red: [{ color: '#d13438' }, iconClass],
     blue: [{ color: '#0078d4' }, iconClass],
     statsCard: {
@@ -38,8 +41,10 @@ export const classNames = mergeStyleSets({
         transition: '0.3s',
         margin: '5px'
     },
-    yellowText: {color: '#ffaa44' },
+    yellowText: { color: '#ffaa44' },
+    yellowGreenText: { color: '#8cbd18' },
     greenText: { color: '#498205' },
+    orangeText: { color: '#fd7e14' },
     redText: { color: '#d13438' },
     blueText: { color: '#0078d4' }
 });

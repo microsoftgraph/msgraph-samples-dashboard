@@ -24,21 +24,21 @@ export default class Details extends React.Component<any, any> {
         const { match: { params } } = this.props;
         const repositoryName = params.name;
         const columns: IColumn[] = [
-            { key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 300, maxWidth: 400, 
-            isRowHeader: true, isResizable: true, isSorted: false, isSortedDescending: false, 
+            { key: 'packageName', name: 'Library', fieldName: 'packageName', minWidth: 300, maxWidth: 400,
+            isRowHeader: true, isResizable: true, isSorted: false, isSortedDescending: false,
             onColumnClick: this.onColumnClick
             },
-            { key: 'requirements', name: 'Used version', fieldName: 'requirements', minWidth: 200, maxWidth: 300, 
+            { key: 'requirements', name: 'Used version', fieldName: 'requirements', minWidth: 200, maxWidth: 300,
                 isResizable: true
             },
-            { key: 'currentVersion', name: 'Latest version', fieldName: 'tagName', minWidth: 200, 
+            { key: 'currentVersion', name: 'Latest version', fieldName: 'tagName', minWidth: 200,
                 maxWidth: 300, isResizable: true
             },
-            { key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300, 
+            { key: 'status', name: 'Status', fieldName: 'status', minWidth: 200, maxWidth: 300,
                 isResizable: true, onColumnClick: this.onColumnClick
             }
         ];
-        // Adding Azure SDK column to SDK repository details 
+        // Adding Azure SDK column to SDK repository details
         if ((repositoryName.includes('sdk')) || (repositoryName.includes('SDK'))) {
             const azureSdkColumn: IColumn = {
                 key: 'azureSdkVersion', name: 'Azure SDK version', fieldName: 'azureSdkVersion',
@@ -55,19 +55,21 @@ export default class Details extends React.Component<any, any> {
             isLoading: true,
             totalUptoDate: 0,
             totalPatchUpdate: 0,
+            totalMinorUpdate: 0,
             totalMajorUpdate: 0,
-            totalUnknown: 0,
             totalUrgentUpdate: 0,
-            urgentUpdatePercent: 0,
+            totalUnknown: 0,
             uptoDatePercent: 0,
             patchUpdatePercent: 0,
+            minorUpdatePercent: 0,
             majorUpdatePercent: 0,
+            urgentUpdatePercent: 0,
             unknownPercent: 0
         };
     }
 
-    public async componentDidMount() {    
-        this.fetchData(); 
+    public async componentDidMount() {
+        this.fetchData();
     }
 
     // fetch repository libraries
@@ -87,8 +89,8 @@ export default class Details extends React.Component<any, any> {
             for (index in data.dependencyGraphManifests.nodes) {
                 if (data.dependencyGraphManifests.nodes.hasOwnProperty(index)) {
                     data.dependencyGraphManifests.nodes[index].dependencies.nodes.forEach((element: any) =>
-                        this.allItems.push(element)); 
-                }               
+                        this.allItems.push(element));
+                }
             }
         }
         // call the statistics function
@@ -103,15 +105,16 @@ export default class Details extends React.Component<any, any> {
             isLoading: false
         });
     }
-  
+
     // compute status statistics
     public statusStatistics(items: IDetailsItem[]) {
         let uptoDateCount = 0;
-        let urgentUpdateCount = 0;
-        let majorUpdateCount = 0;
         let patchUpdateCount = 0;
+        let minorUpdateCount = 0;
+        let majorUpdateCount = 0;
+        let urgentUpdateCount = 0;
         let unknownCount = 0;
-        
+
         if (items.length === 0) {
             return null;
         }
@@ -120,8 +123,11 @@ export default class Details extends React.Component<any, any> {
                 case RepositoryStatus.unknown:
                     unknownCount++;
                     break;
-                case RepositoryStatus.uptoDate:                    
+                case RepositoryStatus.uptoDate:
                     uptoDateCount++;
+                    break;
+                case RepositoryStatus.minorUpdate:
+                    minorUpdateCount++;
                     break;
                 case RepositoryStatus.majorUpdate:
                     majorUpdateCount++;
@@ -131,34 +137,37 @@ export default class Details extends React.Component<any, any> {
                     break;
                 case RepositoryStatus.urgentUpdate:
                     urgentUpdateCount++;
-                    break;               
+                    break;
             }
         }
         const total = this.allItems.length;
         const uptoDateStats = parseFloat((uptoDateCount / total * 100).toFixed(1));
+        const minorUpdateStats = parseFloat((minorUpdateCount / total * 100).toFixed(1));
         const majorUpdateStats = parseFloat((majorUpdateCount / total * 100).toFixed(1));
         const patchUpdateStats = parseFloat((patchUpdateCount / total * 100).toFixed(1));
         const urgentUpdateStats = parseFloat((urgentUpdateCount / total * 100).toFixed(1));
-        const unknownStats = parseFloat((unknownCount / total * 100).toFixed(1));       
+        const unknownStats = parseFloat((unknownCount / total * 100).toFixed(1));
         this.setState({
             totalUptoDate: uptoDateCount,
             totalMajorUpdate: majorUpdateCount,
+            totalMinorUpdate: minorUpdateCount,
             totalPatchUpdate: patchUpdateCount,
             totalUnknown: unknownCount,
             totalUrgentUpdate: urgentUpdateCount,
             uptoDatePercent: uptoDateStats,
             majorUpdatePercent: majorUpdateStats,
+            minorUpdatePercent: minorUpdateStats,
             patchUpdatePercent: patchUpdateStats,
             urgentUpdatePercent: urgentUpdateStats,
             unknownPercent: unknownStats
         });
     }
     public render(): JSX.Element {
-        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate, totalPatchUpdate,
-            totalUnknown, totalUrgentUpdate, uptoDatePercent, majorUpdatePercent, patchUpdatePercent,
+        const { columns, items, repositoryDetails, isLoading, totalUptoDate, totalMajorUpdate, totalMinorUpdate, totalPatchUpdate,
+            totalUnknown, totalUrgentUpdate, uptoDatePercent, minorUpdatePercent, majorUpdatePercent, patchUpdatePercent,
             urgentUpdatePercent, unknownPercent } = this.state;
         return (
-            <div>     
+            <div>
                     { isLoading ?
                     <div /> :
                     <Fabric>
@@ -180,7 +189,65 @@ export default class Details extends React.Component<any, any> {
                         </PrimaryButton>
                         <div className='row'>
                             <div className='col-sm-2'>
-                                <div className='card-details'>
+                                <div className='card'>
+                                    <div className='card-body'>
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.green} />
+                                             Up to date: {totalUptoDate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.green}>{uptoDatePercent}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-2'>
+                                <div className='card'>
+                                    <div className='card-body'>
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.yellowGreen} />
+                                             Patch Updates: {totalPatchUpdate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.yellowGreen}>{patchUpdatePercent}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-2'>
+                                <div className='card'>
+                                    <div className='card-body'>
+
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
+                                            Minor Updates: {totalMinorUpdate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.yellow}>
+                                                {minorUpdatePercent}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-2'>
+                                <div className='card'>
+                                    <div className='card-body'>
+
+                                        <p className='card-text'>
+                                            <FontIcon iconName='StatusCircleInner' className={classNames.orange} />
+                                            Major Updates: {totalMajorUpdate}
+                                        </p>
+                                        <div className='card-footer'>
+                                            <span className={classNames.orange}>
+                                                {majorUpdatePercent}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='col-sm-2'>
+                                <div className='card'>
                                     <div className='card-body'>
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.red} />
@@ -193,49 +260,7 @@ export default class Details extends React.Component<any, any> {
                                 </div>
                             </div>
                             <div className='col-sm-2'>
-                                <div className='card-details'>
-                                    <div className='card-body'>
-                                        <p className='card-text'>
-                                            <FontIcon iconName='StatusCircleInner' className={classNames.green} />
-                                             Up to date: {totalUptoDate}
-                                        </p>
-                                        <div className='card-footer'>
-                                            <span className={classNames.green}>{uptoDatePercent}%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>   
-                            <div className='col-sm-2'>
-                                <div className='card-details'>
-                                    <div className='card-body'>
-                                        <p className='card-text'>
-                                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                             Patch Updates: {totalPatchUpdate}
-                                        </p>
-                                        <div className='card-footer'>
-                                            <span className={classNames.yellow}>{patchUpdatePercent}%</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> 
-                            <div className='col-sm-2'>
-                                <div className='card-details'>
-                                    <div className='card-body'>
-
-                                        <p className='card-text'>
-                                            <FontIcon iconName='StatusCircleInner' className={classNames.yellow} />
-                                            Major/Minor Updates: {totalMajorUpdate}
-                                        </p>
-                                        <div className='card-footer'>
-                                            <span className={classNames.yellow}>
-                                                {majorUpdatePercent}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className='col-sm-2'>
-                                <div className='card-details'>
+                                <div className='card'>
                                     <div className='card-body'>
                                         <p className='card-text'>
                                             <FontIcon iconName='StatusCircleInner' className={classNames.blue} />
@@ -247,7 +272,7 @@ export default class Details extends React.Component<any, any> {
                                     </div>
                                 </div>
                             </div>
-                        </div>       
+                        </div>
                         <PageTitle title={`List of ${this.allItems.length} libraries in ${repositoryDetails.name}`} />
                         <div className={descriptionClass}> {repositoryDetails.description} </div>
                         <div className={classNames.wrapper}>
@@ -269,7 +294,7 @@ export default class Details extends React.Component<any, any> {
                                             label='Filter by library:'
                                             onChange={this.onFilterName}
                                             styles={{ root: { maxWidth: '300px' } }}
-                                        />                                            
+                                        />
                                     </Sticky>
                                         <div>
                                             <ShimmeredDetailsList
@@ -284,7 +309,7 @@ export default class Details extends React.Component<any, any> {
                                             />
                                         </div>
                                     </ScrollablePane>
-                                }                               
+                                }
                         </div>
                     </Fabric>
                     }
@@ -318,7 +343,7 @@ export default class Details extends React.Component<any, any> {
             columns: newColumns,
             items: newItems
         });
-    } 
+    }
 }
 
 // Enables the column headers to remain sticky
@@ -345,7 +370,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
     const requirements = version.slice(2);
 
     switch (col.name) {
-       
+
         case 'Library':
             return <span>{packageName} </span>;
 
@@ -360,7 +385,7 @@ function renderItemColumn(item: IDetailsItem, index: number | undefined, column:
 
         case 'Status':
             return checkStatus(status);
-    }   
+    }
 }
 // checks the value of the status and displays the appropriate status
 function checkStatus(status: number)
@@ -377,18 +402,22 @@ function checkStatus(status: number)
             </TooltipHost>;
 
         case 2:
-            return <TooltipHost content='This library has a patch or major/minor release update' id={'Update'}>
-                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Update </span>
+            return <TooltipHost content='This library has a patch update' id={'PatchUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellowGreen} /> Patch Update </span>
             </TooltipHost>;
 
         case 3:
-            return <TooltipHost content='Atleast 1 dependency in this repository has a patch update.' 
-            id={'PatchUpdate'}>
-                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Patch Update </span>
+            return <TooltipHost content='This library has a minor release update' id={'MinorUpdate'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellow} /> Minor Update </span>
             </TooltipHost>;
 
         case 4:
-            return <TooltipHost content='This repository has a security alert. Please go to github to update.'
+            return <TooltipHost content='This library has a major release update.' id={'Update'}>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.orange} /> Major Update </span>
+            </TooltipHost>;
+
+        case 5:
+            return <TooltipHost content='This library has a security alert. Please go to GitHub to update.'
              id={'UrgentUpdate'}>
                 <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
             </TooltipHost>;

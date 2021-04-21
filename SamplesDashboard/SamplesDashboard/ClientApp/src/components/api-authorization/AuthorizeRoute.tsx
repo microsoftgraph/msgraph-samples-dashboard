@@ -1,13 +1,20 @@
-import React from 'react'
-import { Component } from 'react'
-import { Route, Redirect } from 'react-router-dom'
-import { ApplicationPaths, QueryParameterNames } from './ApiAuthorizationConstants'
-import authService from './AuthorizeService'
+import React, { Component } from 'react';
+import { Route, Redirect } from 'react-router-dom';
+import { ApplicationPaths, QueryParameterNames } from './ApiAuthorizationConstants';
+import authService from './AuthorizeService';
 
-export default class AuthorizeRoute extends Component {
-    constructor(props) {
+interface IState{
+    authenticated: boolean;
+    ready: boolean;
+}
+
+export default class AuthorizeRoute extends Component<any, IState> {
+    private subscription: number;
+    
+    constructor(props: any) {
         super(props);
 
+        this.subscription = 0;
         this.state = {
             authenticated: false,
             ready: false
@@ -25,7 +32,8 @@ export default class AuthorizeRoute extends Component {
 
     render() {
         const { ready, authenticated } = this.state;
-        const redirectUrl = `${ApplicationPaths.Login}?${QueryParameterNames.ReturnUrl}=${encodeURI(window.location.href)}`
+        const redirectUrl = 
+            `${ApplicationPaths.Login}?${QueryParameterNames.ReturnUrl}=${encodeURI(window.location.href)}`;
         if (!ready) {
             return <div></div>;
         } else {
@@ -34,11 +42,11 @@ export default class AuthorizeRoute extends Component {
             return <Route {...rest}
                 render={(props) => {
                     if (authenticated) {
-                        return <Component {...props} />
+                        return <Component {...props} />;
                     } else {
-                        return <Redirect to={redirectUrl} />
+                        return <Redirect to={redirectUrl} />;
                     }
-                }} />
+                }} />;
         }
     }
 

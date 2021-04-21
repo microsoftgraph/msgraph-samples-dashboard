@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+exports.__esModule = true;
 var Styling_1 = require("office-ui-fabric-react/lib/Styling");
 exports.filterListClass = Styling_1.mergeStyles({
     display: 'block',
@@ -9,7 +9,8 @@ exports.iconClass = Styling_1.mergeStyles({
     fontSize: 15,
     height: 15,
     width: 15,
-    margin: '0 5px'
+    margin: '0 5px',
+    verticalAlign: 'sub'
 });
 exports.classNames = Styling_1.mergeStyleSets({
     wrapper: {
@@ -23,8 +24,10 @@ exports.classNames = Styling_1.mergeStyleSets({
         margin: '5px'
     },
     detailList: { padding: '10px' },
-    yellow: [{ color: '#ffaa44' }, exports.iconClass],
     green: [{ color: '#498205' }, exports.iconClass],
+    yellowGreen: [{ color: '#8cbd18' }, exports.iconClass],
+    yellow: [{ color: '#ffaa44' }, exports.iconClass],
+    orange: [{ color: '#fd7e14' }, exports.iconClass],
     red: [{ color: '#d13438' }, exports.iconClass],
     blue: [{ color: '#0078d4' }, exports.iconClass],
     statsCard: {
@@ -38,8 +41,9 @@ exports.classNames = Styling_1.mergeStyleSets({
         margin: '5px'
     },
     yellowText: { color: '#ffaa44' },
+    yellowGreenText: { color: '#8cbd18' },
     greenText: { color: '#498205' },
+    orangeText: { color: '#fd7e14' },
     redText: { color: '#d13438' },
     blueText: { color: '#0078d4' }
 });
-//# sourceMappingURL=Repositories.Styles.js.map

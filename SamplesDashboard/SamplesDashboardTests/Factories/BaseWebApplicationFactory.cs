@@ -23,19 +23,19 @@ namespace SamplesDashboardTests.Factories
             {
                 stringFileData = File.ReadAllText("testSettings.json");
             }
-            catch (FileNotFoundException ex)
+            catch (FileNotFoundException)
             {
             }
 
             if (!string.IsNullOrWhiteSpace(stringFileData))
             {
                 var settings = JsonConvert.DeserializeObject<JObject>(stringFileData);
-                foreach (var setting in settings)
+                foreach (var (key, value) in settings)
                 {
-                    var currentValue = setting.Value.ToString();
+                    var currentValue = value.ToString();
                     if (!string.IsNullOrWhiteSpace(currentValue))
                     {
-                        Environment.SetEnvironmentVariable(setting.Key, setting.Value.ToString());
+                        Environment.SetEnvironmentVariable(key, value.ToString());
                     }
                 }
             }
