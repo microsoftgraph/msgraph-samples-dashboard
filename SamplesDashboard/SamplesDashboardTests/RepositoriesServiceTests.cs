@@ -238,5 +238,20 @@ namespace SamplesDashboardTests
             Assert.NotNull(dependencies);
             Assert.NotEmpty(dependencies);
         }
+
+        [Fact]
+        public async Task ShouldGetDependenciesFromPodfile()
+        {
+            // Arrange
+            var repoName = "msgraph-training-ios-swift";
+            var defaultBranch = "main";
+            var dependencyFile = "/demo/GraphTutorial/Podfile";
+
+            // Act
+            var dependencies = await _repositoriesService.BuildDependencyGraphFromFile(repoName, defaultBranch, dependencyFile);
+
+            Assert.NotNull(dependencies);
+            Assert.NotEmpty(dependencies);
+        }
     }
 }

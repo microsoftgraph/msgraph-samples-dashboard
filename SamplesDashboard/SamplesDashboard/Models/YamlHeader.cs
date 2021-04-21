@@ -13,5 +13,6 @@ namespace SamplesDashboard.Models
         public string[] Languages { get; set; }
         public YamlHeaderExtensions Extensions { get; set; }
         public string DependencyFile { get; set; }
+        public bool NoDependencies { get; set; }
     }
 }
