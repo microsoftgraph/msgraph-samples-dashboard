@@ -52,6 +52,7 @@ namespace SamplesDashboard.Services
         /// <returns>installation token</returns>
         internal async Task<string> GetGithubAppToken()
         {
+            if (!string.IsNullOrEmpty(_configuration["githubToken"])) return _configuration["githubToken"];
             if (_cache.TryGetValue("githubToken", out string token)) return token;
             var KeyIdentifier = _configuration["KeyIdentifier"];
 
