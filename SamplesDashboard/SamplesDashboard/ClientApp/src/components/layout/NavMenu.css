@@ -12,3 +12,10 @@ html { font-size: 14px; }
 }
 
 .box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+
+.link-icon {
+    font-size: 15px;
+    height: 15px;
+    width: 15px;
+    margin: 0 5px;
+}

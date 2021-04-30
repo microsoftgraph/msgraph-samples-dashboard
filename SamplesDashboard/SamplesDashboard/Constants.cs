@@ -68,5 +68,12 @@ namespace SamplesDashboard
             // Obj-C
             "msgraphclientsdk"
         };
+
+        // Config keys (appsettings.json, user secrets, etc.)
+        public static readonly string GitHubToken = "githubToken";
+        public static readonly string AzureClientId = "AzureClientId";
+        public static readonly string AzureClientSecret = "AzureClientSecret";
+        public static readonly string TenantId = "TenantId";
+        public static readonly string KeyIdentifier = "KeyIdentifier";
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -43,11 +44,14 @@ namespace SamplesDashboardTests.Factories
         protected override IHostBuilder CreateHostBuilder()
         {
             return Host.CreateDefaultBuilder()
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddUserSecrets<TStartup>();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
-            {
-                webBuilder.UseStartup<TStartup>();
-
-            });
+                {
+                    webBuilder.UseStartup<TStartup>();
+                });
         }
     }
 }

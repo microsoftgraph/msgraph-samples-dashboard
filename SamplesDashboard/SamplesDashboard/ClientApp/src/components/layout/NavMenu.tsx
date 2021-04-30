@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler } from 'reactstrap';
+import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
+import { FontIcon } from 'office-ui-fabric-react';
 import { LoginMenu } from '../api-authorization/LoginMenu';
 import './NavMenu.css';
 
@@ -18,11 +19,17 @@ export default class NavMenu extends React.PureComponent<{}, { isOpen: boolean }
                         <NavbarToggler onClick={this.toggle} className='mr-2' />
                         <Collapse className='d-sm-inline-flex flex-sm-row-reverse' isOpen={this.state.isOpen} navbar>
                             <ul className='navbar-nav flex-grow'>
+                                <NavItem>
+                                    <NavLink target='_blank' href='https://github.com/microsoftgraph/msgraph-samples-dashboard/wiki/DevX-Dashboard-overview'>
+                                        <FontIcon iconName='OpenInNewTab' className='link-icon' />
+                                        Wiki
+                                    </NavLink>
+                                </NavItem>
                                 <LoginMenu>
                                 </LoginMenu>
                             </ul>
                         </Collapse>
-                    </Container>                    
+                    </Container>
                 </Navbar>
             </header>
         );
