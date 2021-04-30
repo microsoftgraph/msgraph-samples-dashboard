@@ -37,8 +37,8 @@ namespace SamplesDashboard.Services
         private KeyVaultClient GetAzureKeyVaultClient() => new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(async (string authority, string resource, string scope) =>
         {
 
-            var CLIENT_ID = _configuration["AzureClientId"];
-            var CLIENT_SECRET = _configuration["AzureClientSecret"];
+            var CLIENT_ID = _configuration[Constants.AzureClientId];
+            var CLIENT_SECRET = _configuration[Constants.AzureClientSecret];
 
             var context = new AuthenticationContext(authority, TokenCache.DefaultShared);
             ClientCredential clientCred = new ClientCredential(CLIENT_ID, CLIENT_SECRET);
@@ -52,8 +52,9 @@ namespace SamplesDashboard.Services
         /// <returns>installation token</returns>
         internal async Task<string> GetGithubAppToken()
         {
-            if (_cache.TryGetValue("githubToken", out string token)) return token;
-            var KeyIdentifier = _configuration["KeyIdentifier"];
+            if (!string.IsNullOrEmpty(_configuration[Constants.GitHubToken])) return _configuration[Constants.GitHubToken];
+            if (_cache.TryGetValue(Constants.GitHubToken, out string token)) return token;
+            var KeyIdentifier = _configuration[Constants.KeyIdentifier];
 
             //create azurekeyvault client
             var client = GetAzureKeyVaultClient();
@@ -92,7 +93,7 @@ namespace SamplesDashboard.Services
 
             //set cache to expire at the same time as the token
             var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(response.ExpiresAt);
-            _cache.Set("githubToken", token, cacheEntryOptions);
+            _cache.Set(Constants.GitHubToken, token, cacheEntryOptions);
 
             return token;
         }
