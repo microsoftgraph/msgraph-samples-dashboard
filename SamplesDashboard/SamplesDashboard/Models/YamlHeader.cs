@@ -3,7 +3,6 @@
 // ------------------------------------------------------------------------------
 
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using YamlDotNet.Serialization;
@@ -17,6 +16,7 @@ namespace SamplesDashboard.Models
     }
     public class YamlHeader
     {
+        private static readonly string GitHubRawContent = "https://raw.githubusercontent.com";
         public string[] Languages { get; set; }
         public YamlHeaderExtensions Extensions { get; set; }
         public string DependencyFile { get; set; }
@@ -50,18 +50,19 @@ namespace SamplesDashboard.Models
         }
 
         public static async Task<YamlHeader> GetFromRepo(HttpClient httpClient,
+                                                         string organization,
                                                          string repoName,
                                                          string branch)
         {
-            var currentHeader = await GetFromReadme(httpClient, repoName, branch);
-            var repoNameFileHeader = await GetFromFile(httpClient, repoName, branch, $"{repoName}.yml");
+            var currentHeader = await GetFromReadme(httpClient, organization, repoName, branch);
+            var repoNameFileHeader = await GetFromFile(httpClient, organization, repoName, branch, $"{repoName}.yml");
             if (repoNameFileHeader != null)
             {
                 repoNameFileHeader.MergeWith(currentHeader);
                 currentHeader = repoNameFileHeader;
             }
 
-            var devxFileHeader = await GetFromFile(httpClient, repoName, branch, "devx.yml");
+            var devxFileHeader = await GetFromFile(httpClient, organization, repoName, branch, "devx.yml");
             if (devxFileHeader != null)
             {
                 devxFileHeader.MergeWith(currentHeader);
@@ -76,7 +77,7 @@ namespace SamplesDashboard.Models
         {
             get
             {
-                return Languages == null ? "" : string.Join(",", Languages);
+                return Languages == null ? string.Empty : string.Join(",", Languages);
             }
         }
 
@@ -84,21 +85,22 @@ namespace SamplesDashboard.Models
         {
             get
             {
-                return (Extensions == null || Extensions.Services == null) ? 
-                    "" : string.Join(",", Extensions.Services);
+                return (Extensions?.Services == null) ? 
+                    string.Empty : string.Join(",", Extensions.Services);
             }
         }
 
         private static async Task<YamlHeader> GetFromReadme(HttpClient httpClient,
+                                                            string organization,
                                                             string repoName,
                                                             string branch)
         {
             var responseMessage = await httpClient.GetAsync(
-                $"https://raw.githubusercontent.com/microsoftgraph/{repoName}/{branch}/README.md");
+                $"{GitHubRawContent}/{organization}/{repoName}/{branch}/README.md");
 
-            if (responseMessage.StatusCode.ToString().Equals("NotFound"))
+            if ("NotFound".Equals(responseMessage.StatusCode.ToString(), StringComparison.OrdinalIgnoreCase))
                 responseMessage = await httpClient.GetAsync(
-                    $"https://raw.githubusercontent.com/microsoftgraph/{repoName}/{branch}/Readme.md");
+                    $"{GitHubRawContent}/{organization}/{repoName}/{branch}/Readme.md");
 
             if (responseMessage.IsSuccessStatusCode)
             {
@@ -122,12 +124,13 @@ namespace SamplesDashboard.Models
         }
 
         private static async Task<YamlHeader> GetFromFile(HttpClient httpClient,
+                                                          string organization,
                                                           string repoName,
                                                           string branch,
                                                           string filePath)
         {
             var responseMessage = await httpClient.GetAsync(
-                $"https://raw.githubusercontent.com/microsoftgraph/{repoName}/{branch}/{filePath}");
+                $"{GitHubRawContent}/{organization}/{repoName}/{branch}/{filePath}");
 
             if (responseMessage.IsSuccessStatusCode)
             {

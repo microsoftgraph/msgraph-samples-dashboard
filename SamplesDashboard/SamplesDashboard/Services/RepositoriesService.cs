@@ -301,8 +301,8 @@ namespace SamplesDashboard.Services
 
             var headerDetails = await GetYamlHeader(repoItem.Name,
                 repoItem.DefaultBranch == null ? "master" : repoItem.DefaultBranch.Name);
-            repoItem.Language = headerDetails == null ? "" : headerDetails.LanguagesString;
-            repoItem.FeatureArea = headerDetails == null? "" : headerDetails.ServicesString;
+            repoItem.Language = headerDetails?.LanguagesString ?? string.Empty;
+            repoItem.FeatureArea = headerDetails?.ServicesString ?? string.Empty;
             repoItem.Views = await FetchViews(githubClient, repoItem.Name, owner);
             repoItem.OwnerProfiles = await FetchOwners(githubClient, repoItem.Name, owner);
         }
@@ -414,7 +414,7 @@ namespace SamplesDashboard.Services
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
             if (dependencyGraphManifests == null || dependencyGraphManifests.Count() == 0 && headerDetails != null)
             {
-                var dependencyFile = headerDetails.DependencyFile ?? "";
+                var dependencyFile = headerDetails.DependencyFile ?? string.Empty;
                 if (dependencyFile == "noDependencies")
                 {
                     // Repository doesn't use dependencies, mark as
@@ -613,8 +613,9 @@ namespace SamplesDashboard.Services
         internal async Task<YamlHeader> GetYamlHeader(string repoName, string branch)
         {
             //downloading the yaml file
+            var gitHubOrg = _config.GetValue<string>("GitHubOrganization");
             var httpClient = _clientFactory.CreateClient();
-            return await YamlHeader.GetFromRepo(httpClient, repoName, branch);
+            return await YamlHeader.GetFromRepo(httpClient, gitHubOrg, repoName, branch);
         }
 
         /// <summary>

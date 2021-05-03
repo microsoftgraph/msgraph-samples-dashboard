@@ -2,6 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
 // ------------------------------------------------------------------------------
 
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,17 +16,16 @@ namespace SamplesDashboardTests.MessageHandlers
     public class StringContentHandler : DelegatingHandler
     {
         private int _index = 0;
-        private string[] _content;
+        private readonly string[] _content;
 
         public StringContentHandler(string[] content)
         {
-            _content = content;
+            _content = content ?? Array.Empty<string>();
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
                                                                CancellationToken cancellationToken)
         {
-
             if (_index < _content.Length)
             {
                 return Task.FromResult(new HttpResponseMessage

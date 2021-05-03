@@ -98,11 +98,12 @@ noDependencies: false";
         public async Task ShouldGetHeaderFromRepo()
         {
             // Arrange
+            var organization = "microsoftgraph";
             var repoName = "msgraph-sdk-java";
             var branch = "dev";
 
             // Act
-            var header = await YamlHeader.GetFromRepo(_httpClient, repoName, branch);
+            var header = await YamlHeader.GetFromRepo(_httpClient, organization, repoName, branch);
 
             // Assert
             Assert.NotNull(header);
@@ -143,7 +144,8 @@ dependencyFile: demo/GraphTutorial/app/dependencies.gradle";
             var httpClient = new HttpClient(contentHandler);
 
             // Act
-            var header = await YamlHeader.GetFromRepo(httpClient, "repo", "branch");
+            // Using placholder values here since the HTTP request are mocked
+            var header = await YamlHeader.GetFromRepo(httpClient, "organization", "repo", "branch");
 
             // Assert
             Assert.Single(header.Languages);
