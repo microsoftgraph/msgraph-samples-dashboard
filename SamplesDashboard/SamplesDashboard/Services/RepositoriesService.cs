@@ -710,8 +710,10 @@ namespace SamplesDashboard.Services
 
             foreach(var line in lines)
             {
-                if (line.Trim().StartsWith("implementation"))
+                if (Constants.GradleDependencyTypes.Any(type => line.Trim().StartsWith(type)))
                 {
+                    // Check for string notation
+                    // runtimeOnly 'org.springframework:spring-core:2.5'
                     var match = Regex.Match(line, "'(.*):(.*)'");
 
                     if (match.Success && match.Groups.Count == 3)

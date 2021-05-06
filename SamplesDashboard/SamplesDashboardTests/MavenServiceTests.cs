@@ -34,5 +34,18 @@ namespace SamplesDashboardTests
             //Assert
             Assert.False(string.IsNullOrEmpty(latestVersion));
         }
+
+        [Fact]
+        public async Task ShouldGetAndroidVersions()
+        {
+            // Arrange
+            var packageName = "androidx.appcompat:appcompat";
+
+            // Act
+            var latestVersion = await _mavenService.GetLatestVersion(packageName);
+
+            //Assert
+            Assert.False(string.IsNullOrEmpty(latestVersion));
+        }
     }
 }
