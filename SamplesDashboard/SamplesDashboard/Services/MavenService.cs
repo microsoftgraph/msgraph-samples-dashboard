@@ -13,6 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using SamplesDashboard.Models;
+using Semver;
 
 namespace SamplesDashboard.Services
 {
@@ -37,7 +38,7 @@ namespace SamplesDashboard.Services
         /// </summary>
         /// <param name="packageName"></param>
         /// <returns>latest package version</returns>
-        public async Task<string> GetLatestVersion(string packageName)
+        public async Task<string> GetLatestVersion(string packageName, string currentVersion)
         {
             if (!_cache.TryGetValue($"maven: {packageName}", out MavenQuery mavenData))
             {
@@ -46,24 +47,20 @@ namespace SamplesDashboard.Services
                 var packageParts = packageName.Split(':');
 
                 // Check Google's Maven repo first for any Android packages
-                mavenData = await GetLatestAndroidPackageVersion(httpClient, packageParts[0], packageParts[1]);
-                if (mavenData == null)
+                var latestVersion = await GetLatestAndroidPackageVersion(httpClient, packageParts[0], packageParts[1], currentVersion);
+                if (!string.IsNullOrEmpty(latestVersion)) return latestVersion;
+
+                var apiUrl = $"https://search.maven.org/solrsearch/select?q=g:%22{packageParts[0]}%22%20AND%20a:%22{packageParts[1]}%22&wt=json&core=gav";
+                var responseMessage = await httpClient.GetAsync(apiUrl);
+
+                if (responseMessage.IsSuccessStatusCode)
                 {
-                    // Adding &core=gav will return all versions, but doesn't return latestVersion :|
-                    var apiUrl = $"https://search.maven.org/solrsearch/select?q=g:%22{packageParts[0]}%22%20AND%20a:%22{packageParts[1]}%22&rows=1&wt=json";
-                    var responseMessage = await httpClient.GetAsync(apiUrl);
-
-                    if (responseMessage.IsSuccessStatusCode)
+                    await using var stream = await responseMessage.Content.ReadAsStreamAsync();
+                    using (var streamReader = new StreamReader(stream))
+                    using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
-
-                        await using var stream = await responseMessage.Content.ReadAsStreamAsync();
-                        using (var streamReader = new StreamReader(stream))
-                        using (var jsonTextReader = new JsonTextReader(streamReader))
-
-                        {
-                            var serializer = new JsonSerializer();
-                            mavenData = serializer.Deserialize<MavenQuery>(jsonTextReader);
-                        }
+                        var serializer = new JsonSerializer();
+                        mavenData = serializer.Deserialize<MavenQuery>(jsonTextReader);
                     }
                 }
 
@@ -75,11 +72,20 @@ namespace SamplesDashboard.Services
                 }
             }
 
-            return mavenData?.Response?.NumFound > 0?
-                mavenData?.Response?.Docs[0]?.LatestVersion : "";
+            var availableVersions = mavenData?.Response?.Docs?.Select(p => p.Version).ToArray();
+
+            return GetLatestVersionBasedOnCurrentVersion(availableVersions, currentVersion);
         }
 
-        private async Task<MavenQuery> GetLatestAndroidPackageVersion(HttpClient client, string groupName, string packageName)
+        /// <summary>
+        /// Checks Google's Maven repository for version information
+        /// </summary>
+        /// <param name="client">An HTTP client to send requests</param>
+        /// <param name="groupName">The group name of the dependency</param>
+        /// <param name="packageName">The package name of the dependency</param>
+        /// <param name="currentVersion">The current version used by the repository</param>
+        /// <returns></returns>
+        private async Task<string> GetLatestAndroidPackageVersion(HttpClient client, string groupName, string packageName, string currentVersion)
         {
             var groupParts = groupName.Split('.');
 
@@ -100,31 +106,49 @@ namespace SamplesDashboard.Services
                     var node = packageNodes[i];
                     var versionNode = node.Attributes.GetNamedItem("versions");
 
-                    var versions = versionNode.InnerText.Split(',');
-                    var latestVersion = versions?.LastOrDefault();
+                    // Versions are listed oldest to newest, reverse so
+                    // newest is the first in the array
+                    var versions = versionNode.InnerText.Split(',').Reverse().ToArray();
 
-                    if (!string.IsNullOrEmpty(latestVersion))
-                    {
-                        return new MavenQuery
-                        {
-                            Response = new MavenResponse
-                            {
-                                NumFound = 1,
-                                Docs = new List<MavenPackageInfo>
-                                {
-                                    new MavenPackageInfo 
-                                    {
-                                        Id = $"{groupName}:{packageName}",
-                                        LatestVersion = latestVersion
-                                    }
-                                }
-                            }
-                        };
-                    }
+                    return GetLatestVersionBasedOnCurrentVersion(versions, currentVersion);
                 }
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Parse an array of versions and return the latest acceptable one based on the current version
+        /// </summary>
+        /// <param name="availableVersions">An array of version strings, newest to oldest</param>
+        /// <param name="currentVersion">The current version used</param>
+        /// <returns></returns>
+        private string GetLatestVersionBasedOnCurrentVersion(string[] availableVersions, string currentVersion)
+        {
+            if (availableVersions == null || availableVersions.Length <= 0) return string.Empty;
+            currentVersion = currentVersion.Substring(2);
+
+            SemVersion.TryParse(currentVersion, out SemVersion currentSemVersion);
+
+            // If the repo is currently using a prerelease version of the dependency, it's ok to 
+            // return a prerelease version as the latest. Otherwise assume that only released
+            // versions are acceptable
+            bool prereleaseOk = currentSemVersion != null && !string.IsNullOrEmpty(currentSemVersion.Prerelease);
+
+            foreach (var version in availableVersions)
+            {
+                if (SemVersion.TryParse(version, out SemVersion packageVersion))
+                {
+                    bool isPrerelease = !string.IsNullOrEmpty(packageVersion.Prerelease);
+
+                    if ((isPrerelease && prereleaseOk) || !isPrerelease)
+                    {
+                        return version;
+                    }
+                }
+            }
+
+            return string.Empty;
         }
     }
 }

@@ -170,6 +170,25 @@ namespace SamplesDashboardTests
         }
 
         [Fact]
+        public async Task ShouldGetMavenDependencies()
+        {
+            //Arrange
+            var name = "msgraph-sdk-java-core";
+            var packageManager = "MAVEN";
+
+            //Act
+            var repository = await _repositoriesService.GetRepository(name);
+            var res = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
+            var versions = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.latestVersion)).ToList();
+
+            //Assert
+            Assert.NotNull(repository);
+            Assert.Equal(packageManager, res.FirstOrDefault());
+            Assert.IsType<Repository>(repository);
+            Assert.DoesNotContain(versions, v => string.IsNullOrEmpty(v));
+        }
+
+        [Fact]
         public async Task ShouldGetNullDependencies()
         {
             //Arrange
