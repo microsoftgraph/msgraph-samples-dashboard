@@ -1,18 +1,19 @@
 "use strict";
-exports.__esModule = true;
-var Styling_1 = require("office-ui-fabric-react/lib/Styling");
-exports.filterListClass = Styling_1.mergeStyles({
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.classNames = exports.iconClass = exports.filterListClass = void 0;
+var react_1 = require("@fluentui/react");
+exports.filterListClass = react_1.mergeStyles({
     display: 'block',
     padding: '10px'
 });
-exports.iconClass = Styling_1.mergeStyles({
+exports.iconClass = react_1.mergeStyles({
     fontSize: 15,
     height: 15,
     width: 15,
     margin: '0 5px',
     verticalAlign: 'sub'
 });
-exports.classNames = Styling_1.mergeStyleSets({
+exports.classNames = react_1.mergeStyleSets({
     wrapper: {
         background: '#fff',
         height: '58vh',
@@ -47,3 +48,4 @@ exports.classNames = Styling_1.mergeStyleSets({
     redText: { color: '#d13438' },
     blueText: { color: '#0078d4' }
 });
+//# sourceMappingURL=Repositories.Styles.js.map

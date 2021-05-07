@@ -1,4 +1,4 @@
-﻿import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
+﻿import { mergeStyles, mergeStyleSets } from '@fluentui/react';
 
 export const filterListClass = mergeStyles({
     display: 'block',

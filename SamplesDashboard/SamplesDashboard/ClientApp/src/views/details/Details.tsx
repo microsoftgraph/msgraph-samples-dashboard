@@ -1,9 +1,21 @@
 import {
-    DetailsListLayoutMode, Fabric, FontIcon, FontSizes,
-    IColumn, IDetailsHeaderProps, IRenderFunction, PrimaryButton,
-    ScrollablePane, ScrollbarVisibility, SelectionMode, ShimmeredDetailsList, Sticky,
-    StickyPositionType, TextField, TooltipHost
-} from 'office-ui-fabric-react';
+    DetailsListLayoutMode,
+    Fabric,
+    FontIcon,
+    FontSizes,
+    IColumn,
+    IDetailsHeaderProps,
+    IRenderFunction,
+    PrimaryButton,
+    ScrollablePane,
+    ScrollbarVisibility,
+    SelectionMode,
+    ShimmeredDetailsList,
+    Sticky,
+    StickyPositionType,
+    TextField,
+    TooltipHost
+} from '@fluentui/react';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import authService from '../../components/api-authorization/AuthorizeService';
@@ -182,10 +194,9 @@ export default class Details extends React.Component<any, any> {
                                         <FontIcon iconName='Back' className={iconClass} />Go Back </Link>
                                 </PrimaryButton>
                         }
-                        <PrimaryButton href={repositoryDetails.url} target='_blank' rel='noopener noreferrer'
-                            className={buttonClass}>
-                            <FontIcon iconName='OpenInNewTab' className={iconClass} />
-                                Go to Repository
+                        <PrimaryButton className={buttonClass}>
+                            <a href={repositoryDetails.url} target='_blank' rel='noopener noreferrer' className={linkClass}>
+                                <FontIcon iconName='OpenInNewTab' className={iconClass} />Go to Repository</a>
                         </PrimaryButton>
                         <div className='row'>
                             <div className='col-sm-2'>

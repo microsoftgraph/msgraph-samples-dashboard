@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
-import { FontIcon } from 'office-ui-fabric-react';
+import { FontIcon } from '@fluentui/react';
 import { LoginMenu } from '../api-authorization/LoginMenu';
 import './NavMenu.css';
 
