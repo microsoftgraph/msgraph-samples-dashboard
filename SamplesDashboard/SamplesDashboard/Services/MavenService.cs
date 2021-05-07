@@ -126,7 +126,9 @@ namespace SamplesDashboard.Services
         private string GetLatestVersionBasedOnCurrentVersion(string[] availableVersions, string currentVersion)
         {
             if (availableVersions == null || availableVersions.Length <= 0) return string.Empty;
-            currentVersion = currentVersion.Substring(2);
+
+            // If it's supplied, it's in the form of a requirement like "==3.0.2", trim the first 2 characters
+            currentVersion = string.IsNullOrEmpty(currentVersion) ? currentVersion : currentVersion.Substring(2);
 
             SemVersion.TryParse(currentVersion, out SemVersion currentSemVersion);
 
