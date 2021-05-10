@@ -87,19 +87,30 @@ namespace SamplesDashboard.Services
         /// <returns></returns>
         private async Task<string> GetLatestAndroidPackageVersion(HttpClient client, string groupName, string packageName, string currentVersion)
         {
-            var groupParts = groupName.Split('.');
-
-            var googleUrl = $"https://dl.google.com/android/maven2/{string.Join('/', groupParts)}/group-index.xml";
-
-            var responseMessage = await client.GetAsync(googleUrl);
-
-            if (responseMessage.IsSuccessStatusCode)
+            if (!_cache.TryGetValue($"android: {groupName}:{packageName}", out XmlDocument xmlDocument))
             {
+                var groupParts = groupName.Split('.');
+                var googleUrl = $"https://dl.google.com/android/maven2/{string.Join('/', groupParts)}/group-index.xml";
 
-                await using var stream = await responseMessage.Content.ReadAsStreamAsync();
-                var xmlDocument = new XmlDocument();
-                xmlDocument.Load(stream);
+                var responseMessage = await client.GetAsync(googleUrl);
 
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    await using var stream = await responseMessage.Content.ReadAsStreamAsync();
+                    xmlDocument = new XmlDocument();
+                    xmlDocument.Load(stream);
+                }
+
+                if (xmlDocument != null)
+                {
+                    var cacheEntryOptions = new MemoryCacheEntryOptions()
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
+                    _cache.Set($"android: {groupName}:{packageName}", xmlDocument, cacheEntryOptions);
+                }
+            }
+
+            if (xmlDocument != null)
+            {
                 var packageNodes = xmlDocument.GetElementsByTagName(packageName);
                 for (int i = 0; i < packageNodes.Count; i++)
                 {
@@ -114,7 +125,7 @@ namespace SamplesDashboard.Services
                 }
             }
 
-            return null;
+            return string.Empty;
         }
 
         /// <summary>
