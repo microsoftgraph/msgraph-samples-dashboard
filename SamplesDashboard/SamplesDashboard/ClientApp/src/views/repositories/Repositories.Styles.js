@@ -15,7 +15,6 @@ exports.iconClass = react_1.mergeStyles({
 });
 exports.classNames = react_1.mergeStyleSets({
     wrapper: {
-        background: '#fff',
         height: '58vh',
         position: 'relative',
         display: 'flex',
