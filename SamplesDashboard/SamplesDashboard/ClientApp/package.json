@@ -9,7 +9,7 @@
     "connected-react-router": "6.2.1",
     "history": "4.7.2",
     "jquery": "3.5.0",
-    "merge": "1.2.1",
+    "merge": "2.1.1",
     "office-ui-fabric-react": "7.93.0",
     "oidc-client": "1.10.1",
     "popper.js": "1.16.1",
