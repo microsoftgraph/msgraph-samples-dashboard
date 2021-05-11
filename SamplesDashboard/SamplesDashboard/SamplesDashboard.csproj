@@ -34,7 +34,7 @@
     <PackageReference Include="Microsoft.Identity.Client" Version="4.28.1" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.9" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.2.0" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
     <PackageReference Include="NuGet.Protocol" Version="5.4.0" />
     <PackageReference Include="Octokit" Version="0.47.0" />
     <PackageReference Include="OfficeUIFabric" Version="2.6.3" />
