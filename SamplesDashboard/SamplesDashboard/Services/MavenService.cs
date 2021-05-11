@@ -121,7 +121,8 @@ namespace SamplesDashboard.Services
                     // newest is the first in the array
                     var versions = versionNode.InnerText.Split(',').Reverse().ToArray();
 
-                    return GetLatestVersionBasedOnCurrentVersion(versions, currentVersion);
+                    var latestVersion = GetLatestVersionBasedOnCurrentVersion(versions, currentVersion);
+                    if (!string.IsNullOrEmpty(latestVersion)) return latestVersion;
                 }
             }
 
