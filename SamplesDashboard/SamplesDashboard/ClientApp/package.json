@@ -5,7 +5,7 @@
   "dependencies": {
     "@babel/runtime": "7.12.13",
     "@types/query-string": "6.3.0",
-    "bootstrap": "4.4.1",
+    "bootstrap": "4.6.0",
     "connected-react-router": "6.2.1",
     "history": "4.7.2",
     "jquery": "3.5.0",
