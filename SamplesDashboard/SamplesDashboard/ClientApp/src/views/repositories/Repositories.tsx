@@ -18,11 +18,6 @@ import {
     TextField,
     TooltipHost
 } from '@fluentui/react';
-//import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
-//import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
-//import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
-//import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
-//import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 

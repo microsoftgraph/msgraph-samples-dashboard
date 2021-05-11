@@ -10,15 +10,7 @@ import './custom.css';
 import Details from './views/details/Details';
 import Home from './views/Home';
 
-const darkTheme: PartialTheme = {
-    semanticColors: {
-        bodyBackground: '#171717',
-        bodyText: '#e3e3e3',
-        menuBackground: '#171717'
-    }
-};
-
-const darkTheme2 = createTheme({
+const darkTheme = createTheme({
     palette: {
         themePrimary: '#5898c9',
         themeLighterAlt: '#040608',
@@ -53,7 +45,7 @@ export default class App extends React.Component<any, { currentTheme: PartialThe
         const currentTheme = localStorage.getItem('selectedTheme');
 
         this.state = {
-            currentTheme: currentTheme === 'dark' ? darkTheme2 : undefined,
+            currentTheme: currentTheme === 'dark' ? darkTheme : undefined,
         }
     }
 
@@ -62,7 +54,7 @@ export default class App extends React.Component<any, { currentTheme: PartialThe
 
         switch (theme) {
             case 'dark':
-                this.setState({ currentTheme: darkTheme2 });
+                this.setState({ currentTheme: darkTheme });
                 break;
             case 'light':
             default:

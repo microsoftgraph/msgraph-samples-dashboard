@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Collapse, Container, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
-import { FontIcon, getTheme, Theme, ThemeContext } from '@fluentui/react';
+import { FontIcon, Theme, ThemeContext } from '@fluentui/react';
 import { LoginMenu } from '../api-authorization/LoginMenu';
 import './NavMenu.css';
 
-export default class NavMenu extends React.PureComponent<{ setThemeMethod: any }, { isOpen: boolean, isThemeDropdownOpen: boolean }> {
+export default class NavMenu extends React.PureComponent<{ setThemeMethod: (theme: string) => void }, { isOpen: boolean, isThemeDropdownOpen: boolean }> {
 
     public state = {
         isOpen: false,
