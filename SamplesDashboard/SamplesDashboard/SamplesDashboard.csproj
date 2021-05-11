@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.14.0" />
+    <PackageReference Include="AngleSharp" Version="0.15.0" />
     <PackageReference Include="GitHubJwt" Version="0.0.4" />
     <PackageReference Include="GraphQL.Client" Version="2.0.0" />
     <PackageReference Include="IdentityServer4.EntityFramework.Storage" Version="3.0.0" />
