@@ -36,7 +36,7 @@
     "@types/react-router-dom": "5.1.7",
     "@types/reactstrap": "8.4.1",
     "@typescript-eslint/parser": "4.14.2",
-    "cross-env": "5.2.0",
+    "cross-env": "7.0.3",
     "eslint": "7.19.0",
     "eslint-plugin-flowtype": "5.2.0",
     "eslint-plugin-import": "2.22.1",
