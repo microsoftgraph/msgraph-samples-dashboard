@@ -34,7 +34,7 @@
     "@types/react-redux": "7.1.16",
     "@types/react-router": "5.1.4",
     "@types/react-router-dom": "5.1.7",
-    "@types/reactstrap": "8.4.1",
+    "@types/reactstrap": "8.7.2",
     "@typescript-eslint/parser": "4.14.2",
     "cross-env": "5.2.0",
     "eslint": "7.19.0",
