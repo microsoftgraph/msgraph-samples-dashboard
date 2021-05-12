@@ -27,9 +27,24 @@ namespace SamplesDashboardTests
         {
             // Arrange
             var packageName = "com.microsoft.graph:microsoft-graph";
+            var currentVersion = string.Empty;
 
             // Act
-            var latestVersion = await _mavenService.GetLatestVersion(packageName);
+            var latestVersion = await _mavenService.GetLatestVersion(packageName, currentVersion);
+
+            //Assert
+            Assert.False(string.IsNullOrEmpty(latestVersion));
+        }
+
+        [Fact]
+        public async Task ShouldGetAndroidVersions()
+        {
+            // Arrange
+            var packageName = "androidx.appcompat:appcompat";
+            var currentVersion = string.Empty;
+
+            // Act
+            var latestVersion = await _mavenService.GetLatestVersion(packageName, currentVersion);
 
             //Assert
             Assert.False(string.IsNullOrEmpty(latestVersion));
