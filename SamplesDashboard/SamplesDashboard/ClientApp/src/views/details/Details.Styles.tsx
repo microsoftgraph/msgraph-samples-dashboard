@@ -1,4 +1,4 @@
-﻿import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
+﻿import { mergeStyles, mergeStyleSets } from '@fluentui/react';
 
 export const iconClass = mergeStyles({
     fontSize: 15,
@@ -28,7 +28,6 @@ export const linkClass = mergeStyles({
 
 export const classNames = mergeStyleSets({
     wrapper: {
-        background: '#fff',
         height: '55vh',
         position: 'relative',
         display: 'flex',

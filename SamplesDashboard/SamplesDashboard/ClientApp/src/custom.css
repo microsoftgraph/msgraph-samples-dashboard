@@ -1,12 +1,10 @@
 /* Provide sufficient contrast against white background */
 .container {
     max-width: 100%;
-    background: #f7f7f7;
     position:relative;
-
 }
 .card {
-    background: #fff;
+    background-color: inherit;
     height: 8rem;
     width: 15vw;
     position: relative;
@@ -26,10 +24,20 @@
     vertical-align: text-top;
 }
 .card-footer {
-    background: #fff;
     font-size: 13px;
     padding: 0.55rem 1rem;
-    background-color: rgba(0, 0, 0, 0.03);
     border-top: 1px solid rgba(0, 0, 0, 0.125);
     text-align: center;
+}
+
+.navbar-dark .dropdown-menu {
+    background-color: #171717;
+}
+
+.navbar-dark .dropdown-item {
+    color: #e3e3e3;
+}
+
+.navbar-dark .dropdown-item:hover {
+    background-color: #2a2a2a
 }

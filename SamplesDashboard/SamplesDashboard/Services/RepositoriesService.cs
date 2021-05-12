@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System;
-using System.Text;
 using GraphQL;
 using GraphQL.Client.Http;
 using Semver;
@@ -18,8 +17,6 @@ using Microsoft.Extensions.Logging;
 using SamplesDashboard.Models;
 using Octokit;
 using System.Text.RegularExpressions;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace SamplesDashboard.Services
 {
@@ -299,10 +296,10 @@ namespace SamplesDashboard.Services
                 repoItem.GraphStatus = repository.GraphStatus;
             }
 
-            var headerDetails = await GetHeaderDetails(repoItem.Name,
+            var headerDetails = await GetYamlHeader(repoItem.Name,
                 repoItem.DefaultBranch == null ? "master" : repoItem.DefaultBranch.Name);
-            repoItem.Language = headerDetails.GetValueOrDefault("languages");
-            repoItem.FeatureArea = headerDetails.GetValueOrDefault("services");
+            repoItem.Language = headerDetails?.LanguagesString ?? string.Empty;
+            repoItem.FeatureArea = headerDetails?.ServicesString ?? string.Empty;
             repoItem.Views = await FetchViews(githubClient, repoItem.Name, owner);
             repoItem.OwnerProfiles = await FetchOwners(githubClient, repoItem.Name, owner);
         }
@@ -405,16 +402,16 @@ namespace SamplesDashboard.Services
         /// <returns>An updated repository object with the status field.</returns>
         internal async Task<Repository> UpdateRepositoryStatus(Repository repository)
         {
-            var headerDetails = await GetHeaderDetails(repository.Name,
+            var headerDetails = await GetYamlHeader(repository.Name,
                 repository.DefaultBranch == null ? "master" : repository.DefaultBranch.Name);
             repository.IdentityStatus = PackageStatus.Unknown;
             repository.GraphStatus = PackageStatus.Unknown;
             repository.highestStatus = PackageStatus.Unknown;
             var vulnerabilityCount = repository?.VulnerabilityAlerts?.TotalCount;
             var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
-            if (dependencyGraphManifests == null || dependencyGraphManifests.Count() == 0)
+            if (dependencyGraphManifests == null || dependencyGraphManifests.Count() == 0 && headerDetails != null)
             {
-                var dependencyFile = headerDetails.GetValueOrDefault("dependencyFile");
+                var dependencyFile = headerDetails.DependencyFile ?? string.Empty;
                 if (dependencyFile == "noDependencies")
                 {
                     // Repository doesn't use dependencies, mark as
@@ -468,7 +465,14 @@ namespace SamplesDashboard.Services
                             break;
 
                         case "GRADLE":
-                            latestVersion = await _mavenService.GetLatestVersion(dependency.packageName);
+                        case "MAVEN":
+                            // Check the Maven repositories for version information first
+                            latestVersion = await _mavenService.GetLatestVersion(dependency.packageName, currentVersion);
+                            if (string.IsNullOrEmpty(latestVersion))
+                            {
+                                // Fall back to GitHub's supplied value
+                                latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                            }
                             break;
 
                         case "COCOAPODS":
@@ -606,76 +610,16 @@ namespace SamplesDashboard.Services
         }
 
         /// <summary>
-        /// Get header details list from the parsed yaml header
-        /// </summary>
-        /// <param name="repoName">The name of each repo</param>
-        /// <returns> A new list of services in the yaml header after parsing it.</returns>
-        internal async Task<Dictionary<string,string>> GetHeaderDetails(string repoName, string branch)
-        {
-            string header = await GetYamlHeader(repoName, branch);
-            if (!string.IsNullOrEmpty(header))
-            {
-                var deserializer = new DeserializerBuilder()
-                    .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                    .IgnoreUnmatchedProperties()
-                    .Build();
-                var yml = deserializer.Deserialize<YamlHeader>(header);
-
-                Dictionary<string, string> keyValuePairs = new Dictionary<string,string>{
-                    { "languages", yml.Languages == null ? "" : string.Join(',', yml.Languages) },
-                    { "services", yml.Extensions?.Services == null ? "" : string.Join(',', yml.Extensions.Services) },
-                    { "dependencyFile", yml.NoDependencies ? "noDependencies" : yml.DependencyFile }
-                };
-
-                return keyValuePairs;
-            }
-            return new Dictionary<string, string>();
-        }
-
-        /// <summary>
         /// fetch yaml header from repo repo and parse it
         /// </summary>
         /// <param name="repoName">The name of each repo</param>
         /// <returns> The yaml header. </returns>
-        private async Task<string> GetYamlHeader(string repoName, string branch)
+        internal async Task<YamlHeader> GetYamlHeader(string repoName, string branch)
         {
             //downloading the yaml file
+            var gitHubOrg = _config.GetValue<string>("GitHubOrganization");
             var httpClient = _clientFactory.CreateClient();
-            var responseMessage = await httpClient.GetAsync(
-                $"https://raw.githubusercontent.com/microsoftgraph/{repoName}/{branch}/README.md");
-
-            if (responseMessage.StatusCode.ToString().Equals("NotFound"))
-                responseMessage = await httpClient.GetAsync(
-                    $"https://raw.githubusercontent.com/microsoftgraph/{repoName}/{branch}/Readme.md");
-
-            if (responseMessage.IsSuccessStatusCode)
-            {
-                var fileContents = await responseMessage.Content.ReadAsStringAsync();
-                var stringSeparator = new string[] { "\r\n---\r\n", "\n---\n" };
-                var parts = fileContents.Split(stringSeparator, StringSplitOptions.RemoveEmptyEntries);
-
-                //we have a valid header between ---
-                if (parts.Length > 1)
-                {
-                    var header = parts[0];
-                    if (header.StartsWith("---"))
-                    {
-                        header = header.Substring(3);
-                    }
-                    return header;
-                }
-            }
-
-            // Fall back to devx.yml
-            var devxResponseMessage = await httpClient.GetAsync(
-                $"https://raw.githubusercontent.com/microsoftgraph/{repoName}/{branch}/devx.yml");
-
-            if(devxResponseMessage.IsSuccessStatusCode)
-            {
-                return await devxResponseMessage.Content.ReadAsStringAsync();
-            }
-
-            return "";
+            return await YamlHeader.GetFromRepo(httpClient, gitHubOrg, repoName, branch);
         }
 
         /// <summary>
@@ -770,8 +714,10 @@ namespace SamplesDashboard.Services
 
             foreach(var line in lines)
             {
-                if (line.Trim().StartsWith("implementation"))
+                if (Constants.GradleDependencyTypes.Any(type => line.Trim().StartsWith(type)))
                 {
+                    // Check for string notation
+                    // runtimeOnly 'org.springframework:spring-core:2.5'
                     var match = Regex.Match(line, "'(.*):(.*)'");
 
                     if (match.Success && match.Groups.Count == 3)

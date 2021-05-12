@@ -1,4 +1,4 @@
-﻿import { mergeStyles, mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
+﻿import { mergeStyles, mergeStyleSets } from '@fluentui/react';
 
 export const filterListClass = mergeStyles({
     display: 'block',
@@ -15,7 +15,6 @@ export const iconClass = mergeStyles({
 
 export const classNames = mergeStyleSets({
     wrapper: {
-        background: '#fff',
         height: '58vh',
         position: 'relative',
         display: 'flex',

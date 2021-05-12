@@ -75,5 +75,22 @@ namespace SamplesDashboard
         public static readonly string AzureClientSecret = "AzureClientSecret";
         public static readonly string TenantId = "TenantId";
         public static readonly string KeyIdentifier = "KeyIdentifier";
+
+        public static readonly string[] GradleDependencyTypes =
+        {
+            "implementation",
+            "compileOnly",
+            "compileClasspath",
+            "annotationProcessor",
+            "runtimeOnly",
+            "runtimeClasspath",
+            "testImplementation",
+            "testCompileOnly",
+            "testCompileClasspath",
+            "testRuntimeOnly",
+            "testRuntimeClasspath",
+            "archives",
+            "default"
+        };
     }
 }

@@ -1,20 +1,21 @@
 "use strict";
-exports.__esModule = true;
-var Styling_1 = require("office-ui-fabric-react/lib/Styling");
-exports.iconClass = Styling_1.mergeStyles({
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.classNames = exports.linkClass = exports.descriptionClass = exports.buttonClass = exports.iconClass = void 0;
+var react_1 = require("@fluentui/react");
+exports.iconClass = react_1.mergeStyles({
     fontSize: 15,
     height: 15,
     width: 15,
     margin: '0 5px'
 });
-exports.buttonClass = Styling_1.mergeStyles({
+exports.buttonClass = react_1.mergeStyles({
     margin: '10px'
 });
-exports.descriptionClass = Styling_1.mergeStyles({
+exports.descriptionClass = react_1.mergeStyles({
     paddingLeft: '10px',
     paddingBottom: '10px'
 });
-exports.linkClass = Styling_1.mergeStyles({
+exports.linkClass = react_1.mergeStyles({
     color: '#fff',
     selectors: {
         '&:hover': {
@@ -22,9 +23,8 @@ exports.linkClass = Styling_1.mergeStyles({
         }
     }
 });
-exports.classNames = Styling_1.mergeStyleSets({
+exports.classNames = react_1.mergeStyleSets({
     wrapper: {
-        background: '#fff',
         height: '55vh',
         position: 'relative',
         display: 'flex',
@@ -41,3 +41,4 @@ exports.classNames = Styling_1.mergeStyleSets({
     red: [{ color: '#d13438' }, exports.iconClass],
     blue: [{ color: '#0078d4' }, exports.iconClass]
 });
+//# sourceMappingURL=Details.Styles.js.map
