@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net.Http;
 using System;
-using System.Text;
 using GraphQL;
 using GraphQL.Client.Http;
 using Semver;
@@ -18,8 +17,6 @@ using Microsoft.Extensions.Logging;
 using SamplesDashboard.Models;
 using Octokit;
 using System.Text.RegularExpressions;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace SamplesDashboard.Services
 {
@@ -468,7 +465,14 @@ namespace SamplesDashboard.Services
                             break;
 
                         case "GRADLE":
-                            latestVersion = await _mavenService.GetLatestVersion(dependency.packageName);
+                        case "MAVEN":
+                            // Check the Maven repositories for version information first
+                            latestVersion = await _mavenService.GetLatestVersion(dependency.packageName, currentVersion);
+                            if (string.IsNullOrEmpty(latestVersion))
+                            {
+                                // Fall back to GitHub's supplied value
+                                latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                            }
                             break;
 
                         case "COCOAPODS":
@@ -710,8 +714,10 @@ namespace SamplesDashboard.Services
 
             foreach(var line in lines)
             {
-                if (line.Trim().StartsWith("implementation"))
+                if (Constants.GradleDependencyTypes.Any(type => line.Trim().StartsWith(type)))
                 {
+                    // Check for string notation
+                    // runtimeOnly 'org.springframework:spring-core:2.5'
                     var match = Regex.Match(line, "'(.*):(.*)'");
 
                     if (match.Success && match.Groups.Count == 3)
