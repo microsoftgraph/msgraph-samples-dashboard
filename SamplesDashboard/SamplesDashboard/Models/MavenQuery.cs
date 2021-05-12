@@ -3,6 +3,27 @@
 // ------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using Newtonsoft.Json;
+
+/*
+{
+  ...
+  "response": {
+    "numFound": 77,
+    "docs": [
+      {
+        "id": "com.squareup.okhttp3:okhttp:5.0.0-alpha.2",
+        "g": "com.squareup.okhttp3",
+        "a": "okhttp",
+        "v": "5.0.0-alpha.2",
+        "p": "jar",
+        ...
+      },
+      ...
+    ]
+  }
+}
+ */
 
 namespace SamplesDashboard.Models
 {
@@ -11,15 +32,17 @@ namespace SamplesDashboard.Models
         public MavenResponse Response { get; set; }
 
     }
-    public partial class MavenResponse
+    public class MavenResponse
     {
         public int NumFound { get; set; }
         public List<MavenPackageInfo> Docs { get; set; }
     }
 
-    public partial class MavenPackageInfo
+    public class MavenPackageInfo
     {
         public string Id { get; set; }
-        public string LatestVersion { get; set; }
+
+        [JsonProperty("v")]
+        public string Version { get; set; }
     }
 }
