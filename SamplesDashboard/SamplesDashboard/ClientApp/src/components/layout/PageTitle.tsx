@@ -1,4 +1,4 @@
-import { FontSizes, Label, mergeStyleSets } from 'office-ui-fabric-react';
+import { FontSizes, Label, mergeStyleSets } from '@fluentui/react';
 import React from 'react';
 
 export default function PageTitle(props: any) {
