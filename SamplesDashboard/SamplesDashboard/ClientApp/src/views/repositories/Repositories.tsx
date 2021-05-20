@@ -1,22 +1,23 @@
 import {
     DetailsListLayoutMode,
+    Fabric,
     FontIcon,
     IColumn,
     IDetailsHeaderProps,
+    initializeIcons,
     IRenderFunction,
     IStackProps,
     IStackStyles,
-    ITooltipHostProps,
+    ScrollablePane,
+    ScrollbarVisibility,
     SelectionMode,
     ShimmeredDetailsList,
     Stack,
+    Sticky,
+    StickyPositionType,
+    TextField,
     TooltipHost
-} from 'office-ui-fabric-react';
-import { Fabric } from 'office-ui-fabric-react/lib/Fabric';
-import { initializeIcons } from 'office-ui-fabric-react/lib/Icons';
-import { ScrollablePane, ScrollbarVisibility } from 'office-ui-fabric-react/lib/ScrollablePane';
-import { Sticky, StickyPositionType } from 'office-ui-fabric-react/lib/Sticky';
-import { TextField } from 'office-ui-fabric-react/lib/TextField';
+} from '@fluentui/react';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -509,21 +510,22 @@ function checkStatus(status: number) {
     switch (status) {
         // Unknown
         case 0:
-            return <TooltipHost content='Unknown' id={'Unknown'}>
+            return <TooltipHost content='Could not parse dependencies. See Wiki for details.' id={'Unknown'}>
                 <span><FontIcon iconName='StatusCircleQuestionMark' className={classNames.blue} /> Unknown </span>
+                <a target='_blank' href='https://github.com/microsoftgraph/msgraph-samples-dashboard/wiki/DevX-Dashboard-overview'>Wiki</a>
             </TooltipHost>;
 
         // Up-to-date
         case 1:
             return <TooltipHost content='All dependencies in this repository are up to date' id={'UptoDate'}>
-                <span><FontIcon iconName='StatusCircleInner' className={classNames.green} /> Up To Date </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.green} /> Up to date </span>
             </TooltipHost>;
 
         // Patch update
         case 2:
             return <TooltipHost content='At least 1 dependency in this repository has a patch update.'
              id={'PatchUpdate'}>
-                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellowGreen} /> Patch Update </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.yellowGreen} /> Patch update </span>
             </TooltipHost>;
 
         // Minor update
@@ -544,7 +546,7 @@ function checkStatus(status: number) {
         case 5:
             return <TooltipHost content='This repository has a security alert. Please go to github to update.'
             id={'UrgentUpdate'}>
-                <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent Update </span>
+                <span><FontIcon iconName='StatusCircleInner' className={classNames.red} /> Urgent update </span>
             </TooltipHost>;
 
     }

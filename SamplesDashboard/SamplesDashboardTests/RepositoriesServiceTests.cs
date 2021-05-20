@@ -35,13 +35,13 @@ namespace SamplesDashboardTests
             var branchName = "main";
 
             //Act
-            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName, branchName);
-            _helper.WriteLine(headerDetails["languages"]);
+            var headerDetails = await _repositoriesService.GetYamlHeader(sampleName, branchName);
 
             //Assert
             Assert.NotNull(headerDetails);
-            Assert.True(headerDetails["languages"] == "aspx,csharp");
-            Assert.True(headerDetails["services"] == "Microsoft identity platform");
+            _helper.WriteLine(headerDetails.LanguagesString);
+            Assert.Equal("aspx,csharp", headerDetails.LanguagesString);
+            Assert.Equal("Microsoft identity platform", headerDetails.ServicesString);
         }
 
         [Fact]
@@ -52,10 +52,10 @@ namespace SamplesDashboardTests
             var branchName = "master";
 
             //Act
-            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName, branchName);
+            var headerDetails = await _repositoriesService.GetYamlHeader(sampleName, branchName);
 
             //Assert
-            Assert.Empty(headerDetails);
+            Assert.Null(headerDetails);
         }
 
         [Fact]
@@ -66,13 +66,13 @@ namespace SamplesDashboardTests
             var branchName = "main";
 
             //Act
-            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName, branchName);
-            _helper.WriteLine(headerDetails["languages"]);
+            var headerDetails = await _repositoriesService.GetYamlHeader(sampleName, branchName);
 
             //Assert
             Assert.NotNull(headerDetails);
-            Assert.True(headerDetails["languages"] == "nodejs,javascript");
-            Assert.True(headerDetails["services"] == "Outlook,Office 365,Microsoft identity platform");
+            _helper.WriteLine(headerDetails.LanguagesString);
+            Assert.Equal("nodejs,javascript", headerDetails.LanguagesString);
+            Assert.Equal("Outlook,Office 365,Microsoft identity platform", headerDetails.ServicesString);
         }
 
         [Fact]
@@ -83,12 +83,12 @@ namespace SamplesDashboardTests
             var branchName = "master";
 
             //Act
-            var headerDetails = await _repositoriesService.GetHeaderDetails(sampleName, branchName);
+            var headerDetails = await _repositoriesService.GetYamlHeader(sampleName, branchName);
 
             //Assert
             Assert.NotNull(headerDetails);
-            Assert.True(headerDetails["languages"] == "python,html");
-            Assert.True(headerDetails["services"] == "Security");
+            Assert.Equal("python,html", headerDetails.LanguagesString);
+            Assert.Equal("Security", headerDetails.ServicesString);
         }
 
         [Fact]
@@ -167,6 +167,25 @@ namespace SamplesDashboardTests
             Assert.Equal(packageManager, res.FirstOrDefault());
             Assert.IsType<Repository>(repository);
 
+        }
+
+        [Fact]
+        public async Task ShouldGetMavenDependencies()
+        {
+            //Arrange
+            var name = "msgraph-sdk-java-core";
+            var packageManager = "MAVEN";
+
+            //Act
+            var repository = await _repositoriesService.GetRepository(name);
+            var res = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
+            var versions = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.latestVersion)).ToList();
+
+            //Assert
+            Assert.NotNull(repository);
+            Assert.Equal(packageManager, res.FirstOrDefault());
+            Assert.IsType<Repository>(repository);
+            Assert.DoesNotContain(versions, v => string.IsNullOrEmpty(v));
         }
 
         [Fact]
