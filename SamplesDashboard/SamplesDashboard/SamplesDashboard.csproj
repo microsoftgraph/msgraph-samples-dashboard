@@ -15,7 +15,7 @@
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="0.15.0" />
     <PackageReference Include="GitHubJwt" Version="0.0.4" />
-    <PackageReference Include="GraphQL.Client" Version="2.0.0" />
+    <PackageReference Include="GraphQL.Client" Version="3.2.4" />
     <PackageReference Include="IdentityServer4.EntityFramework.Storage" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.0.0" />
