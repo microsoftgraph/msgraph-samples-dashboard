@@ -66,6 +66,11 @@ steps:
     command: test
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration) --logger trx'
+  env:
+    AZURECLIENTID: $(AzureClientId)
+    AZURECLIENTSECRET: $(AzureClientSecret)
+    KEYIDENTIFIER: $(KeyIdentifier)
+    TENANTID: $(TenantId)
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
