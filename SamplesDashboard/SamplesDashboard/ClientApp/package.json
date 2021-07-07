@@ -26,7 +26,7 @@
     "typescript": "4.3.5"
   },
   "devDependencies": {
-    "@types/history": "4.7.8",
+    "@types/history": "4.7.9",
     "@types/jest": "24.9.1",
     "@types/node": "10.12.18",
     "@types/react": "16.14.6",
