@@ -31,7 +31,7 @@
     "@types/node": "10.12.18",
     "@types/react": "16.14.6",
     "@types/react-dom": "16.9.12",
-    "@types/react-redux": "7.1.17",
+    "@types/react-redux": "7.1.18",
     "@types/react-router": "5.1.15",
     "@types/react-router-dom": "5.1.7",
     "@types/reactstrap": "8.4.1",
