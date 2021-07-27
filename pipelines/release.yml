@@ -72,6 +72,11 @@ steps:
       !**/*TestAdapter.dll
       !**/obj/**
     diagnosticsEnabled: true
+  env:
+    AZURECLIENTID: $(AzureClientId)
+    AZURECLIENTSECRET: $(AzureClientSecret)
+    KEYIDENTIFIER: $(KeyIdentifier)
+    TENANTID: $(TenantId)
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"

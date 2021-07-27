@@ -3,8 +3,8 @@
   "version": "0.2.0",
   "private": true,
   "dependencies": {
-    "@babel/runtime": "7.14.0",
-    "@fluentui/react": "8.14.11",
+    "@babel/runtime": "7.14.6",
+    "@fluentui/react": "8.23.10",
     "@types/query-string": "6.3.0",
     "bootstrap": "4.6.0",
     "connected-react-router": "6.9.1",
@@ -23,25 +23,25 @@
     "reactstrap": "7.0.2",
     "redux": "4.1.0",
     "redux-thunk": "2.3.0",
-    "typescript": "4.2.4"
+    "typescript": "4.3.5"
   },
   "devDependencies": {
-    "@types/history": "4.7.8",
+    "@types/history": "4.7.9",
     "@types/jest": "24.9.1",
     "@types/node": "10.12.18",
     "@types/react": "16.14.6",
     "@types/react-dom": "16.9.12",
-    "@types/react-redux": "7.1.16",
-    "@types/react-router": "5.1.4",
+    "@types/react-redux": "7.1.18",
+    "@types/react-router": "5.1.16",
     "@types/react-router-dom": "5.1.7",
     "@types/reactstrap": "8.4.1",
-    "@typescript-eslint/parser": "4.24.0",
+    "@typescript-eslint/parser": "4.28.2",
     "cross-env": "5.2.0",
-    "eslint": "7.26.0",
-    "eslint-plugin-flowtype": "5.7.2",
-    "eslint-plugin-import": "2.23.2",
+    "eslint": "7.30.0",
+    "eslint-plugin-flowtype": "5.8.0",
+    "eslint-plugin-import": "2.23.4",
     "eslint-plugin-jsx-a11y": "6.4.1",
-    "eslint-plugin-react": "7.23.2"
+    "eslint-plugin-react": "7.24.0"
   },
   "scripts": {
     "start": "react-scripts start",
