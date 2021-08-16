@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "dependencies": {
-    "@babel/runtime": "7.14.8",
+    "@babel/runtime": "7.15.3",
     "@fluentui/react": "8.28.1",
     "@types/query-string": "6.3.0",
     "bootstrap": "4.6.0",
