@@ -469,7 +469,7 @@ function renderItemColumn(item: IRepositoryItem, index: number | undefined, colu
 
         case 'Security Alerts':
             if (vulnerabilityAlertsCount > 0) {
-                return <a href={`${url}/network/alerts`} target='_blank' rel='noopener noreferrer'>
+                return <a href={`${url}/security/dependabot`} target='_blank' rel='noopener noreferrer'>
                     <FontIcon iconName='WarningSolid' className={classNames.yellow} />
                     <span>{vulnerabilityAlertsCount} </span></a>;
             }
