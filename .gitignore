@@ -231,7 +231,6 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 
-AuthConfig.ts
 appsettings.Development.json
 
 *.pem
