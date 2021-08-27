@@ -39,7 +39,6 @@ namespace SamplesDashboard.Services
 
             _logger.LogInformation($"Client ID: {_config.GetValue<string>(Constants.MSOSClientId)}");
             _logger.LogInformation($"Tenant ID: {_config.GetValue<string>(Constants.AzureTenantId)}");
-            _logger.LogInformation($"OLD ID: {_config.GetValue<string>("AzureClientId")}");
 
             _cca = ConfidentialClientApplicationBuilder
                 .Create(_config.GetValue<string>(Constants.MSOSClientId))
