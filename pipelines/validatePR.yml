@@ -73,6 +73,7 @@ steps:
       TENANTID: $(TenantId)
       MSOSCLIENTID: $(MSOSClientId)
       MSOSCLIENTSECRET: $(MSOSClientSecret)
+      AZURE__TENANTID: $(AzureAd.TenantId)
 
   - task: PublishTestResults@2
     displayName: 'Publish Test Results'
