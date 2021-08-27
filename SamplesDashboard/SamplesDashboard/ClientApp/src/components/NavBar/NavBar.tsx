@@ -66,7 +66,7 @@ async function getUser(
         });
 
         done(null, silentResult.accessToken);
-      } catch (err) {
+      } catch (err: any) {
         // If a silent request fails, it may be because the user needs
         // to login or grant consent to one or more of the requested scopes
         if (isInteractionRequired(err)) {
@@ -154,7 +154,7 @@ export default function NavBar() {
 
             setUser(user);
           }
-        } catch (err) {
+        } catch (err: any) {
           app.displayError!(err.message);
         }
       }
