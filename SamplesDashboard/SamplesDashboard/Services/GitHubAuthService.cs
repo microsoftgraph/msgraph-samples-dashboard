@@ -123,14 +123,11 @@ namespace SamplesDashboard.Services
             else
             {
                 // Load key from Azure Key Vault
-                //var credential = new DefaultAzureCredential();
-
-                // Temporary for testing
-                var credential = new UsernamePasswordCredential(
-                    _configuration.GetValue<string>(Constants.KeyVaultUserName),
-                    _configuration.GetValue<string>(Constants.KeyVaultPassword),
-                    _configuration.GetValue<string>(Constants.KeyVaultTenant),
-                    _configuration.GetValue<string>(Constants.KeyVaultAppId));
+                var credential = new ClientSecretCredential(
+                    _configuration.GetValue<string>(Constants.AzureTenantId),
+                    _configuration.GetValue<string>(Constants.KeyVaultAppId),
+                    _configuration.GetValue<string>(Constants.KeyVaultSecret)
+                );
 
                 var keyVaultClient = new KeyClient(
                     new Uri(_configuration.GetValue<string>(Constants.KeyVaultUri)),

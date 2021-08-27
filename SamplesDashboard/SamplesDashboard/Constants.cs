@@ -16,10 +16,8 @@ namespace SamplesDashboard
         public const string GitHubAppKeyIdentifier = "GitHubAppKeyIdentifier";
         public const string GitHubConcurrency = "GitHubConcurrency";
         public const string KeyVaultUri = "KeyVaultUri";
-        public const string KeyVaultUserName = "KeyVaultUserName";
-        public const string KeyVaultPassword = "KeyVaultPassword";
-        public const string KeyVaultTenant = "KeyVaultTenant";
         public const string KeyVaultAppId = "KeyVaultAppId";
+        public const string KeyVaultSecret = "KeyVaultSecret";
         public const string AzureClientId = "AzureAd:ClientId";
         public const string AzureTenantId = "AzureAd:TenantId";
         public const string MSOSClientId = "MSOSClientId";
@@ -30,7 +28,7 @@ namespace SamplesDashboard
         public const string CacheLifetime = "CacheLifetime";
 
         // Key Vault
-        public static readonly string[] KeyVaultScopes = { "https://vault.azure.net/user_impersonation" };
+        public static readonly string[] KeyVaultScopes = { "https://vault.azure.net/.default" };
 
         // Repo queries
         private static readonly string[] SamplesList = { "sample", "training"};
