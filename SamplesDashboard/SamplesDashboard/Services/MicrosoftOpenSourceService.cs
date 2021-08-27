@@ -37,6 +37,8 @@ namespace SamplesDashboard.Services
             _config = configuration;
             _logger = logger;
 
+            _logger.LogInformation($"Client ID: {_config.GetValue<string>(Constants.MSOSClientId)}");
+
             _cca = ConfidentialClientApplicationBuilder
                 .Create(_config.GetValue<string>(Constants.MSOSClientId))
                 .WithClientSecret(_config.GetValue<string>(Constants.MSOSClientSecret))
