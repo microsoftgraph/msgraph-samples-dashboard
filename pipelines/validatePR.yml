@@ -74,6 +74,9 @@ steps:
     MSOSCLIENTID: $(MSOSClientId)
     MSOSCLIENTSECRET: $(MSOClientSecret_Value)
     AZUREAD__TENANTID: $(AzureAd.TenantId)
+    AZUREAD_TENANTID: Underscore
+    AZUREAD.TENANT: Dot
+    AZUREAD:TENANTID: Colon
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
