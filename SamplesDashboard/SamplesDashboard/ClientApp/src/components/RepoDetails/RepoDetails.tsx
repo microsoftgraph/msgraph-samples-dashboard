@@ -111,7 +111,7 @@ export default function RepoDetails(props: RouteComponentProps) {
             `API returned ${response.status}`
           );
         }
-      } catch (error) {
+      } catch (error: any) {
         app.displayError!(
           'An error occurred while fetching repository details',
           error.toString()
