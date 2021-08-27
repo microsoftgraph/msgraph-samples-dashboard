@@ -72,8 +72,8 @@ steps:
     KEYIDENTIFIER: $(KeyIdentifier)
     TENANTID: $(TenantId)
     MSOSCLIENTID: $(MSOSClientId)
-    MSOSCLIENTSECRET: $(Secret_MSOSClientSecret)
-    AZUREAD__TENANTID: $(AzureAd.TenantId)
+    MSOSCLIENTSECRET: $(MSOClientSecret_Value)
+    AZUREAD_TENANTID: $(AzureAd.TenantId)
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
