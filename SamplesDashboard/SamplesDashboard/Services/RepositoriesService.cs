@@ -1,164 +1,326 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Net.Http;
+using System;
 using GraphQL;
 using GraphQL.Client.Http;
+using Semver;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SamplesDashboard.Extensions;
 using SamplesDashboard.Models;
+using Octokit;
+using System.Text.RegularExpressions;
 
 namespace SamplesDashboard.Services
 {
     /// <summary>
-    /// This class contains repository query services and functions
-    /// to be used by the repositories API
+    ///  This class contains repository query services and functions to be used by the repositories API
     /// </summary>
     public class RepositoriesService
     {
-        private readonly GraphQLHttpClient _graphQLClient;
+        private readonly GraphQLHttpClient _graphQlClient;
         private readonly IHttpClientFactory _clientFactory;
-        private readonly GitHubAuthService _gitHubAuthService;
-        private readonly ManifestFromFileService _manifestFromFileService;
-        private readonly MicrosoftOpenSourceService _msOpenSourceService;
-        private readonly NuGetService _nuGetService;
+        private readonly NugetService _nugetService;
         private readonly NpmService _npmService;
-        private readonly CocoaPodsService _cocoaPodsService;
         private readonly MavenService _mavenService;
-        private readonly IConfiguration _configuration;
+        private readonly CocoaPodsService _cocoaPodsService;
+        private readonly AzureSdkService _azureSdkService;
         private readonly IMemoryCache _cache;
+        private readonly IConfiguration _config;
         private readonly ILogger<RepositoriesService> _logger;
-        private static Regex localizedRepos = new Regex(@".[a-z]{2}-[A-Z]{2}");
+        private readonly GithubAuthService _githubAuthService;
+        private readonly MicrosoftOpenSourceService _msOpenSourceService;
 
         public RepositoriesService(
-            GraphQLHttpClient graphQLClient,
+            GraphQLHttpClient graphQlClient,
             IHttpClientFactory clientFactory,
-            GitHubAuthService gitHubAuthService,
-            ManifestFromFileService manifestFromFileService,
-            MicrosoftOpenSourceService msOpenSourceService,
-            NuGetService nuGetService,
+            NugetService nugetService,
             NpmService npmService,
-            CocoaPodsService cocoaPodsService,
             MavenService mavenService,
-            IConfiguration configuration,
+            CocoaPodsService cocoaPodsService,
+            AzureSdkService azureSdkService,
+            GithubAuthService githubAuthService,
+            MicrosoftOpenSourceService msOpenSourceService,
             IMemoryCache memoryCache,
+            IConfiguration config,
             ILogger<RepositoriesService> logger)
         {
-            _graphQLClient = graphQLClient;
+            _graphQlClient = graphQlClient;
             _clientFactory = clientFactory;
-            _gitHubAuthService = gitHubAuthService;
-            _manifestFromFileService = manifestFromFileService;
-            _msOpenSourceService = msOpenSourceService;
-            _nuGetService = nuGetService;
+            _nugetService = nugetService;
             _npmService = npmService;
-            _cocoaPodsService = cocoaPodsService;
             _mavenService = mavenService;
-            _configuration = configuration;
+            _cocoaPodsService = cocoaPodsService;
+            _azureSdkService = azureSdkService;
             _cache = memoryCache;
+            _config = config;
             _logger = logger;
+            _githubAuthService = githubAuthService;
+            _msOpenSourceService = msOpenSourceService;
         }
 
         /// <summary>
-        /// Gets a list of repositories using a GraphQL query
+        /// Gets the client object used to run the repos query and return the repos list
         /// </summary>
-        /// <param name="names">The values to match in the name field</param>
-        /// <param name="endCursor">A cursor to start the query from. Used in paging.</param>
-        /// <returns>A list of repositories that match the names parameter</returns>
-        public async Task<List<Repository>> GetRepositoriesAsync(string names)
+        /// <returns> A list of repos.</returns>
+        public async Task<List<Node>> GetRepositories(string names, string endCursor = null)
         {
-            var cacheKey = $"{names}-list";
-            if (!_cache.TryGetValue(cacheKey, out List<string> repoList))
+            // Request to fetch the list of repos for graph
+            var cursorString = "";
+
+            if (!string.IsNullOrEmpty(endCursor))
             {
-                var endCursor = string.Empty;
-                var organization = _configuration.GetValue<string>(Constants.GitHubOrg);
-                repoList = new List<string>();
-                do
-                {
-                    var cursorString = string.IsNullOrEmpty(endCursor) ? "" : $", after:\"{endCursor}\"";
-                    // Make a GraphQL query to get most of the needed information in one request
-                    var request = new GraphQLRequest
-                    {
-                        Query = $@"{{
-                            search(query: ""org:{organization} {names} in:name archived:false is:public fork:true"", type: REPOSITORY, first: 100{cursorString}) {{
-                                nodes {{
-                                    ... on Repository {{
-                                        name
-                                    }}
-                                }}
-                                pageInfo {{
-                                    endCursor
-                                    hasNextPage
-                                }}
-                            }}
-                        }}"
-                    };
-
-                    var graphQLResponse = await _graphQLClient.SendQueryAsync<GitHubGraphQLResponse>(request);
-
-                    repoList.AddRange(graphQLResponse.Data.Search.Results.Select(r => r.Name).ToList());
-
-                    endCursor = graphQLResponse.Data.Search.PageInfo.HasNextPage ?
-                        graphQLResponse.Data.Search.PageInfo.EndCursor : string.Empty;
-                }
-                while(!string.IsNullOrEmpty(endCursor));
-
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(_configuration.GetValue<double>(Constants.CacheLifetime)));
-                _cache.Set(cacheKey, repoList, cacheEntryOptions);
+                cursorString = $", after:\"{endCursor}\"";
             }
 
-            var repositories = await GenerateRepositoryListAsync(repoList);
+            var request = new GraphQLRequest
+            {
+                Query = @"
+                {
+                  search(query: ""org:microsoftgraph" + $" {names}" + @" in:name archived:false is:public fork:true"", type: REPOSITORY, first: 5 " + $"{cursorString}" + @" ) {
+                        nodes {
+                                ... on Repository {
+                                    name
+                                    vulnerabilityAlerts {
+                                        totalCount
+                                    }
+                                    issues(states: OPEN) {
+                                        totalCount
+                                    }
+                                    pullRequests(states: OPEN) {
+                                        totalCount
+                                    }
+                                    stargazers {
+                                        totalCount
+                                    }
+                                    collaborators(first: 10) {
+                                        edges {
+                                            permission
+                                            node {
+                                                login
+                                                name
+                                                url
+                                            }
+                                        }
+                                    }
+                                    url
+                                    forks {
+                                        totalCount
+                                    }
+                                    defaultBranchRef {
+                                        name
+                                    },
+                                    updatedAt
+                                }
+                            }
+                        pageInfo {
+                              endCursor
+                              hasNextPage
+                           }
+                    }
+                }"
+            };
+
+            var graphQlResponse = await _graphQlClient.SendQueryAsync<Data>(request);
+
+            // get githubapp token
+            var token = await _githubAuthService.GetGithubAppToken();
+
+            // Create a new GitHubClient using the installation token as authentication
+            var githubClient = new GitHubClient(new ProductHeaderValue(_config.GetValue<string>("product")))
+            {
+                Credentials = new Credentials(token)
+            };
+
+            //returning a list of all repos
+            var repositories = graphQlResponse?.Data?.Search.Nodes.ToList();
+
+            //remove localized repos to reduce repetition of samples
+            foreach (var repo in repositories.ToList())
+            {
+                var regex = new Regex (@".[a-z]{2}-[A-Z]{2}");
+                if(regex.IsMatch(repo?.Name) ||
+                   repo?.Name == "microsoft-graph-training" ||
+                   repo?.Name == "msgraph-samples-dashboard")
+                {
+                    _logger.LogInformation($"Removing repo {repo.Name} from list");
+                    repositories.Remove(repo);
+                }
+            }
+
+            // Fetch yaml headers and compute header values in parallel
+            var taskList = (from repoItem in repositories select SetHeadersAndStatus(githubClient, repoItem, "microsoftgraph")).ToList();
+            await Task.WhenAll(taskList);
+
+            //Taking the next 100 repos(paginating using endCursor object)
+            var hasNextPage = graphQlResponse?.Data?.Search.PageInfo.HasNextPage;
+            endCursor = graphQlResponse?.Data?.Search.PageInfo.EndCursor;
+
+            if (hasNextPage == true)
+            {
+                var nextRepos = await GetRepositories(names, endCursor);
+                repositories?.AddRange(nextRepos);
+            }
 
             return repositories;
         }
 
-        public async Task<Repository> GetRepositoryAsync(string name)
+        /// <summary>
+        /// Creates a github client to make calls to the API and access traffic view data
+        /// </summary>
+        /// <param name="githubclient"></param>
+        /// <param name="repoName"></param>
+        /// <param name="owner"></param>
+        /// <returns>View count</returns>
+        internal async Task<int?> FetchViews(GitHubClient githubclient, string repoName, string owner)
         {
-            var gitHubClient = await _gitHubAuthService.GetAuthenticatedClient();
-
-            return await GetRepositoryAsync(name, gitHubClient);
+            //use client to fetch views
+            try
+            {
+                var views = await githubclient.Repository.Traffic.GetViews(owner, repoName, new RepositoryTrafficRequest(TrafficDayOrWeek.Week));
+                return views?.Count;
+            }
+            catch (Octokit.AbuseException ex)
+            {
+                Task.Delay(ex.RetryAfterSeconds ?? 30 * 1000).RunSynchronously();
+                // Retry
+                var views = await githubclient.Repository.Traffic.GetViews(owner, repoName, new RepositoryTrafficRequest(TrafficDayOrWeek.Week));
+                return views?.Count;
+            }
         }
 
-        internal async Task<Repository> GetRepositoryAsync(string name, Octokit.GitHubClient gitHubClient)
+        /// <summary>
+        /// Uses Microsoft Open Source portal to get owners, falls back to FetchContributors if not configured
+        /// </summary>
+        /// <param name="githubclient"></param>
+        /// <param name="repoName"></param>
+        /// <param name="owner"></param>
+        /// <returns>a list of contributors</returns>
+        internal async Task<Dictionary<string, string>> FetchOwners(GitHubClient githubclient, string repoName, string owner)
         {
-            _logger.LogInformation($"Getting {name}");
-            if (!_cache.TryGetValue(name, out Repository repository))
-            {
-                _logger.LogInformation($"{name} not in cache - fetching");
-                var organization = _configuration.GetValue<string>(Constants.GitHubOrg);
+            var maintainerStatus = await _msOpenSourceService.GetMicrosoftMaintainers(owner, repoName);
 
-                var request = new GraphQLRequest
+            if (maintainerStatus != null)
+            {
+                if (maintainerStatus.Maintainers.Individuals.Count > 0)
                 {
-                    Query = @"query repo($repo: String!, $organization: String!) {
-                        organization(login: $organization) {
-                            repository(name: $repo) {
+                    var owners = new Dictionary<string, string>();
+
+                    foreach(var user in maintainerStatus.Maintainers.Individuals)
+                    {
+                        owners.Add(user.DisplayName, $"mailto:{user.Mail}");
+                    }
+
+                    if (!string.IsNullOrEmpty(maintainerStatus.Maintainers.SecurityGroupMail))
+                    {
+                        owners.Add(maintainerStatus.Maintainers.SecurityGroupMail,
+                            $"mailto:{maintainerStatus.Maintainers.SecurityGroupMail}");
+                    }
+
+                    return owners;
+                }
+            }
+
+            return await FetchContributors(githubclient, repoName, owner);
+        }
+
+        /// <summary>
+        /// Uses githubclient to fetch a list of contributors
+        /// </summary>
+        /// <param name="githubclient"></param>
+        /// <param name="repoName"></param>
+        /// <param name="owner"></param>
+        /// <returns>a list of contributors</returns>
+        internal async Task<Dictionary<string, string>> FetchContributors(GitHubClient githubclient, string repoName, string owner)
+        {
+            IReadOnlyList<RepositoryContributor> contributors= null;
+            try
+            {
+                contributors = await githubclient.Repository.GetAllContributors(owner, repoName);
+            }
+            catch (Octokit.AbuseException ex)
+            {
+                Task.Delay(ex.RetryAfterSeconds ?? 30 * 1000).RunSynchronously();
+                // Retry
+                contributors = await githubclient.Repository.GetAllContributors(owner, repoName);
+            }
+
+            var contributorList = contributors.Select(p => new { p.Login, p.HtmlUrl }).Take(3).ToDictionary(p => p.Login, p => p.HtmlUrl);
+
+            //Remove dependabot from the list
+            if (contributorList.ContainsKey("dependabot[bot]") || contributorList.ContainsKey("dependabot-preview[bot]"))
+            {
+                var keysToRemove = contributorList.Where(r => r.Key == "dependabot[bot]" || r.Key == "dependabot-preview[bot]")
+                                   .Select(r => r.Key).ToList();
+                foreach (var key in keysToRemove)
+                {
+                    contributorList.Remove(key);
+                }
+            }
+            return contributorList;
+        }
+
+        /// <summary>
+        ///Getting header details and setting the language and featureArea items
+        /// </summary>
+        /// <param name="repoItem">A specific repo item from the repos list</param>
+        /// <returns> A list of repos.</returns>
+        private async Task SetHeadersAndStatus(GitHubClient githubClient, Node repoItem, string owner)
+        {
+            _logger.LogInformation($"Processing {repoItem.Name}...");
+            if (!_cache.TryGetValue(repoItem.Name, out Repository repository))
+            {
+                _logger.LogInformation("Not in cache - fetching");
+                repository = await GetRepository(repoItem.Name);
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
+                _cache.Set(repoItem.Name, repository, cacheEntryOptions);
+            }
+
+            if (repository?.DependencyGraphManifests?.Nodes?.Length == 0 || repository?.DependencyGraphManifests?.Nodes == null)
+            {
+                repoItem.HasDependencies = false;
+                repoItem.RepositoryStatus = repository.highestStatus;
+            }
+            else if (repository?.DependencyGraphManifests?.Nodes?.Length > 0)
+            {
+                repoItem.HasDependencies = true;
+                repoItem.RepositoryStatus = repository.highestStatus;
+                repoItem.IdentityStatus = repository.IdentityStatus;
+                repoItem.GraphStatus = repository.GraphStatus;
+            }
+
+            var headerDetails = await GetYamlHeader(repoItem.Name,
+                repoItem.DefaultBranch == null ? "master" : repoItem.DefaultBranch.Name);
+            repoItem.Language = headerDetails?.LanguagesString ?? string.Empty;
+            repoItem.FeatureArea = headerDetails?.ServicesString ?? string.Empty;
+            repoItem.Views = await FetchViews(githubClient, repoItem.Name, owner);
+            repoItem.OwnerProfiles = await FetchOwners(githubClient, repoItem.Name, owner);
+        }
+
+        /// <summary>
+        /// Uses client object and repoName passed in the url to return the repo's dependencies
+        /// </summary>
+        /// <param name="repoName">The name of that repo</param>
+        /// <returns> A list of dependencies. </returns>
+        public async Task<Repository> GetRepository(string repoName)
+        {
+            //request to fetch repo dependencies
+            var request = new GraphQLRequest
+            {
+                Query = @"query repo($repo: String!){
+                        organization(login: ""microsoftgraph"") {
+                            repository(name: $repo){
                                 name
                                 description
-                                issues(states: OPEN) {
-                                    totalCount
-                                }
-                                pullRequests(states: OPEN) {
-                                    totalCount
-                                }
-                                stargazers {
-                                    totalCount
-                                }
                                 url
-                                forks {
-                                    totalCount
-                                }
-                                defaultBranchRef {
-                                    name
-                                }
-                                updatedAt
-                                vulnerabilityAlerts(first: 30) {
+                                vulnerabilityAlerts(first: 30)  {
                                     totalCount
                                     edges {
                                         node {
@@ -178,312 +340,273 @@ namespace SamplesDashboard.Services
                                                 packageManager
                                                 packageName
                                                 requirements
-                                                repository {
-                                                    name
-                                                    releases (last: 1) {
-                                                        nodes {
-                                                            name
-                                                            tagName
-                                                        }
-                                                    }
+                                                repository{
+                                                  name
+                                                  releases(last: 1){
+                                                      nodes{
+                                                          name
+                                                          tagName
+                                                      }
+                                                  }
                                                 }
                                             }
                                         }
                                     }
                                 }
+                                defaultBranchRef {
+                                    name
+                                }
                             }
-                        }
-                    }",
-                    Variables = new
-                    {
-                        repo = name,
-                        organization= organization
                     }
-                };
+                }",
+                Variables = new { repo = repoName }
+            };
 
-                var graphQLResponse = await _graphQLClient.SendQueryAsync<GitHubGraphQLResponse>(request);
+            var graphQLResponse = await _graphQlClient.SendQueryAsync<Data>(request);
 
-                repository = await GenerateRepositoryAsync(graphQLResponse.Data.Organization.Repository, organization, gitHubClient);
-
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(_configuration.GetValue<double>(Constants.CacheLifetime)));
-                _cache.Set(name, repository, cacheEntryOptions);
-            }
-
-            return repository;
-        }
-
-        private async Task<List<Repository>> GenerateRepositoryListAsync(List<string> repoList)
-        {
-            // Filter out localized repos
-            foreach (var repo in repoList.ToList())
-            {
-                if (localizedRepos.IsMatch(repo) ||
-                    repo == "microsoft-graph-training" ||
-                    repo == "msgraph-samples-dashboard")
-                {
-                    _logger.LogInformation($"Removing repo {repo} from list");
-                    repoList.Remove(repo);
-                }
-            }
-
-            var gitHubClient = await _gitHubAuthService.GetAuthenticatedClient();
-
-            var repositoryList = new List<Repository>();
-
-            // Limit to 10 in parallel to reduce GitHub abuse errors
-            var concurrency = _configuration.GetValue<int>(Constants.GitHubConcurrency);
-            for (int i = 0; i < repoList.Count; i+=concurrency)
-            {
-                var processList = repoList.Skip(i).Take(concurrency);
-                var taskList = (from repo in processList select GetRepositoryAsync(repo, gitHubClient)).ToList();
-                var processedRepos = await Task.WhenAll(taskList);
-                repositoryList.AddRange(processedRepos);
-            }
-
-            return repositoryList;
-        }
-
-        private async Task<Repository> GenerateRepositoryAsync(
-            GitHubGraphQLRepoData data,
-            string organization,
-            Octokit.GitHubClient gitHubClient)
-        {
-            _logger.LogInformation($"Processing {data.Name}...");
-
-            var repository = new Repository(data);
-            // Get YAML header if present
-            var yamlHeader = await GetYamlHeader(repository.Name, repository.DefaultBranch);
-
-            // Add info from header
-            repository.Language = yamlHeader?.LanguagesString ?? string.Empty;
-            repository.FeatureArea = yamlHeader?.ServicesString ?? string.Empty;
-            repository.Views = await FetchViews(gitHubClient, repository.Name, organization);
-            repository.Owners = await FetchOwners(gitHubClient, repository.Name, organization);
-
-            // Add dependency data
-            await GetDependencyDataAsync(repository, yamlHeader, data);
-
+            var repository = await UpdateRepositoryStatus(graphQLResponse.Data?.Organization.Repository);
             return repository;
         }
 
         /// <summary>
-        /// Creates a github client to make calls to the API and access traffic view data
+        /// Gets a list of versions from nuget and computes the latest version
         /// </summary>
-        /// <param name="githubclient"></param>
-        /// <param name="repoName"></param>
-        /// <param name="owner"></param>
-        /// <returns>View count</returns>
-        internal async Task<int> FetchViews(Octokit.GitHubClient githubclient, string repoName, string owner)
+        /// <param name="packageName"></param>
+        /// <param name="currentVersion"></param>
+        /// <returns>latestVersion</returns>
+        public async Task<string> GetLatestNugetVersion(string packageName, string currentVersion)
         {
-            //use client to fetch views
-            try
+            var nugetPackageVersions = await _nugetService.GetPackageVersions(packageName);
+            var latestVersion = nugetPackageVersions.LastOrDefault()?.ToString();
+            if (latestVersion == null) return latestVersion;
+
+            //check if current version is preview, return latest version, whether preview or non-preview
+            if (currentVersion.Contains("preview") && latestVersion.Contains("preview"))
             {
-                var views = await githubclient.Repository.Traffic.GetViews(
-                    owner, repoName, new Octokit.RepositoryTrafficRequest(Octokit.TrafficDayOrWeek.Week));
-                return views?.Count ?? 0;
+                return latestVersion;
             }
-            catch (Octokit.AbuseException ex)
+            //check if only latest version is preview, set to latest non-preview version
+            else if (latestVersion.Contains("preview"))
             {
-                await Task.Delay(ex.RetryAfterSeconds ?? 30 * 1000);
-                // Retry
-                var views = await githubclient.Repository.Traffic.GetViews(
-                    owner, repoName, new Octokit.RepositoryTrafficRequest(Octokit.TrafficDayOrWeek.Week));
-                return views?.Count ?? 0;
+                var nonPreviewVersions = (from version in nugetPackageVersions where !version.ToString()
+                    .Contains("preview") select version.ToString()).ToList();
+                latestVersion = nonPreviewVersions.LastOrDefault();
             }
+            return latestVersion;
         }
 
         /// <summary>
-        /// Uses Microsoft Open Source portal to get owners, falls back to FetchContributors if not configured
+        /// Gets the repository's details and updates the status field in the dependencies
         /// </summary>
-        /// <param name="githubclient"></param>
-        /// <param name="repoName"></param>
-        /// <param name="owner"></param>
-        /// <returns>a list of contributors</returns>
-        internal async Task<List<RepoOwner>> FetchOwners(Octokit.GitHubClient githubclient, string repoName, string owner)
+        /// <param name="repository"> A Repository object</param>
+        /// <returns>An updated repository object with the status field.</returns>
+        internal async Task<Repository> UpdateRepositoryStatus(Repository repository)
         {
-            var maintainerStatus = await _msOpenSourceService.GetMicrosoftMaintainers(owner, repoName);
-
-            if (maintainerStatus != null)
+            var headerDetails = await GetYamlHeader(repository.Name,
+                repository.DefaultBranch == null ? "master" : repository.DefaultBranch.Name);
+            repository.IdentityStatus = PackageStatus.Unknown;
+            repository.GraphStatus = PackageStatus.Unknown;
+            repository.highestStatus = PackageStatus.Unknown;
+            var vulnerabilityCount = repository?.VulnerabilityAlerts?.TotalCount;
+            var dependencyGraphManifests = repository?.DependencyGraphManifests?.Nodes;
+            if (dependencyGraphManifests == null || dependencyGraphManifests.Count() == 0 && headerDetails != null)
             {
-                if (maintainerStatus.Maintainers.Individuals.Count > 0)
+                var dependencyFile = headerDetails.DependencyFile ?? string.Empty;
+                if (dependencyFile == "noDependencies")
                 {
-                    var owners = new List<RepoOwner>();
+                    // Repository doesn't use dependencies, mark as
+                    // up to date
+                    repository.highestStatus = PackageStatus.UpToDate;
+                    return repository;
+                }
 
-                    foreach(var user in maintainerStatus.Maintainers.Individuals)
-                    {
-                        owners.Add(new RepoOwner
-                        {
-                            DisplayName = user.DisplayName,
-                            Url= $"mailto:{user.Mail}"
-                        });
-                    }
+                if (string.IsNullOrEmpty(dependencyFile))
+                {
+                    return repository;
+                }
 
-                    if (!string.IsNullOrEmpty(maintainerStatus.Maintainers.SecurityGroupMail))
-                    {
-                        owners.Add(new RepoOwner
-                        {   DisplayName = maintainerStatus.Maintainers.SecurityGroupMail,
-                            Url = $"mailto:{maintainerStatus.Maintainers.SecurityGroupMail}"
-                        });
-                    }
+                // Build dependency graph from file
+                dependencyGraphManifests = await BuildDependencyGraphFromFile(repository.Name,
+                    repository.DefaultBranch?.Name ?? "master", dependencyFile);
 
-                    return owners;
+                repository.DependencyGraphManifests.Nodes = dependencyGraphManifests;
+                if (dependencyGraphManifests == null)
+                {
+                    return repository;
                 }
             }
 
-            return await FetchContributors(githubclient, repoName, owner);
-        }
-
-        /// <summary>
-        /// Uses githubclient to fetch a list of contributors
-        /// </summary>
-        /// <param name="githubclient"></param>
-        /// <param name="repoName"></param>
-        /// <param name="owner"></param>
-        /// <returns>a list of contributors</returns>
-        internal async Task<List<RepoOwner>> FetchContributors(Octokit.GitHubClient githubclient, string repoName, string owner)
-        {
-            IReadOnlyList<Octokit.RepositoryContributor> contributors= null;
-            try
+            // Go through the various dependency manifests in the repo
+            foreach (var dependencyManifest in dependencyGraphManifests)
             {
-                contributors = await githubclient.Repository.GetAllContributors(owner, repoName);
-            }
-            catch (Octokit.AbuseException ex)
-            {
-                await Task.Delay(ex.RetryAfterSeconds ?? 30 * 1000);
-                // Retry
-                contributors = await githubclient.Repository.GetAllContributors(owner, repoName);
-            }
-
-            var owners = new List<RepoOwner>();
-            foreach (var contributor in contributors)
-            {
-                if (owners.Count >= 2)
-                {
-                    break;
-                }
-
-                if (contributor.Login.Contains("[bot]"))
-                {
+                var dependencies = dependencyManifest?.Dependencies?.Nodes;
+                if (dependencies == null)
                     continue;
-                }
+                PackageStatus highestStatus = PackageStatus.Unknown;
 
-                owners.Add(new RepoOwner
-                {
-                    DisplayName = contributor.Login,
-                    Url = contributor.HtmlUrl
-                });
-            }
-
-            return owners;
-        }
-
-        internal async Task GetDependencyDataAsync(
-            Repository repository,
-            YamlHeader yamlHeader,
-            GitHubGraphQLRepoData data)
-        {
-            repository.RepositoryStatus =
-                repository.GraphStatus =
-                repository.IdentityStatus = DependencyStatus.Unknown;
-
-            // Get YAML header if present
-            if (yamlHeader != null && yamlHeader.NoDependencies)
-            {
-                repository.RepositoryStatus =
-                    repository.GraphStatus =
-                    repository.IdentityStatus = DependencyStatus.UpToDate;
-                return;
-            }
-
-            repository.SecurityAlerts = data.VulnerabilityAlerts?.TotalCount ?? 0;
-
-            if (data.DependencyManifests.Values.Count <= 0 &&
-                yamlHeader != null &&
-                !string.IsNullOrEmpty(yamlHeader.DependencyFile))
-            {
-                // Build manifest from dependency file
-                var manifest = await _manifestFromFileService
-                    .BuildDependencyManifestFromFile(
-                        repository.Name, repository.DefaultBranch, yamlHeader.DependencyFile);
-
-                data.DependencyManifests.Values.Add(manifest);
-            }
-
-            var dependencyList = new List<Dependency>();
-
-            foreach (var manifest in data.DependencyManifests.Values)
-            {
-                var dependencies = manifest.Dependencies.Values;
+                // Go through each dependency in the dependency manifest
                 foreach (var dependency in dependencies)
                 {
-                    var newDependency = new Dependency
-                    {
-                        PackageName = dependency.PackageName,
-                        ManifestFile = manifest.FileName,
-                        CurrentVersion = dependency.Requirements.NormalizeRequirementsString()
-                    };
+                    var currentVersion = dependency.requirements;
+                    if (string.IsNullOrEmpty(currentVersion)) continue;
 
-                    if (!string.IsNullOrEmpty(newDependency.CurrentVersion))
+                    //getting latest versions from the respective packagemanagers,azure sdks and the default values from github
+                    string latestVersion;
+                    string azureSdkVersion = String.Empty;
+                    switch (dependency.packageManager)
                     {
-                        // Determine latest version
-                        switch (dependency.PackageManager)
+                        case "NUGET":
+                            latestVersion = await GetLatestNugetVersion(dependency.packageName, currentVersion);
+                            azureSdkVersion = await _azureSdkService.GetAzureSdkVersions(dependency.packageName);
+                            break;
+
+                        case "NPM":
+                            latestVersion = await _npmService.GetLatestVersion(dependency.packageName);
+                            break;
+
+                        case "GRADLE":
+                        case "MAVEN":
+                            // Check the Maven repositories for version information first
+                            latestVersion = await _mavenService.GetLatestVersion(dependency.packageName, currentVersion);
+                            if (string.IsNullOrEmpty(latestVersion))
+                            {
+                                // Fall back to GitHub's supplied value
+                                latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                            }
+                            break;
+
+                        case "COCOAPODS":
+                            latestVersion = await _cocoaPodsService.GetLatestVersion(dependency.packageName);
+                            break;
+
+                        default:
+                            latestVersion = dependency.repository?.releases?.nodes?.FirstOrDefault()?.tagName;
+                            break;
+                    }
+                    dependency.latestVersion = latestVersion;
+                    dependency.azureSdkVersion = azureSdkVersion;
+
+                    //calculate status normally for repos without security alerts
+                    if (vulnerabilityCount == 0)
+                    {
+                        dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
+                    }
+
+                    //check if a repo has security alerts
+                    else if (vulnerabilityCount > 0)
+                    {
+                        var librariesWithAlerts = repository?.VulnerabilityAlerts.Edges.Select(p => p.Node?.SecurityVulnerability.Package.Name);
+
+                        //if the name of the dependency is in the list of libraries with alerts, set status to urgent update
+                        if (librariesWithAlerts.Contains(dependency.packageName))
                         {
-                            case Constants.Nuget:
-                                newDependency.LatestVersion = await
-                                    _nuGetService.GetLatestVersion(newDependency.PackageName,
-                                        newDependency.CurrentVersion);
-                                break;
-                            case Constants.Npm:
-                                newDependency.LatestVersion = await
-                                    _npmService.GetLatestVersion(newDependency.PackageName);
-                                break;
-                            case Constants.Gradle:
-                            case Constants.Maven:
-                                var latestVersion = await
-                                    _mavenService.GetLatestVersion(newDependency.PackageName,
-                                        newDependency.CurrentVersion);
-
-                                if (string.IsNullOrEmpty(latestVersion))
-                                {
-                                    // Fall back to GitHub's supplied value
-                                    latestVersion = dependency.Repository?.Releases?.Values?.FirstOrDefault()?.TagName;
-                                }
-
-                                newDependency.LatestVersion = latestVersion;
-                                break;
-                            case Constants.CocoaPods:
-                                newDependency.LatestVersion = await
-                                    _cocoaPodsService.GetLatestVersion(newDependency.PackageName);
-                                break;
-                            default:
-                                newDependency.LatestVersion = dependency.Repository?.Releases?.Values?.FirstOrDefault()?.TagName ?? string.Empty;
-                                break;
+                            dependency.status = PackageStatus.UrgentUpdate;
+                        }
+                        else
+                        {
+                            dependency.status = CalculateStatus(currentVersion.Substring(2), latestVersion);
                         }
                     }
 
-                    newDependency.CalculateStatus(data.VulnerabilityAlerts?.Values);
-
-                    if (newDependency.Status > repository.RepositoryStatus)
+                    // Check if dependency is Identity library
+                    if (IsIdentityLibrary(dependency) && dependency.status > repository.IdentityStatus)
                     {
-                        repository.RepositoryStatus = newDependency.Status;
+                        repository.IdentityStatus = dependency.status;
+                    }
+                    // Check if dependency is Graph SDK
+                    else if (IsGraphSdk(dependency) && dependency.status > repository.GraphStatus)
+                    {
+                        repository.GraphStatus = dependency.status;
                     }
 
-                    if (IsIdentityLibrary(newDependency.PackageName) && newDependency.Status > repository.IdentityStatus)
-                    {
-                        repository.IdentityStatus = newDependency.Status;
-                    }
+                }
+                //getting the highest status from a dependency node
+                highestStatus = HighestStatus(dependencies);
 
-                    if (IsGraphSdk(newDependency.PackageName) && newDependency.Status > repository.GraphStatus)
-                    {
-                        repository.GraphStatus = newDependency.Status;
-                    }
-
-                    dependencyList.Add(newDependency);
+                //comparing the highest statuses from different nodes
+                if (highestStatus > repository.highestStatus)
+                {
+                    repository.highestStatus = highestStatus;
                 }
             }
+            return repository;
+        }
 
-            repository.Dependencies = dependencyList;
+        /// <summary>
+        /// Calculate the status of a repo
+        /// </summary>
+        /// <param name="repoVersion">The current version of the repo</param>
+        /// <param name="latestVersion">The latest version of the repo</param>
+        /// <returns><see cref="PackageStatus"/> of the repo Version </returns>
+        internal PackageStatus CalculateStatus(string repoVersion, string latestVersion)
+        {
+            if (string.IsNullOrEmpty(repoVersion) || string.IsNullOrEmpty(latestVersion))
+                return PackageStatus.Unknown;
+
+            // Dropping any 'v's that occur before the version
+            if (repoVersion.StartsWith("v"))
+            {
+                repoVersion = repoVersion.Substring(1);
+            }
+            if (latestVersion.StartsWith("v"))
+            {
+                latestVersion = latestVersion.Substring(1);
+            }
+
+            //If version strings are equal, they are up-to-date
+            if (repoVersion.Equals(latestVersion))
+                return PackageStatus.UpToDate;
+
+            // Try to parse the versions into SemVersion objects
+            if (!SemVersion.TryParse(repoVersion.Split(',').First().Trim(), out SemVersion repo) ||
+                !SemVersion.TryParse(latestVersion.Trim(), out SemVersion latest))
+            {
+                //Unable to determine the versions
+                return PackageStatus.Unknown;
+            }
+
+            int status = repo.CompareTo(latest);
+
+            if (status == 0)
+            {
+                //Version objects are the same so packages are up-to-date
+                return PackageStatus.UpToDate;
+            }
+            else if (repo.Major == latest.Major && repo.Minor == latest.Minor)
+            {
+                //Difference is only in the build version therefore package requires an urgent update
+                return PackageStatus.PatchUpdate;
+            }
+            else if (repo.Major == latest.Major)
+            {
+                //Difference is in minor version and the repo version is behind the latest version
+                return PackageStatus.MinorVersionUpdate;
+            }
+            else if (status < 0)
+            {
+                // Difference is in major version
+                return PackageStatus.MajorVersionUpdate;
+            }
+            else
+            {
+                //Unable to determine the versions
+                return PackageStatus.Unknown;
+            }
+        }
+
+        /// <summary>
+        /// Get dependency statuses from a repo and return the highest status
+        /// </summary>
+        /// <param name="dependencies"> Dependencies in a repo</param>
+        /// <returns><see cref="PackageStatus"/>The highest PackageStatus from dependencies</returns>
+        private PackageStatus HighestStatus(DependenciesNode[] dependencies)
+        {
+            PackageStatus[] statuses = dependencies.Select(dependency => dependency.status).ToArray();
+            if (statuses.Any())
+            {
+                return statuses.Max();
+            }
+            return PackageStatus.Unknown;
         }
 
         /// <summary>
@@ -494,21 +617,169 @@ namespace SamplesDashboard.Services
         internal async Task<YamlHeader> GetYamlHeader(string repoName, string branch)
         {
             //downloading the yaml file
-            var gitHubOrg = _configuration.GetValue<string>("GitHubOrg");
+            var gitHubOrg = _config.GetValue<string>("GitHubOrganization");
             var httpClient = _clientFactory.CreateClient();
             return await YamlHeader.GetFromRepo(httpClient, gitHubOrg, repoName, branch);
         }
 
-        internal bool IsIdentityLibrary(string packageName)
+        /// <summary>
+        /// Check if a dependency is an Identity library
+        /// </summary>
+        /// <param name="dependency">The dependency to check</param>
+        /// <returns> true if dependency is an Identity library </returns>
+        private bool IsIdentityLibrary(DependenciesNode dependency)
         {
             return Constants.IdentityLibraries
-                .Contains(packageName.ToLower());
+                .Contains(dependency.packageName.ToLower());
         }
 
-        internal bool IsGraphSdk(string packageName)
+        /// <summary>
+        /// Check if a dependency is a Graph SDK
+        /// </summary>
+        /// <param name="dependency">The dependency to check</param>
+        /// <returns> true if dependency is Graph SDk </returns>
+        private bool IsGraphSdk(DependenciesNode dependency)
         {
             return Constants.GraphSdks
-                .Contains(packageName.ToLower());
+                .Contains(dependency.packageName.ToLower());
+        }
+
+        /// <summary>
+        /// Builds a dependency graph manifest from a dependency file in the repo
+        /// </summary>
+        /// <param name="repoName">The name of the repo</param>
+        /// <param name="defaultBranch">The default branch of the repo</param>
+        /// <param name="dependencyFile">The relative path to the dependency file</param>
+        /// <returns> The dependency graph manifest </returns>
+        internal async Task<DependencyGraphManifestsNode[]> BuildDependencyGraphFromFile(
+            string repoName, string defaultBranch, string dependencyFile)
+        {
+            //downloading the dependency file
+            var fileType = GetSupportedFileType(dependencyFile);
+            if (fileType != SupportedDependencyFileType.Unsupported)
+            {
+                var httpClient = _clientFactory.CreateClient();
+                var responseMessage = await httpClient.GetAsync(
+                    $"https://raw.githubusercontent.com/microsoftgraph/{repoName}/{defaultBranch}/{dependencyFile}");
+
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    var fileContents = await responseMessage.Content.ReadAsStringAsync();
+                    var stringSeparator = new string[] { "\r\n", "\n" };
+                    var lines = fileContents.Split(stringSeparator, StringSplitOptions.RemoveEmptyEntries);
+
+                    // Handle file type
+                    switch (fileType)
+                    {
+                        case SupportedDependencyFileType.Gradle:
+                            return BuildGradleDependencies(dependencyFile, lines);
+                        case SupportedDependencyFileType.PodFile:
+                            return BuildPodfileDependencies(dependencyFile, lines);
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Determines the dependency manager type from the file name and extension
+        /// </summary>
+        /// <param name="dependencyFile">The relative path to the dependency file</param>
+        /// <returns> The SupportedDependencyFileType value mapped to the file type </returns>
+        internal SupportedDependencyFileType GetSupportedFileType(string dependencyFile)
+        {
+            var fileExtension = Path.GetExtension(dependencyFile).ToLower();
+            var fileName = Path.GetFileNameWithoutExtension(dependencyFile).ToLower();
+
+            var lowered = fileExtension.ToLower();
+
+            if (fileExtension == ".gradle") return SupportedDependencyFileType.Gradle;
+            if (fileName == "podfile") return SupportedDependencyFileType.PodFile;
+
+            return SupportedDependencyFileType.Unsupported;
+        }
+
+        /// <summary>
+        /// Generates a dependency graph manifest from a Gradle file
+        /// </summary>
+        /// <param name="dependencyFile">The relative path to the Gradle file</param>
+        /// <param name="lines">The contents of the Gradle file</param>
+        /// <returns> The dependency graph manifest </returns>
+        internal DependencyGraphManifestsNode[] BuildGradleDependencies(string dependencyFile, string[] lines)
+        {
+            var dependencies = new List<DependenciesNode>();
+
+            foreach(var line in lines)
+            {
+                if (Constants.GradleDependencyTypes.Any(type => line.Trim().StartsWith(type)))
+                {
+                    // Check for string notation
+                    // runtimeOnly 'org.springframework:spring-core:2.5'
+                    var match = Regex.Match(line, "'(.*):(.*)'");
+
+                    if (match.Success && match.Groups.Count == 3)
+                    {
+                        dependencies.Add(new DependenciesNode{
+                            packageManager = "GRADLE",
+                            packageName = match.Groups[1].Value,
+                            requirements = $"= {match.Groups[2].Value}"
+                        });
+                    }
+                }
+            }
+
+            var manifestList = new List<DependencyGraphManifestsNode> {
+                new DependencyGraphManifestsNode {
+                    Filename = dependencyFile,
+                    Dependencies = new Dependencies {
+                        Nodes = dependencies.ToArray()
+                    }
+                }
+            };
+
+            return manifestList.ToArray();
+        }
+
+        /// <summary>
+        /// Generates a dependency graph manifest from a Podfile
+        /// </summary>
+        /// <param name="dependencyFile">The relative path to the Podfile</param>
+        /// <param name="lines">The contents of the Podfile</param>
+        /// <returns> The dependency graph manifest </returns>
+        internal DependencyGraphManifestsNode[] BuildPodfileDependencies(string dependencyFile, string[] lines)
+        {
+            var dependencies = new List<DependenciesNode>();
+
+            foreach (var line in lines)
+            {
+                if (line.Trim().ToLower().StartsWith("pod"))
+                {
+                    var match = Regex.Match(line.ToLower(), @"pod\s*'(\w*)',\s*'\D*([\d\.]*)'");
+
+                    if (match.Success && match.Groups.Count == 3)
+                    {
+                        dependencies.Add(new DependenciesNode{
+                            packageManager = "COCOAPODS",
+                            packageName = match.Groups[1].Value,
+                            requirements = $"=={match.Groups[2].Value}"
+                        });
+                    }
+                }
+            }
+
+            var manifestList = new List<DependencyGraphManifestsNode> {
+                new DependencyGraphManifestsNode {
+                    Filename = dependencyFile,
+                    Dependencies = new Dependencies {
+                        Nodes = dependencies.ToArray()
+                    }
+                }
+            };
+
+            return manifestList.ToArray();
         }
     }
 }

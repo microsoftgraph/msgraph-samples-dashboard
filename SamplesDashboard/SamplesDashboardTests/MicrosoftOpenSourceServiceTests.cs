@@ -1,26 +1,25 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
 
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using SamplesDashboard.Services;
+using System.Threading.Tasks;
+using SamplesDashboardTests.Factories;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace SamplesDashboardTests
 {
-    public class MicrosoftOpenSourceServiceTests : IClassFixture<WebApplicationFactory<SamplesDashboard.Startup>>
+    public class MicrosoftOpenSourceServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
     {
-        private readonly MicrosoftOpenSourceService _microsoftOpenSourceService;
         private readonly ITestOutputHelper _helper;
+        private readonly MicrosoftOpenSourceService _microsoftService;
 
-        public MicrosoftOpenSourceServiceTests(
-          WebApplicationFactory<SamplesDashboard.Startup> applicationFactory,
-          ITestOutputHelper helper)
+        public MicrosoftOpenSourceServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
         {
             _helper = helper;
-            _microsoftOpenSourceService = applicationFactory.Services.GetService<MicrosoftOpenSourceService>();
+            _microsoftService = applicationFactory.Services.GetService<MicrosoftOpenSourceService>();
         }
 
         [Fact]
@@ -31,9 +30,9 @@ namespace SamplesDashboardTests
             var repoName = "msgraph-training-aspnet-core";
 
             // Act
-            var maintainers = await _microsoftOpenSourceService.GetMicrosoftMaintainers(organization, repoName);
+            var maintainers = await _microsoftService.GetMicrosoftMaintainers(organization, repoName);
 
-            //Assert
+            // Assert
             Assert.Single(maintainers.Maintainers.Individuals);
             Assert.Equal("Jason Johnston (HE/HIM)", maintainers.Maintainers.Individuals[0].DisplayName);
             Assert.NotNull(maintainers.Maintainers.SecurityGroupMail);

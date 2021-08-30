@@ -1,14 +1,17 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using SamplesDashboard.Models;
 using Semver;
 
@@ -22,14 +25,12 @@ namespace SamplesDashboard.Services
         private readonly IHttpClientFactory _clientFactory;
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
-        private readonly JsonSerializerOptions _jsonOptions;
 
         public MavenService(IHttpClientFactory clientFactory, IConfiguration config, IMemoryCache memoryCache)
         {
             _clientFactory = clientFactory;
             _config = config;
             _cache = memoryCache;
-            _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         }
 
         /// <summary>
@@ -39,9 +40,7 @@ namespace SamplesDashboard.Services
         /// <returns>latest package version</returns>
         public async Task<string> GetLatestVersion(string packageName, string currentVersion)
         {
-            // TODO: Make cache key a variable (change pattern in all caching services)
-            var cacheKey = $"maven:{packageName}";
-            if (!_cache.TryGetValue(cacheKey, out MavenQuery mavenData))
+            if (!_cache.TryGetValue($"maven: {packageName}", out MavenQuery mavenData))
             {
                 var httpClient = _clientFactory.CreateClient();
 
@@ -57,16 +56,19 @@ namespace SamplesDashboard.Services
                 if (responseMessage.IsSuccessStatusCode)
                 {
                     await using var stream = await responseMessage.Content.ReadAsStreamAsync();
+                    using (var streamReader = new StreamReader(stream))
+                    using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
-                        mavenData = await JsonSerializer.DeserializeAsync<MavenQuery>(stream, _jsonOptions);
+                        var serializer = new JsonSerializer();
+                        mavenData = serializer.Deserialize<MavenQuery>(jsonTextReader);
                     }
                 }
 
                 if (mavenData != null)
                 {
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.CacheLifetime)));
-                    _cache.Set(cacheKey, mavenData, cacheEntryOptions);
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
+                    _cache.Set($"maven: {packageName}", mavenData, cacheEntryOptions);
                 }
             }
 
@@ -85,8 +87,7 @@ namespace SamplesDashboard.Services
         /// <returns></returns>
         private async Task<string> GetLatestAndroidPackageVersion(HttpClient client, string groupName, string packageName, string currentVersion)
         {
-            var cacheKey = $"android:{groupName}:{packageName}";
-            if (!_cache.TryGetValue(cacheKey, out XmlDocument xmlDocument))
+            if (!_cache.TryGetValue($"android: {groupName}:{packageName}", out XmlDocument xmlDocument))
             {
                 var groupParts = groupName.Split('.');
                 var googleUrl = $"https://dl.google.com/android/maven2/{string.Join('/', groupParts)}/group-index.xml";
@@ -103,8 +104,8 @@ namespace SamplesDashboard.Services
                 if (xmlDocument != null)
                 {
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.CacheLifetime)));
-                    _cache.Set(cacheKey, xmlDocument, cacheEntryOptions);
+                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
+                    _cache.Set($"android: {groupName}:{packageName}", xmlDocument, cacheEntryOptions);
                 }
             }
 
@@ -143,7 +144,7 @@ namespace SamplesDashboard.Services
 
             SemVersion.TryParse(currentVersion, out SemVersion currentSemVersion);
 
-            // If the repo is currently using a prerelease version of the dependency, it's ok to
+            // If the repo is currently using a prerelease version of the dependency, it's ok to 
             // return a prerelease version as the latest. Otherwise assume that only released
             // versions are acceptable
             bool prereleaseOk = currentSemVersion != null && !string.IsNullOrEmpty(currentSemVersion.Prerelease);

@@ -37,16 +37,6 @@
         "/consoleloggerparameters:NoSummary"
       ],
       "problemMatcher": "$msCompile"
-    },
-    {
-      "label": "test",
-      "command": "dotnet",
-      "type": "process",
-      "args": [
-        "test",
-        "${workspaceFolder}/SamplesDashboard/SamplesDashboard.sln"
-      ],
-      "problemMatcher": "$msCompile"
     }
   ]
 }
