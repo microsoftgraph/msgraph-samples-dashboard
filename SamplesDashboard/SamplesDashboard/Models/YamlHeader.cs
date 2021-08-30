@@ -1,5 +1,6 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// ------------------------------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
+// ------------------------------------------------------------------------------
 
 using System;
 using System.Net.Http;
@@ -38,22 +39,14 @@ namespace SamplesDashboard.Models
                     .WithNamingConvention(CamelCaseNamingConvention.Instance)
                     .IgnoreUnmatchedProperties()
                     .Build();
+            var header = deserializer.Deserialize<YamlHeader>(headerContent);
 
-            try
+            if (headerContent.Contains("noDependencies"))
             {
-                var header = deserializer.Deserialize<YamlHeader>(headerContent);
-
-                if (headerContent.Contains("noDependencies"))
-                {
-                    header.NoDependenciesWasSpecified = true;
-                }
-
-                return header;
+                header.NoDependenciesWasSpecified = true;
             }
-            catch (Exception)
-            {
-                return null;
-            }
+
+            return header;
         }
 
         public static async Task<YamlHeader> GetFromRepo(HttpClient httpClient,
@@ -80,7 +73,7 @@ namespace SamplesDashboard.Models
 
         }
 
-        public string LanguagesString
+        public string LanguagesString 
         {
             get
             {
@@ -92,7 +85,7 @@ namespace SamplesDashboard.Models
         {
             get
             {
-                return (Extensions?.Services == null) ?
+                return (Extensions?.Services == null) ? 
                     string.Empty : string.Join(",", Extensions.Services);
             }
         }
@@ -122,8 +115,8 @@ namespace SamplesDashboard.Models
                     if (header.StartsWith("---"))
                     {
                         header = header.Substring(3);
-                        return FromString(header);
                     }
+                    return FromString(header);
                 }
             }
 
