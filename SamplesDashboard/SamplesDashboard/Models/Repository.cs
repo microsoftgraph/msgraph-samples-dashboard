@@ -22,7 +22,6 @@ namespace SamplesDashboard.Models
         public DateTimeOffset LastUpdated { get; set; }
         public string Language { get; set; }
         public string FeatureArea { get; set; }
-        //public bool HasDependencies { get; set; }
         public DependencyStatus RepositoryStatus { get; set; }
         public DependencyStatus IdentityStatus { get; set; }
         public DependencyStatus GraphStatus { get; set; }

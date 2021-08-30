@@ -76,8 +76,8 @@ namespace SamplesDashboard.Services
                 // Get the installation ID of the app in the org
                 var installations = await gitHubClient.GitHubApps.GetAllInstallationsForCurrent();
                 var installId = installations
-                    .Where(i => i.Account.Login == _configuration.GetValue<string>(Constants.GitHubOrg))
-                    .FirstOrDefault().Id;
+                    .FirstOrDefault(i => i.Account.Login == _configuration.GetValue<string>(Constants.GitHubOrg)).Id;
+
 
                 // Create an installation token (GitHub equivalent of app-only)
                 var tokenResponse = await gitHubClient.GitHubApps.CreateInstallationToken(installId);
