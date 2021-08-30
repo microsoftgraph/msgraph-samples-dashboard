@@ -4,8 +4,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 pr:
-- master
-- dev
+  - master
+  - dev
 
 trigger: none
 
@@ -16,73 +16,73 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
-- task: UseDotNet@2
-  displayName: "Use dotnet 5"
-  inputs:
-    packageType: sdk
-    version: 5.x
+  - task: UseDotNet@2
+    displayName: 'Use dotnet 5'
+    inputs:
+      packageType: sdk
+      version: 5.x
 
-- task: UseNode@1
-  inputs:
-    checkLatest: true
+  - task: UseNode@1
+    inputs:
+      checkLatest: true
 
-- task: DotNetCoreCLI@2
-  displayName: "Restore Packages"
-  inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: select
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore Packages'
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+      feedsToUse: select
 
-- task: DotNetCoreCLI@2
-  displayName: "Build Projects"
-  inputs:
-    command: 'build'
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+  - task: DotNetCoreCLI@2
+    displayName: 'Build Projects'
+    inputs:
+      command: 'build'
+      projects: '**/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
 
-- task: Npm@1
-  displayName: "Install NPM packages"
-  inputs:
-    command: 'install'
-    workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
+  - task: Npm@1
+    displayName: 'Install NPM packages'
+    inputs:
+      command: 'install'
+      workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
 
-- task: Npm@1
-  displayName: "Pre-emptive npm Build"
-  inputs:
-    command: 'custom'
-    workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
-    customCommand: 'run build'
+  - task: Npm@1
+    displayName: 'Pre-emptive npm Build'
+    inputs:
+      command: 'custom'
+      workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
+      customCommand: 'run build'
 
-- task: Npm@1
-  displayName: "Run Linter"
-  inputs:
-    command: 'custom'
-    workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
-    customCommand: 'run lint'
+  - task: Npm@1
+    displayName: 'Run Linter'
+    inputs:
+      command: 'custom'
+      workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
+      customCommand: 'run lint'
 
-- task: DotNetCoreCLI@2
-  displayName: "Run Tests"
-  inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --logger trx'
-  env:
-    MSOSCLIENTSECRET: $(MSOClientSecret_Value)
-    KEYVAULTSECRET: $(KeyVaultSecret_Value)
+  - task: DotNetCoreCLI@2
+    displayName: 'Run Tests'
+    inputs:
+      command: test
+      projects: '**/*Tests/*.csproj'
+      arguments: '--configuration $(buildConfiguration) --logger trx'
+    env:
+      MSOSCLIENTSECRET: $(MSOSClientSecret_Value)
+      KEYVAULTSECRET: $(KeyVaultSecret_Value)
 
-- task: PublishTestResults@2
-  displayName: "Publish Test Results"
-  condition: succeededOrFailed()
-  inputs:
-    testRunner: VSTest
-    testResultsFiles: '**/*.trx'
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: VSTest
+      testResultsFiles: '**/*.trx'
 
-- task: YodLabs.O365PostMessage.O365PostMessageBuild.O365PostMessageBuild@0
-  displayName: 'Graph Client Tooling pipeline fail notification'
-  inputs:
-    addressType: serviceEndpoint
-    serviceEndpointName: 'microsoftgraph pipeline status'
-    title: '$(Build.DefinitionName) failure notification'
-    text: 'This pipeline has failed. View the build details for further information. This is a blocking failure. '
-  condition: failed()
-  enabled: false
+  - task: YodLabs.O365PostMessage.O365PostMessageBuild.O365PostMessageBuild@0
+    displayName: 'Graph Client Tooling pipeline fail notification'
+    inputs:
+      addressType: serviceEndpoint
+      serviceEndpointName: 'microsoftgraph pipeline status'
+      title: '$(Build.DefinitionName) failure notification'
+      text: 'This pipeline has failed. View the build details for further information. This is a blocking failure. '
+    condition: failed()
+    enabled: false

@@ -1,16 +1,15 @@
-// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace SamplesDashboard.Models
 {
     public class MicrosoftMaintainerStatus
     {
-        [JsonProperty("repo")]
+        [JsonPropertyName("repo")]
         public string Repository { get; set; }
-        [JsonProperty("org")]
+        [JsonPropertyName("org")]
         public string Organization { get; set; }
         public MicrosoftMaintainers Maintainers { get; set; }
     }

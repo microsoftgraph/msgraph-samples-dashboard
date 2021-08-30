@@ -1,22 +1,23 @@
-﻿// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using SamplesDashboard.Services;
-using System.Threading.Tasks;
-using SamplesDashboardTests.Factories;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace SamplesDashboardTests
 {
-    public class MavenServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
+    public class MavenServiceTests : IClassFixture<WebApplicationFactory<SamplesDashboard.Startup>>
     {
         private readonly MavenService _mavenService;
         private readonly ITestOutputHelper _helper;
 
-        public MavenServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
+        public MavenServiceTests(
+          WebApplicationFactory<SamplesDashboard.Startup> applicationFactory,
+          ITestOutputHelper helper)
         {
             _helper = helper;
             _mavenService = applicationFactory.Services.GetService<MavenService>();
