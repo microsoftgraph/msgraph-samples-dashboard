@@ -1,14 +1,13 @@
-// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
-using Newtonsoft.Json;
 using SamplesDashboard.Models;
 
 namespace SamplesDashboard.Services
@@ -22,6 +21,7 @@ namespace SamplesDashboard.Services
         private readonly IConfiguration _config;
         private readonly ILogger<MicrosoftOpenSourceService> _logger;
         private readonly IConfidentialClientApplication _cca;
+        private readonly JsonSerializerOptions _jsonOptions;
 
         // This single scope is the permission scope needed to call the
         // Microsoft Open Source GitHub portal API. Don't change this.
@@ -37,11 +37,22 @@ namespace SamplesDashboard.Services
             _config = configuration;
             _logger = logger;
 
+            // TEMPORARY TO DIAGNOSE PIPELINE ERRORS
+            _logger.LogInformation($"Client ID: {_config.GetValue<string>(Constants.MSOSClientId)}");
+            _logger.LogInformation($"Tenant ID: {_config.GetValue<string>(Constants.AzureTenantId)}");
+
+            foreach (var c in configuration.AsEnumerable())
+            {
+                _logger.LogInformation($"{c.Key}: {c.Value}");
+            }
+            // END TEMPORARY
+
             _cca = ConfidentialClientApplicationBuilder
-                .Create(_config[Constants.AzureClientId])
-                .WithClientSecret(_config[Constants.AzureClientSecret])
-                .WithTenantId(_config[Constants.TenantId])
+                .Create(_config.GetValue<string>(Constants.MSOSClientId))
+                .WithClientSecret(_config.GetValue<string>(Constants.MSOSClientSecret))
+                .WithTenantId(_config.GetValue<string>(Constants.AzureTenantId))
                 .Build();
+            _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         }
 
         /// <summary>
@@ -75,9 +86,11 @@ namespace SamplesDashboard.Services
 
                 if (apiResponse.IsSuccessStatusCode)
                 {
-                    var result = JsonConvert
-                        .DeserializeObject<MicrosoftMaintainerStatus>(
-                            await apiResponse.Content.ReadAsStringAsync());
+                    var result = await JsonSerializer
+                        .DeserializeAsync<MicrosoftMaintainerStatus>(
+                            await apiResponse.Content.ReadAsStreamAsync(),
+                            _jsonOptions
+                        );
 
                     return result;
                 }

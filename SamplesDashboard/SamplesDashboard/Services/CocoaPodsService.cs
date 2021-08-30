@@ -1,6 +1,5 @@
-// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.IO;
@@ -23,7 +22,10 @@ namespace SamplesDashboard.Services
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
 
-        public CocoaPodsService(IHttpClientFactory clientFactory, IConfiguration config, IMemoryCache memoryCache)
+        public CocoaPodsService(
+            IHttpClientFactory clientFactory,
+            IConfiguration config,
+            IMemoryCache memoryCache)
         {
             _clientFactory = clientFactory;
             _config = config;
@@ -37,7 +39,8 @@ namespace SamplesDashboard.Services
         /// <returns>latest package version</returns>
         public async Task<string> GetLatestVersion(string packageName)
         {
-            if (!_cache.TryGetValue($"cocoapods: {packageName}", out string packageVersion))
+            var cacheKey = $"cocoapods:{packageName}";
+            if (!_cache.TryGetValue(cacheKey, out string packageVersion))
             {
                 var httpClient = _clientFactory.CreateClient();
 
@@ -64,8 +67,8 @@ namespace SamplesDashboard.Services
                                 // Found the version
                                 packageVersion = h1.FirstElementChild.InnerHtml;
                                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(
-                                    TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
-                                _cache.Set($"cocoapods: {packageName}", packageVersion, cacheEntryOptions);
+                                    TimeSpan.FromSeconds(_config.GetValue<double>(Constants.CacheLifetime)));
+                                _cache.Set(cacheKey, packageVersion, cacheEntryOptions);
                                 return packageVersion;
                             }
                         }

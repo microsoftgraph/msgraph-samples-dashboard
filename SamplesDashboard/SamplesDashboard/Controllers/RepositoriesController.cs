@@ -1,106 +1,59 @@
-﻿// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using SamplesDashboard.Services;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Identity.Web.Resource;
+using SamplesDashboard.Models;
+using SamplesDashboard.Services;
 
 namespace SamplesDashboard.Controllers
 {
-    [ApiController]
     [Authorize]
-    public class RepositoriesController : Controller
+    [ApiController]
+    [RequiredScope("Repos.Read")]
+    [Route("[controller]")]
+    public class RepositoriesController : ControllerBase
     {
         private readonly RepositoriesService _repositoriesService;
-        private IMemoryCache _cache;
-        private readonly IConfiguration _config;
         private readonly ILogger<RepositoriesController> _logger;
 
-        public RepositoriesController(RepositoriesService repositoriesService, IMemoryCache memoryCache, IConfiguration config, ILogger<RepositoriesController> logger)
+        public RepositoriesController(
+            RepositoriesService repositoriesService,
+            ILogger<RepositoriesController> logger
+        )
         {
             _repositoriesService = repositoriesService;
-            _cache = memoryCache;
-            _config = config;
             _logger = logger;
         }
 
-        [Produces("application/json")]
-        [Route("api/samples")]
-        [HttpGet]
-        public async Task<IActionResult> GetSamplesListAsync()
+        [HttpGet("samples")]
+        public async Task<ActionResult<IEnumerable<Repository>>> GetSamplesAsync()
         {
-
-            if (!_cache.TryGetValue(Constants.Samples, out var samples))
-            {
-
-                samples = await _repositoriesService.GetRepositories(Constants.Samples);
-
-                //Read timeout from config file
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
-
-                // Save data in cache.
-                _cache.Set( Constants.Samples, samples, cacheEntryOptions);
-                _logger.LogInformation("RepositoriesController :samples cache refreshed");
-            }
+            var samples = await _repositoriesService.GetRepositoriesAsync(Constants.Samples);
 
             return Ok(samples);
         }
 
-        [Produces("application/json")]
-        [Route("api/sdks")]
-        [HttpGet]
-        public async Task<IActionResult> GetSdksListAsync()
+        [HttpGet("sdks")]
+        public async Task<ActionResult<IEnumerable<Repository>>> GetSdks()
         {
+            var sdks = await _repositoriesService.GetRepositoriesAsync(Constants.Sdks);
 
-            if (!_cache.TryGetValue(Constants.Sdks, out var sdkList))
-            {
-                sdkList = await _repositoriesService.GetRepositories(Constants.Sdks);
-
-                //Read timeout from config file
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
-
-                // Save data in cache.
-                _cache.Set(Constants.Sdks, sdkList, cacheEntryOptions);
-                _logger.LogInformation("RepositoriesController :sdks cache refreshed");
-            }
-
-            return Ok(sdkList);
+            return Ok(sdks);
         }
 
-        [Produces("application/json")]
-        [Route("api/[controller]/{id}")]
-        public async Task<IActionResult> GetRepositoriesAsync(string id)
+        [HttpGet("details/{repository}")]
+        public async Task<ActionResult<Repository>> GetRepositoryDetails(string repository)
         {
-            if (!_cache.TryGetValue(id, out Repository repository))
-            {
-                repository = await _repositoriesService.GetRepository(id);
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
-                _cache.Set(id, repository, cacheEntryOptions);
-                _logger.LogInformation($"RepositoriesController : {id} : repositories cache refreshed");
+            var repo = await _repositoriesService.GetRepositoryAsync(repository);
 
-            }
-            return Ok(repository);
+            return Ok(repo);
         }
-    }
-
-    public class Dto
-    {
-        public Dto()
-        {
-            this.Dependencies = new List<DependenciesNode>();
-            Features = new List<string>();
-        }
-
-        public Node Sample { get; set; }
-        public List<DependenciesNode> Dependencies { get; set; }
-        public List<string> Features { get; set; }
-
     }
 }

@@ -1,40 +1,36 @@
-﻿// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using SamplesDashboard.Services;
-using SamplesDashboardTests.Factories;
-using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace SamplesDashboardTests
+namespace SampleDashboardTests
 {
-    public class NpmServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
+    public class NpmServiceTests : IClassFixture<WebApplicationFactory<SamplesDashboard.Startup>>
     {
         private readonly NpmService _npmService;
-        private readonly ITestOutputHelper _helper;
 
-        public NpmServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
+        public NpmServiceTests(
+            WebApplicationFactory<SamplesDashboard.Startup> applicationFactory,
+            ITestOutputHelper helper)
         {
-            _helper = helper;
             _npmService = applicationFactory.Services.GetService<NpmService>();
         }
 
         [Fact]
-        public async Task ShouldGetNpmVersions()
+        public async Task ShouldGetNpmVersion()
         {
             // Arrange
-            var packageName = "@hapi/boom";
-
+            var packageName = "@microsoft/microsoft-graph-client";
             // Act
             var latestVersion = await _npmService.GetLatestVersion(packageName);
 
             //Assert
-            Assert.NotNull(latestVersion);
-
+            Assert.False(string.IsNullOrEmpty(latestVersion));
         }
-
     }
 }

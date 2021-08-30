@@ -6,15 +6,21 @@ You'll need to do this to run Samples Dashboard locally.
 
 1. `git clone https://github.com/microsoftgraph/msgraph-samples-dashboard.git`
 
-2. Install [AspNetCore 3.0](https://dotnet.microsoft.com/download/dotnet-core/3.0).
+1. Install [.NET 5](https://dotnet.microsoft.com/download/dotnet/5.0) and [Node.js](https://nodejs.org/).node
 
-3. Install [Visual Studio 2019](https://visualstudio.microsoft.com/vs).
+1. Open a terminal, go to the ClientApp folder, and run `npm install` to install the web client dependencies.
 
-4. Generate a [github token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) and set it as an authentication token in appsettings.json.
+1. Register an application in Azure Active Directory with the following properties
+    - Single-tenant
+    - A single-page application redirect URI with the value `https://localhost:5001`
+    - In the **Expose an API** section, set:
+        - **Application ID URI** to `api://<APPLICATION_ID>`, where `<APPLICATION_ID>` is the app ID of the registration
+        - **Scopes defined by this API** - `api://cbd8a550-241d-466a-bf5e-20485800e81e/Repos.Read`, Admins and users can consent
+        - **Authorized client applications**: Add the app ID of this registration
 
-5. Open a terminal, go to the ClientApp folder, and run `npm install` to install the web client dependencies.
+1.
 
-6. Run the app.
+1. Run the app.
 
 ## YAML Schema
 
