@@ -37,16 +37,6 @@ namespace SamplesDashboard.Services
             _config = configuration;
             _logger = logger;
 
-            // TEMPORARY TO DIAGNOSE PIPELINE ERRORS
-            _logger.LogInformation($"Client ID: {_config.GetValue<string>(Constants.MSOSClientId)}");
-            _logger.LogInformation($"Tenant ID: {_config.GetValue<string>(Constants.AzureTenantId)}");
-
-            foreach (var c in configuration.AsEnumerable())
-            {
-                _logger.LogInformation($"{c.Key}: {c.Value}");
-            }
-            // END TEMPORARY
-
             _cca = ConfidentialClientApplicationBuilder
                 .Create(_config.GetValue<string>(Constants.MSOSClientId))
                 .WithClientSecret(_config.GetValue<string>(Constants.MSOSClientSecret))
