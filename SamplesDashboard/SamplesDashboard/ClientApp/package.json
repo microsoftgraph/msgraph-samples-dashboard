@@ -18,7 +18,7 @@
     "react-dom": "16.14.0",
     "react-redux": "6.0.0",
     "react-router": "4.3.1",
-    "react-router-dom": "4.3.1",
+    "react-router-dom": "5.3.0",
     "react-scripts": "4.0.3",
     "reactstrap": "7.0.2",
     "redux": "4.1.1",
