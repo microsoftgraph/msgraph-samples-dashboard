@@ -82,9 +82,9 @@ namespace SamplesDashboard.Services
             {
                 var currentVer = new NuGetVersion(currentVersion);
 
-                if (currentVer.IsPrerelease)
+                if (currentVer.IsPrerelease && latestVersion != null && latestVersion < currentVer)
                 {
-                    return latestVersion > currentVer ? latestVersion.ToString() : latestPreview.ToString();
+                    return latestPreview?.ToString() ?? string.Empty;
                 }
             }
             catch (ArgumentException)
@@ -92,7 +92,7 @@ namespace SamplesDashboard.Services
                 // GitHub can return requirement strings that NuGet doesn't understand
                 if (currentVersion.Contains("preview", StringComparison.OrdinalIgnoreCase))
                 {
-                    return latestPreview.ToString();
+                    return latestPreview?.ToString() ?? string.Empty;
                 }
             }
 
