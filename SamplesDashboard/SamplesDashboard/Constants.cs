@@ -52,6 +52,9 @@ namespace SamplesDashboard
             // .NET
             "microsoft.identity.client",
             "microsoft.identity.web",
+            "microsoft.identity.web.ui",
+            "microsoft.identity.web.microsoftgraph",
+            "microsoft.identity.web.microsoftgraphbeta",
             "microsoft.identitymodel.clients.activedirectory",
             "microsoft.authentication.webassembly.msal",
             // JavaScript
