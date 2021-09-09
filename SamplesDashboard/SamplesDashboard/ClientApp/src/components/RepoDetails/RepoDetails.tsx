@@ -33,7 +33,9 @@ import StatusCardRow from '../StatusCardRow/StatusCardRow';
 import StatusIndicator from '../StatusIndicator/StatusIndicator';
 import Dependency from '../../types/Dependency';
 import { dependencyColumns } from './DependencyColumns';
-import copyAndSort from '../../utilities/copy-and-sort';
+import copyAndSort, {
+  processColumnSorting,
+} from '../../utilities/copy-and-sort';
 import { dependencyListColumns } from '../../strings/Strings';
 
 interface RepoDetailsParams {
@@ -149,15 +151,7 @@ export default function RepoDetails(props: RouteComponentProps) {
       const currentColumn = newColumns.filter(
         (currCol) => column.key === currCol.key
       )[0];
-      newColumns.forEach((newColumn) => {
-        if (newColumn === currentColumn) {
-          newColumn.isSortedDescending = !newColumn.isSortedDescending;
-          newColumn.isSorted = true;
-        } else {
-          newColumn.isSorted = false;
-          newColumn.isSortedDescending = true;
-        }
-      });
+      processColumnSorting(newColumns, currentColumn);
 
       const newDependencies = copyAndSort(
         dependencies,

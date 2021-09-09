@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { IColumn } from '@fluentui/react';
+
 // Given an array of objects, sort by the specified column
 export default function copyAndSort<T>(
   items: T[],
@@ -64,4 +66,21 @@ function compare(a: any, b: any, isSortedDescending?: boolean) {
     comparison = comparison * -1;
   }
   return comparison;
+}
+
+// Sets the sort flags on a group of columns based on
+// the sorted column
+export function processColumnSorting(
+  columns: IColumn[],
+  sortedColumn: IColumn
+): void {
+  columns.forEach((column) => {
+    if (column === sortedColumn) {
+      column.isSortedDescending = !column.isSortedDescending;
+      column.isSorted = true;
+    } else {
+      column.isSorted = false;
+      column.isSortedDescending = true;
+    }
+  });
 }

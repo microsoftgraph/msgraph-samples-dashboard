@@ -32,7 +32,9 @@ import { classNames, filterListClass } from '../SharedStyles';
 import { repoListColumns } from '../../strings/Strings';
 import { getRepositoryStats, UpdateStats } from '../../types/UpdateStats';
 import { authConfig } from '../../AuthConfig';
-import copyAndSort from '../../utilities/copy-and-sort';
+import copyAndSort, {
+  processColumnSorting,
+} from '../../utilities/copy-and-sort';
 import { repositoryColumns } from './RepositoryColumns';
 
 interface RepositoriesProps {
@@ -283,15 +285,7 @@ export default function Repositories(props: RepositoriesProps) {
       const currentColumn = newColumns.filter(
         (currCol) => column.key === currCol.key
       )[0];
-      newColumns.forEach((newColumn) => {
-        if (newColumn === currentColumn) {
-          newColumn.isSortedDescending = !newColumn.isSortedDescending;
-          newColumn.isSorted = true;
-        } else {
-          newColumn.isSorted = false;
-          newColumn.isSortedDescending = true;
-        }
-      });
+      processColumnSorting(newColumns, currentColumn);
 
       const newRepositories = copyAndSort(
         repositories,
