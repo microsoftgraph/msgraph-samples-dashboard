@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/runtime": "7.15.3",
-    "@fluentui/react": "8.29.0",
+    "@fluentui/react": "8.34.0",
     "@types/query-string": "6.3.0",
     "bootstrap": "4.6.0",
     "connected-react-router": "6.9.1",
