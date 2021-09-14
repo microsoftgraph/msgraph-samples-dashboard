@@ -1,34 +1,34 @@
-// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-using Microsoft.Extensions.DependencyInjection;
-using SamplesDashboard.Services;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using SamplesDashboardTests.Factories;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using SamplesDashboard.Models;
+using SamplesDashboard.Services;
 using Xunit;
 using Xunit.Abstractions;
-using SamplesDashboard.Models;
-using System.Collections.Generic;
-using SamplesDashboard;
-using System.Linq;
-using System;
 
 namespace SamplesDashboardTests
 {
-    public class RepositoriesServiceTests : IClassFixture<BaseWebApplicationFactory<TestStartup>>
+    public class RepositoriesServiceTests : IClassFixture<WebApplicationFactory<SamplesDashboard.Startup>>
     {
-        private readonly ITestOutputHelper _helper;
         private readonly RepositoriesService _repositoriesService;
+        private readonly ITestOutputHelper _helper;
 
-        public RepositoriesServiceTests(BaseWebApplicationFactory<TestStartup> applicationFactory, ITestOutputHelper helper)
+        public RepositoriesServiceTests(
+          WebApplicationFactory<SamplesDashboard.Startup> applicationFactory,
+          ITestOutputHelper helper)
         {
             _helper = helper;
             _repositoriesService = applicationFactory.Services.GetService<RepositoriesService>();
         }
 
         [Fact]
-        public async Task ShouldGetHeaderDetailsAsync()
+        public async Task ShouldGetHeaderDetailsFromReadmeAsync()
         {
             //Arrange
             var sampleName = "aspnetcore-connect-sample";
@@ -45,7 +45,24 @@ namespace SamplesDashboardTests
         }
 
         [Fact]
-        public async Task ShouldGetHeaderDetailsAsync2()
+        public async Task ShouldGetHeaderDetailsFromYamlFileAsync()
+        {
+            //Arrange
+            var sampleName = "msgraph-training-java";
+            var branchName = "main";
+
+            //Act
+            var headerDetails = await _repositoriesService.GetYamlHeader(sampleName, branchName);
+
+            //Assert
+            Assert.NotNull(headerDetails);
+            _helper.WriteLine(headerDetails.LanguagesString);
+            Assert.Equal("java", headerDetails.LanguagesString);
+            Assert.Equal("Outlook,Office 365,Microsoft identity platform", headerDetails.ServicesString);
+        }
+
+        [Fact]
+        public async Task ShouldNotGetHeaderDetailsIfAbsentAsync()
         {
             //Arrange
             var sampleName = "meetings-capture-sample";
@@ -59,65 +76,32 @@ namespace SamplesDashboardTests
         }
 
         [Fact]
-        public async Task ShouldGetHeaderDetailsAsync3()
-        {
-            //Arrange
-            var sampleName = "nodejs-webhooks-rest-sample";
-            var branchName = "main";
-
-            //Act
-            var headerDetails = await _repositoriesService.GetYamlHeader(sampleName, branchName);
-
-            //Assert
-            Assert.NotNull(headerDetails);
-            _helper.WriteLine(headerDetails.LanguagesString);
-            Assert.Equal("nodejs,javascript", headerDetails.LanguagesString);
-            Assert.Equal("Outlook,Office 365,Microsoft identity platform", headerDetails.ServicesString);
-        }
-
-        [Fact]
-        public async Task ShouldGetHeaderDetailsAsync4()
-        {
-            //Arrange
-            var sampleName = "python-security-rest-sample";
-            var branchName = "master";
-
-            //Act
-            var headerDetails = await _repositoriesService.GetYamlHeader(sampleName, branchName);
-
-            //Assert
-            Assert.NotNull(headerDetails);
-            Assert.Equal("python,html", headerDetails.LanguagesString);
-            Assert.Equal("Security", headerDetails.ServicesString);
-        }
-
-        [Fact]
         public async Task ShouldGetSamples()
         {
             // Arrange
-            var sampleName = "msgraph-training-aspnetmvcapp";
+            var sampleName = "msgraph-training-aspnet-core";
 
             // Act
-            var samples = await _repositoriesService.GetRepositories(Constants.Samples);
-            var exampleSample = samples.Find((node) => node.Name.Equals(sampleName));
+            var samples = await _repositoriesService.GetRepositoriesAsync(SamplesDashboard.Constants.Samples);
+            var exampleSample = samples.Find((repo) => repo.Name.Equals(sampleName));
 
             Assert.NotEmpty(samples);
-            Assert.IsType<List<Node>>(samples);
+            Assert.IsType<List<Repository>>(samples);
             Assert.NotNull(exampleSample);
         }
 
         [Fact]
-        public async Task ShouldGetSdksList()
+        public async Task ShouldGetSdks()
         {
             // Arrange
             var sdkName = "msgraph-sdk-dotnet";
 
             // Act
-            var sdks = await _repositoriesService.GetRepositories(Constants.Sdks);
-            var exampleSdk = sdks.Find((node) => node.Name.Equals(sdkName));
+            var sdks = await _repositoriesService.GetRepositoriesAsync(SamplesDashboard.Constants.Sdks);
+            var exampleSdk = sdks.Find((repo) => repo.Name.Equals(sdkName));
 
             Assert.NotEmpty(sdks);
-            Assert.IsType<List<Node>>(sdks);
+            Assert.IsType<List<Repository>>(sdks);
             Assert.NotNull(exampleSdk);
         }
 
@@ -125,13 +109,13 @@ namespace SamplesDashboardTests
         public async Task ShouldGetSampleAndTrainingRepositories()
         {
             //Act
-            var samples = await _repositoriesService.GetRepositories(Constants.Samples);
+            var samples = await _repositoriesService.GetRepositoriesAsync(SamplesDashboard.Constants.Samples);
             var sampleList = samples.Select(n => n.Name);
 
             //Assert
             foreach (string sample in sampleList)
             {
-                Assert.True(sample.Contains("sample", StringComparison.OrdinalIgnoreCase) || sample.Contains("training", StringComparison.OrdinalIgnoreCase));
+                Assert.Contains(SamplesDashboard.Constants.Samples, s => sample.Contains(s, StringComparison.OrdinalIgnoreCase));
             }
         }
 
@@ -139,138 +123,249 @@ namespace SamplesDashboardTests
         public async Task ShouldGetSdksRepositories()
         {
             //Act
-            var sdks = await _repositoriesService.GetRepositories(Constants.Sdks);
+            var sdks = await _repositoriesService.GetRepositoriesAsync(SamplesDashboard.Constants.Sdks);
             var sdkList = sdks.Select(n => n.Name);
 
             //Assert
             foreach (var sdk in sdkList)
             {
-                Assert.Contains(Constants.Sdks, s => sdk.Contains(s, StringComparison.OrdinalIgnoreCase));
+                Assert.Contains(SamplesDashboard.Constants.Sdks, s => sdk.Contains(s, StringComparison.OrdinalIgnoreCase));
             }
         }
 
         [Fact]
-        public async Task ShouldGetDependencies()
+        public async Task ShouldGetNuGetDependencies()
         {
             //Arrange
-            var name = "msgraph-training-aspnetmvcapp";
-            var packageManager = "NUGET";
+            var repository = new Repository
+            {
+                Name = "msgraph-training-aspnet-core",
+                DefaultBranch = "main"
+            };
+
+            var data = new GitHubGraphQLRepoData
+            {
+                DependencyManifests = new GitHubGraphQLNodeCollection<GitHubGraphQLDependencyManifest>
+                {
+                    Values = new List<GitHubGraphQLDependencyManifest>
+                    {
+                        new GitHubGraphQLDependencyManifest
+                        {
+                            FileName = "GraphTutorial.csproj",
+                            Dependencies = new GitHubGraphQLNodeCollection<GitHubGraphQLDependency>
+                            {
+                                Values = new List<GitHubGraphQLDependency>
+                                {
+                                    new GitHubGraphQLDependency
+                                    {
+                                        PackageManager = SamplesDashboard.Constants.Nuget,
+                                        PackageName = "Microsoft.Graph",
+                                        Requirements = "4.0.0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
 
             //Act
-            var repository = await _repositoriesService.GetRepository(name);
-            var res = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
-            var library = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageName)).Contains("Microsoft.Graph");
+            await _repositoriesService.GetDependencyDataAsync(repository, null, data);
+            var packages = repository.Dependencies.Select(d => d.PackageName);
 
             //Assert
-            Assert.NotNull(repository);
-            Assert.True(library);
-            Assert.Equal(packageManager, res.FirstOrDefault());
-            Assert.IsType<Repository>(repository);
+            Assert.IsType<List<Dependency>>(repository.Dependencies);
+            Assert.NotEmpty(repository.Dependencies);
+            Assert.NotEmpty(packages);
+            Assert.Contains("Microsoft.Graph", packages);
+        }
 
+        [Fact]
+        public async Task ShouldGetNpmDependencies()
+        {
+            //Arrange
+            var repository = new Repository
+            {
+                Name = "msgraph-training-nodeexpressapp",
+                DefaultBranch = "main"
+            };
+
+            var data = new GitHubGraphQLRepoData
+            {
+                DependencyManifests = new GitHubGraphQLNodeCollection<GitHubGraphQLDependencyManifest>
+                {
+                    Values = new List<GitHubGraphQLDependencyManifest>
+                    {
+                        new GitHubGraphQLDependencyManifest
+                        {
+                            FileName = "package.json",
+                            Dependencies = new GitHubGraphQLNodeCollection<GitHubGraphQLDependency>
+                            {
+                                Values = new List<GitHubGraphQLDependency>
+                                {
+                                    new GitHubGraphQLDependency
+                                    {
+                                        PackageManager = SamplesDashboard.Constants.Npm,
+                                        PackageName = "@microsoft/microsoft-graph-client",
+                                        Requirements = "^3.0.0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            //Act
+            await _repositoriesService.GetDependencyDataAsync(repository, null, data);
+            var packages = repository.Dependencies.Select(d => d.PackageName);
+
+            //Assert
+            Assert.IsType<List<Dependency>>(repository.Dependencies);
+            Assert.NotEmpty(repository.Dependencies);
+            Assert.NotEmpty(packages);
+            Assert.Contains("@microsoft/microsoft-graph-client", packages);
         }
 
         [Fact]
         public async Task ShouldGetMavenDependencies()
         {
             //Arrange
-            var name = "msgraph-sdk-java-core";
-            var packageManager = "MAVEN";
+            var repository = new Repository
+            {
+                Name = "msgraph-sdk-java",
+                DefaultBranch = "main"
+            };
+
+            var data = new GitHubGraphQLRepoData
+            {
+                DependencyManifests = new GitHubGraphQLNodeCollection<GitHubGraphQLDependencyManifest>
+                {
+                    Values = new List<GitHubGraphQLDependencyManifest>
+                    {
+                        new GitHubGraphQLDependencyManifest
+                        {
+                            FileName = "pom.xml",
+                            Dependencies = new GitHubGraphQLNodeCollection<GitHubGraphQLDependency>
+                            {
+                                Values = new List<GitHubGraphQLDependency>
+                                {
+                                    new GitHubGraphQLDependency
+                                    {
+                                        PackageManager = SamplesDashboard.Constants.Maven,
+                                        PackageName = "com.microsoft.graph:microsoft-graph-core",
+                                        Requirements = "3.0.0"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
 
             //Act
-            var repository = await _repositoriesService.GetRepository(name);
-            var res = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.packageManager)).ToList();
-            var versions = repository.DependencyGraphManifests.Nodes.SelectMany(n => n.Dependencies.Nodes.Select(n => n.latestVersion)).ToList();
+            await _repositoriesService.GetDependencyDataAsync(repository, null, data);
+            var packages = repository.Dependencies.Select(d => d.PackageName);
 
             //Assert
-            Assert.NotNull(repository);
-            Assert.Equal(packageManager, res.FirstOrDefault());
-            Assert.IsType<Repository>(repository);
-            Assert.DoesNotContain(versions, v => string.IsNullOrEmpty(v));
+            Assert.IsType<List<Dependency>>(repository.Dependencies);
+            Assert.NotEmpty(repository.Dependencies);
+            Assert.NotEmpty(packages);
+            Assert.Contains("com.microsoft.graph:microsoft-graph-core", packages);
+        }
+
+        [Fact]
+        public async Task ShouldGetGradleDependencies()
+        {
+            //Arrange
+            var repository = new Repository
+            {
+                Name = "msgraph-training-java",
+                DefaultBranch = "main"
+            };
+
+            var yamlHeader = new YamlHeader
+            {
+                DependencyFile = "/demo/graphtutorial/build.gradle"
+            };
+
+            var data = new GitHubGraphQLRepoData
+            {
+                DependencyManifests = new GitHubGraphQLNodeCollection<GitHubGraphQLDependencyManifest>
+                {
+                    Values = new List<GitHubGraphQLDependencyManifest>()
+                }
+            };
+
+            //Act
+            await _repositoriesService.GetDependencyDataAsync(repository, yamlHeader, data);
+            var packages = repository.Dependencies.Select(d => d.PackageName);
+
+            //Assert
+            Assert.IsType<List<Dependency>>(repository.Dependencies);
+            Assert.NotEmpty(repository.Dependencies);
+            Assert.NotEmpty(packages);
+            Assert.Contains("com.microsoft.graph:microsoft-graph", packages);
+        }
+
+        [Fact]
+        public async Task ShouldGetPodfileDependencies()
+        {
+            //Arrange
+            var repository = new Repository
+            {
+                Name = "msgraph-training-ios-swift",
+                DefaultBranch = "main"
+            };
+
+            var yamlHeader = new YamlHeader
+            {
+                DependencyFile = "/demo/GraphTutorial/Podfile"
+            };
+
+            var data = new GitHubGraphQLRepoData
+            {
+                DependencyManifests = new GitHubGraphQLNodeCollection<GitHubGraphQLDependencyManifest>
+                {
+                    Values = new List<GitHubGraphQLDependencyManifest>()
+                }
+            };
+
+            //Act
+            await _repositoriesService.GetDependencyDataAsync(repository, yamlHeader, data);
+            var packages = repository.Dependencies.Select(d => d.PackageName);
+
+            //Assert
+            Assert.IsType<List<Dependency>>(repository.Dependencies);
+            Assert.NotEmpty(repository.Dependencies);
+            Assert.NotEmpty(packages);
+            Assert.Contains("msgraphclientsdk", packages);
         }
 
         [Fact]
         public async Task ShouldGetNullDependencies()
         {
             //Arrange
-            var name = "powershell-intune-samples";
+            var repository = new Repository
+            {
+                Name = "powershell-intune-samples",
+                DefaultBranch = "master"
+            };
+
+            var data = new GitHubGraphQLRepoData
+            {
+                DependencyManifests = new GitHubGraphQLNodeCollection<GitHubGraphQLDependencyManifest>
+                {
+                    Values = new List<GitHubGraphQLDependencyManifest>()
+                }
+            };
 
             //Act
-            var repository = await _repositoriesService.GetRepository(name);
-            var nodes = repository.DependencyGraphManifests.Nodes.Select(n => n.Dependencies.Nodes);
+            await _repositoriesService.GetDependencyDataAsync(repository, null, data);
 
             //Assert
-            Assert.NotNull(repository);
-            Assert.Empty(nodes);
-        }
-
-        [Theory]
-        [InlineData("1.2.3", "1.2.3", PackageStatus.UpToDate)]
-        [InlineData("1.2.3.4", "1.2.3.4", PackageStatus.UpToDate)]
-        [InlineData("1.2.1", "1.3.1", PackageStatus.MinorVersionUpdate)]
-        [InlineData("2.2.1", "3.0.0", PackageStatus.MajorVersionUpdate)]
-        [InlineData("1.2.0", "1.2.1", PackageStatus.PatchUpdate)]
-        [InlineData("1.2.0", "v1.2.1", PackageStatus.PatchUpdate)]
-        [InlineData("v1.2.0", "v1.2.1", PackageStatus.PatchUpdate)]
-        [InlineData("1.2.0", "2.1.0-Preview.1", PackageStatus.MajorVersionUpdate)]
-        [InlineData("1.2.0", "2.1.0-alpha.1", PackageStatus.MajorVersionUpdate)]
-        [InlineData("2.1.0", "2.1.0-Preview.1", PackageStatus.PatchUpdate)]
-        [InlineData("2.1.0", "2.1.0-2", PackageStatus.PatchUpdate)]
-        [InlineData("2.1.0", "3.1.0-2", PackageStatus.MajorVersionUpdate)]
-        [InlineData("2.1.0", "1.8<2.1", PackageStatus.Unknown)]
-        [InlineData("2.1.0", "Unknown", PackageStatus.Unknown)]
-        [InlineData("2.1.0", "", PackageStatus.Unknown)]
-        [InlineData("2.1.0", null, PackageStatus.Unknown)]
-        [InlineData("2.0,< 3.0", "2.0.2", PackageStatus.PatchUpdate)]
-        public void ShouldDetermineStatusFromVersion(string sampleVersion, string latestVersion, PackageStatus expectedStatus)
-        {
-            //Act
-            var repositoryStatus = _repositoriesService.CalculateStatus(sampleVersion, latestVersion);
-
-            //Assert
-            Assert.Equal(expectedStatus, repositoryStatus);
-        }
-
-        [Fact]
-        public async Task ShouldSetCurrentVersionOnEmptyStrings()
-        {
-            //Arrange
-            var sample = "msgraph-training-phpapp";
-
-            //Act
-            var dependency = await _repositoriesService.GetRepository(sample);
-            var latestVersion = _repositoriesService.UpdateRepositoryStatus(dependency).ToString();
-
-            Assert.NotNull(latestVersion);
-        }
-
-        [Fact]
-        public async Task ShouldGetDependenciesFromGradleFile()
-        {
-            // Arrange
-            var repoName = "msgraph-training-android";
-            var defaultBranch = "main";
-            var dependencyFile = "/demo/GraphTutorial/app/build.gradle";
-
-            // Act
-            var dependencies = await _repositoriesService.BuildDependencyGraphFromFile(repoName, defaultBranch, dependencyFile);
-
-            Assert.NotNull(dependencies);
-            Assert.NotEmpty(dependencies);
-        }
-
-        [Fact]
-        public async Task ShouldGetDependenciesFromPodfile()
-        {
-            // Arrange
-            var repoName = "msgraph-training-ios-swift";
-            var defaultBranch = "main";
-            var dependencyFile = "/demo/GraphTutorial/Podfile";
-
-            // Act
-            var dependencies = await _repositoriesService.BuildDependencyGraphFromFile(repoName, defaultBranch, dependencyFile);
-
-            Assert.NotNull(dependencies);
-            Assert.NotEmpty(dependencies);
+            Assert.IsType<List<Dependency>>(repository.Dependencies);
+            Assert.Empty(repository.Dependencies);
         }
     }
 }
