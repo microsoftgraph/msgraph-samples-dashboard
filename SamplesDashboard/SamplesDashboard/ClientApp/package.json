@@ -22,7 +22,7 @@
     "@types/jest": "^27.0.1",
     "@types/microsoft-graph": "^2.5.0",
     "@types/node": "^16.9.0",
-    "@types/react": "^17.0.20",
+    "@types/react": "^17.0.21",
     "@types/react-dom": "^17.0.9",
     "@types/react-router-dom": "^5.1.8",
     "prettier": "^2.4.0",
