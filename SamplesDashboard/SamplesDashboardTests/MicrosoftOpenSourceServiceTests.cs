@@ -35,7 +35,7 @@ namespace SamplesDashboardTests
 
             //Assert
             Assert.Single(maintainers.Maintainers.Individuals);
-            Assert.Equal("Jason Johnston (HE/HIM)", maintainers.Maintainers.Individuals[0].DisplayName);
+            Assert.Equal("Jason Johnston", maintainers.Maintainers.Individuals[0].DisplayName);
             Assert.NotNull(maintainers.Maintainers.SecurityGroupMail);
             Assert.Equal("graphsampleadmins@microsoft.com", maintainers.Maintainers.SecurityGroupMail);
         }
