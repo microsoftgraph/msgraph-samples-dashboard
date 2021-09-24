@@ -48,7 +48,7 @@ namespace SamplesDashboard.Services
                     // Save the versions into the cache
                     var cacheEntryOptions = new MemoryCacheEntryOptions()
                         .SetAbsoluteExpiration(TimeSpan.FromSeconds(_cacheLifetime));
-                    _cache.Set(cacheKey, latestVersion);
+                    _cache.Set(cacheKey, latestVersion, cacheEntryOptions);
                 }
             }
 
