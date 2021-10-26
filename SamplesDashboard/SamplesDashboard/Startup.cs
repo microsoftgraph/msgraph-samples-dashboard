@@ -64,6 +64,7 @@ namespace SamplesDashboard
 
             services.AddSingleton<IGraphQLWebsocketJsonSerializer, SystemTextJsonSerializer>();
 
+            services.AddSingleton<CacheService>();
             services.AddSingleton<RepositoriesService>();
             services.AddSingleton<GitHubAuthService>();
             services.AddSingleton<ManifestFromFileService>();

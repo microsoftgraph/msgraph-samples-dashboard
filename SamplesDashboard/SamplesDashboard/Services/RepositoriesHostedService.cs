@@ -5,8 +5,6 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -19,21 +17,18 @@ namespace SamplesDashboard.Services
     public class RepositoriesHostedService : IHostedService, IDisposable
     {
         private readonly RepositoriesService _repositoriesService;
-        private readonly IConfiguration _config;
-        private readonly IMemoryCache _cache;
+        private readonly CacheService _cacheService;
         private readonly ILogger<RepositoriesHostedService> _logger;
         private Timer _timer;
 
         public RepositoriesHostedService(
             RepositoriesService repositoriesService,
-            IConfiguration config,
-            IMemoryCache memoryCache,
+            CacheService cacheService,
             ILogger<RepositoriesHostedService> logger
         )
         {
             _repositoriesService = repositoriesService;
-            _config = config;
-            _cache = memoryCache;
+            _cacheService = cacheService;
             _logger = logger;
         }
 
@@ -82,40 +77,32 @@ namespace SamplesDashboard.Services
         {
             try
             {
-                var cacheLifeTime = _config.GetValue<double>(Constants.CacheLifetime);
-
                 // Populate the samples cache if needed
-                if (!_cache.TryGetValue(Constants.Samples, out var samples))
+                if (!_cacheService.TryGetValue(Constants.Samples, out int samples))
                 {
                     var stopWatch = Stopwatch.StartNew();
 
                     var sampleRepositories = await _repositoriesService.GetRepositoriesAsync(Constants.Samples);
                     samples = sampleRepositories?.Count ?? 0;
 
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(cacheLifeTime));
-
                     // Add a cache entry with the number of sample repos to indicate
                     // that the samples have been cached
-                    _cache.Set(Constants.Samples, samples, cacheEntryOptions);
+                    _cacheService.Set(Constants.Samples, samples);
                     stopWatch.Stop();
                     _logger.LogInformation($"{nameof(RepositoriesHostedService)}: samples cache refreshed in {stopWatch.ElapsedMilliseconds} milliseconds.");
                 }
 
                 // Populate the SDKs cache if needed
-                if (!_cache.TryGetValue(Constants.Sdks, out var sdks))
+                if (!_cacheService.TryGetValue(Constants.Sdks, out int sdks))
                 {
                     var stopWatch = Stopwatch.StartNew();
 
                     var sdkRepositories = await _repositoriesService.GetRepositoriesAsync(Constants.Sdks);
                     sdks = sdkRepositories?.Count ?? 0;
 
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(cacheLifeTime));
-
                     // Add a cache entry with the number of SDK repos to indicate
                     // that the SDKs have been cached
-                    _cache.Set(Constants.Sdks, sdks, cacheEntryOptions);
+                    _cacheService.Set(Constants.Sdks, sdks);
                     stopWatch.Stop();
                     _logger.LogInformation($"{nameof(RepositoriesHostedService)}: SDKs cache refreshed in {stopWatch.ElapsedMilliseconds} milliseconds.");
                 }

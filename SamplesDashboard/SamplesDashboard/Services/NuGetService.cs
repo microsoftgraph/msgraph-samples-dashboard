@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using NuGet.Common;
 using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
@@ -19,15 +17,12 @@ namespace SamplesDashboard.Services
     public class NuGetService
     {
         private readonly SourceRepository _nuGetRepository;
-        private readonly double _cacheLifetime;
-        private readonly IMemoryCache _cache;
+        private readonly CacheService _cacheService;
 
         public NuGetService(
-            IConfiguration configuration,
-            IMemoryCache memoryCache)
+            CacheService cacheService)
         {
-            _cacheLifetime = configuration.GetValue<double>(Constants.CacheLifetime);
-            _cache = memoryCache;
+            _cacheService = cacheService;
             _nuGetRepository = NugetRepository.Factory
                 .GetCoreV3("https://api.nuget.org/v3/index.json");
         }
@@ -48,7 +43,7 @@ namespace SamplesDashboard.Services
             NuGetVersion latestPreview = null;
 
             var cacheKey = $"nuget:{packageName}";
-            if (!_cache.TryGetValue(cacheKey, out string latestAndPreview))
+            if (!_cacheService.TryGetValue(cacheKey, out string latestAndPreview))
             {
                 var versions = await GetPackageVersions(packageName);
 
@@ -67,9 +62,7 @@ namespace SamplesDashboard.Services
                 var latestPreviewString = latestPreview?.ToString() ?? string.Empty;
 
                 // Save the versions into the cache
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(_cacheLifetime));
-                _cache.Set(cacheKey, $"{latestVersionString};{latestPreviewString}", cacheEntryOptions);
+                _cacheService.Set(cacheKey, $"{latestVersionString};{latestPreviewString}");
             }
             else
             {
