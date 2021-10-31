@@ -2,17 +2,17 @@
   "cSpell.ignoreWords": [
     "adal",
     "angularjs",
-    "aspnetmvcapp",
     "dependabot",
     "devx",
-    "edcgnui",
-    "intune",
-    "localdb",
+    "fluentui",
+    "g",
     "msgraph",
+    "msgraphclientsdk",
     "msgraphcore",
-    "mssqllocaldb",
-    "oidc",
-    "signin",
+    "msos",
+    "raph",
     "xunit"
-  ]
+  ],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

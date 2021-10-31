@@ -1,22 +1,48 @@
-﻿// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-using System.Collections.Generic;
 using SamplesDashboard.Extensions;
 
 namespace SamplesDashboard
 {
     public static class Constants
     {
-        private static readonly IEnumerable<string> SdkList = new[]
-        {
-            "sdk", "microsoft-graph-explorer", "devx-api", "raptor", "\\\"msgraph-cli\\\"", "samples-dashboard"
-        };
-        private static readonly IEnumerable<string> SamplesList = new[] {"sample", "training"};
-        public static readonly string Sdks = SdkList.BuildQueryString();
+        // Configuration keys
+        public const string Product = "Product";
+        public const string ProductVersion = "ProductVersion";
+        public const string GitHubOrg = "GitHubOrg";
+        public const string GitHubAppId = "GitHubAppId";
+        public const string GitHubAppKeyFile = "GitHubAppKeyFile";
+        public const string GitHubAppKeyIdentifier = "GitHubAppKeyIdentifier";
+        public const string GitHubConcurrency = "GitHubConcurrency";
+        public const string KeyVaultUri = "KeyVaultUri";
+        public const string KeyVaultAppId = "KeyVaultAppId";
+        public const string KeyVaultSecret = "KeyVaultSecret";
+        public const string AzureClientId = "AzureAd:ClientId";
+        public const string AzureTenantId = "AzureAd:TenantId";
+        public const string MSOSClientId = "MSOSClientId";
+        public const string MSOSClientSecret = "MSOSClientSecret";
+
+        // Cache keys
+        public const string GitHubToken = "GitHubToken";
+        public const string CacheLifetime = "CacheLifetime";
+
+        // Key Vault
+        public static readonly string[] KeyVaultScopes = { "https://vault.azure.net/.default" };
+
+        // Repo queries
+        private static readonly string[] SamplesList = { "sample", "training"};
         public static readonly string Samples = SamplesList.BuildQueryString();
-        public const string Timeout = "timeout";
+
+        private static readonly string[] SdkList = { "sdk", "microsoft-graph-explorer", "devx-api", "raptor", "\\\"msgraph-cli\\\"", "samples-dashboard" };
+        public static readonly string Sdks = SdkList.BuildQueryString();
+
+        // Package managers
+        public const string Nuget = "NUGET";
+        public const string Npm = "NPM";
+        public const string Gradle = "GRADLE";
+        public const string Maven = "MAVEN";
+        public const string CocoaPods = "COCOAPODS";
 
         // Names of known identity libraries from Microsoft
         // as they appear in dependency graph or file.
@@ -26,9 +52,13 @@ namespace SamplesDashboard
             // .NET
             "microsoft.identity.client",
             "microsoft.identity.web",
+            "microsoft.identity.web.ui",
+            "microsoft.identity.web.microsoftgraph",
+            "microsoft.identity.web.microsoftgraphbeta",
             "microsoft.identitymodel.clients.activedirectory",
             "microsoft.authentication.webassembly.msal",
             // JavaScript
+            "@azure/msal-common",
             "@azure/msal-node",
             "@azure/msal-browser",
             "@azure/msal-react",
@@ -69,13 +99,7 @@ namespace SamplesDashboard
             "msgraphclientsdk"
         };
 
-        // Config keys (appsettings.json, user secrets, etc.)
-        public static readonly string GitHubToken = "githubToken";
-        public static readonly string AzureClientId = "AzureClientId";
-        public static readonly string AzureClientSecret = "AzureClientSecret";
-        public static readonly string TenantId = "TenantId";
-        public static readonly string KeyIdentifier = "KeyIdentifier";
-
+        // Gradle file dependency indicators
         public static readonly string[] GradleDependencyTypes =
         {
             "implementation",

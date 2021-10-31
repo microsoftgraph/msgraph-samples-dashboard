@@ -1,66 +1,52 @@
-﻿// ------------------------------------------------------------------------------
-//  Copyright (c) Microsoft Corporation.  All Rights Reserved.  Licensed under the MIT License.  See License in the project root for license information.
-// ------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using SamplesDashboard.Models;
 using System;
-using System.IO;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
+using SamplesDashboard.Models;
 
 namespace SamplesDashboard.Services
 {
-    /// <summary>
-    /// This class contains NPM queries to be used by the samples
-    /// </summary>
     public class NpmService
     {
+        private const string npmRegistry = "https://registry.npmjs.org/";
         private readonly IHttpClientFactory _clientFactory;
-        private readonly IConfiguration _config;
-        private IMemoryCache _cache;
+        private readonly CacheService _cacheService;
+        private readonly JsonSerializerOptions _jsonOptions;
 
-        public NpmService(IHttpClientFactory clientFactory, IConfiguration config, IMemoryCache memoryCache)
+        public NpmService(
+            IHttpClientFactory clientFactory,
+            CacheService cacheService)
         {
             _clientFactory = clientFactory;
-            _config = config;
-            _cache = memoryCache;
+            _cacheService = cacheService;
+            _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         }
 
-        /// <summary>
-        ///Creates a httpclient to query npm's registry to get package details
-        /// </summary>
-        /// <param name="packageName"></param>
-        /// <returns>latest package version</returns>
         public async Task<string> GetLatestVersion(string packageName)
         {
-            NpmQuery npmData;
-            if (!_cache.TryGetValue($"npm: {packageName}", out npmData))
+            var cacheKey = $"npm:{packageName}";
+            if (!_cacheService.TryGetValue(cacheKey, out string latestVersion))
             {
                 var httpClient = _clientFactory.CreateClient();
-         
-                HttpResponseMessage responseMessage = await httpClient.GetAsync(string.Concat("https://registry.npmjs.org/", packageName));
 
-                if (responseMessage.IsSuccessStatusCode)
+                var response = await httpClient.GetAsync($"{npmRegistry}{packageName}");
+
+                if (response.IsSuccessStatusCode)
                 {
-               
-                    using (var stream = await responseMessage.Content.ReadAsStreamAsync())
-                    using (var streamReader = new StreamReader(stream))
-                    using (var jsonTextReader = new JsonTextReader(streamReader))
+                    var jsonResponse = await response.Content.ReadAsStreamAsync();
+                    var queryResult = await JsonSerializer.DeserializeAsync<NpmQueryResult>(jsonResponse, _jsonOptions);
 
-                    {
-                        var serializer = new JsonSerializer();
-                        npmData = serializer.Deserialize<NpmQuery>(jsonTextReader);
-
-                        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.Timeout)));
-                        _cache.Set($"npm: {packageName}", npmData, cacheEntryOptions);
-                    }                   
+                    latestVersion = queryResult?.Tags?.Latest ?? string.Empty;
+                    // Save the versions into the cache
+                    _cacheService.Set(cacheKey, latestVersion);
                 }
             }
 
-            return npmData?.DistTags?.Latest;
+            return latestVersion;
         }
     }
 }
