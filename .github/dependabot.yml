@@ -1,17 +1,17 @@
 version: 2
 updates:
-- package-ecosystem: nuget
-  directory: "/SamplesDashboard/SamplesDashboard"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
-- package-ecosystem: npm
-  directory: "/SamplesDashboard/SamplesDashboard/ClientApp"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 10
+  - package-ecosystem: nuget
+    directory: '/SamplesDashboard/SamplesDashboard'
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+  - package-ecosystem: npm
+    directory: '/SamplesDashboard/SamplesDashboard/ClientApp'
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
