@@ -54,7 +54,7 @@ steps:
   inputs:
     command: 'custom'
     workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
-    customCommand: 'run build'
+    customCommand: 'run build'  
 
 - task: Npm@1
   displayName: "Run Linter"
@@ -79,6 +79,7 @@ steps:
     TENANTID: $(TenantId)
     MSOSCLIENTSECRET: $(MSOClientSecret_Value)
     KEYVAULTSECRET: $(KeyVaultSecret_Value)
+    AZUREADTENANTID: $(AzureAd_TenantId)
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
@@ -94,6 +95,9 @@ steps:
     publishWebProjects: true
     zipAfterPublish: True
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+  env:
+    REACT_APP_CLIENT_ID: $(REACT_APP_CLIENT_ID)
+    REACT_APP_TENANT_ID: $(REACT_APP_TENANT_ID)
   
 - task: PublishBuildArtifacts@1
 
