@@ -12,7 +12,7 @@ trigger:
     - dev
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 
 variables:
   buildConfiguration: 'Release'
@@ -54,7 +54,7 @@ steps:
   inputs:
     command: 'custom'
     workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
-    customCommand: 'run build'
+    customCommand: 'run build'  
 
 - task: Npm@1
   displayName: "Run Linter"
@@ -63,15 +63,13 @@ steps:
     workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
     customCommand: 'run lint'
 
-- task: VSTest@2
+- task: DotNetCoreCLI@2
+  displayName: "Run Tests"
   inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-    testAssemblyVer2: |
-      **/net5.0/**Tests.dll
-      !**/*TestAdapter.dll
-      !**/obj/**
-    diagnosticsEnabled: true
+    command: 'test'
+    projects: '**/*Tests.csproj'
+    publishTestResults: false
+    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
   env:
     AZURECLIENTID: $(AzureClientId)
     AZURECLIENTSECRET: $(AzureClientSecret)
@@ -79,13 +77,17 @@ steps:
     TENANTID: $(TenantId)
     MSOSCLIENTSECRET: $(MSOClientSecret_Value)
     KEYVAULTSECRET: $(KeyVaultSecret_Value)
+    AZUREAD__TENANTID: $(AzureAd__TenantId)
+    KEYVAULTAPPID: $(KeyVaultAppId)
+    MSOSCLIENTID: $(MSOSClientId)
 
 - task: PublishTestResults@2
-  displayName: "Publish Test Results"
-  condition: succeededOrFailed()
   inputs:
-    testRunner: VSTest
-    testResultsFiles: '**/*.trx'
+    testResultsFormat: 'VSTest'
+    searchFolder: '$(Build.ArtifactStagingDirectory)/TestResults'
+    testResultsFiles: '**/DevXDashboard.trx'
+    testRunTitle: 'DevXDashboard'
+  displayName: 'Publish Test Results'
 
 - task: DotNetCoreCLI@2
   displayName: "Publish Artifacts"
@@ -94,6 +96,9 @@ steps:
     publishWebProjects: true
     zipAfterPublish: True
     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+  env:
+    REACT_APP_CLIENT_ID: $(REACT_APP_CLIENT_ID)
+    REACT_APP_TENANT_ID: $(REACT_APP_TENANT_ID)
   
 - task: PublishBuildArtifacts@1
 
