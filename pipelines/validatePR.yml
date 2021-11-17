@@ -69,6 +69,9 @@ steps:
   env:
     MSOSCLIENTSECRET: $(MSOClientSecret_Value)
     KEYVAULTSECRET: $(KeyVaultSecret_Value)
+    AZUREAD__TENANTID: $(AzureAd__TenantId)
+    KEYVAULTAPPID: $(KeyVaultAppId)
+    MSOSCLIENTID: $(MSOSClientId)
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
