@@ -10,7 +10,7 @@ pr:
 trigger: none
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 
 variables:
   buildConfiguration: 'Release'
@@ -65,10 +65,18 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --logger trx'
+    publishTestResults: false
+    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
   env:
+    AZURECLIENTID: $(AzureClientId)
+    AZURECLIENTSECRET: $(AzureClientSecret)
+    KEYIDENTIFIER: $(KeyIdentifier)
+    TENANTID: $(TenantId)
     MSOSCLIENTSECRET: $(MSOClientSecret_Value)
     KEYVAULTSECRET: $(KeyVaultSecret_Value)
+    AZUREAD__TENANTID: $(AzureAd__TenantId)
+    KEYVAULTAPPID: $(KeyVaultAppId)
+    MSOSCLIENTID: $(MSOSClientId)
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
