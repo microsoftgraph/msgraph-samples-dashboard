@@ -65,6 +65,7 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
+    publishTestResults: false
     arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
   env:
     AZURECLIENTID: $(AzureClientId)
