@@ -65,7 +65,7 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --logger trx'
+    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
   env:
     AZURECLIENTID: $(AzureClientId)
     AZURECLIENTSECRET: $(AzureClientSecret)
