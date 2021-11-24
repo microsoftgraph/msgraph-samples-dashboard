@@ -20,7 +20,7 @@
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.0.3",
-    "@types/microsoft-graph": "^2.7.0",
+    "@types/microsoft-graph": "^2.10.0",
     "@types/node": "^16.11.9",
     "@types/react": "^17.0.36",
     "@types/react-dom": "^17.0.10",
