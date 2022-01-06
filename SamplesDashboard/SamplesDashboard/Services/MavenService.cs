@@ -39,7 +39,7 @@ namespace SamplesDashboard.Services
             var cacheKey = $"maven:{packageName}";
             if (!_cacheService.TryGetValue(cacheKey, out MavenQuery mavenData))
             {
-                var httpClient = _clientFactory.CreateClient();
+                var httpClient = _clientFactory.CreateClient("Default");
 
                 var packageParts = packageName.Split(':');
 
@@ -56,6 +56,10 @@ namespace SamplesDashboard.Services
                     {
                         mavenData = await JsonSerializer.DeserializeAsync<MavenQuery>(stream, _jsonOptions);
                     }
+                }
+                else
+                {
+                    var errorContent = await responseMessage.Content.ReadAsStringAsync();
                 }
 
                 if (mavenData != null)

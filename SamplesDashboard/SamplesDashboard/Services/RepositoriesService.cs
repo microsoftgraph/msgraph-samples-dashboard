@@ -490,7 +490,7 @@ namespace SamplesDashboard.Services
         {
             //downloading the yaml file
             var gitHubOrg = _configuration.GetValue<string>("GitHubOrg");
-            var httpClient = _clientFactory.CreateClient();
+            var httpClient = _clientFactory.CreateClient("Default");
             return await YamlHeader.GetFromRepo(httpClient, gitHubOrg, repoName, branch);
         }
 
