@@ -38,7 +38,13 @@ namespace SamplesDashboard
             services.AddControllersWithViews();
 
             services.AddMemoryCache();
-            services.AddHttpClient();
+            services.AddHttpClient("Default", cli => {
+                // Include user agent info
+                cli.DefaultRequestHeaders.UserAgent.Add(
+                    new ProductInfoHeaderValue(Configuration.GetValue<string>("Product"),
+                                            Configuration.GetValue<string>("ProductVersion"))
+                );
+            });
 
             // Add a GraphQL client
             services

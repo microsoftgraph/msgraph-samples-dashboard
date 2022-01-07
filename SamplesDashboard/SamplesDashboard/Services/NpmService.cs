@@ -31,7 +31,7 @@ namespace SamplesDashboard.Services
             var cacheKey = $"npm:{packageName}";
             if (!_cacheService.TryGetValue(cacheKey, out string latestVersion))
             {
-                var httpClient = _clientFactory.CreateClient();
+                var httpClient = _clientFactory.CreateClient("Default");
 
                 var response = await httpClient.GetAsync($"{npmRegistry}{packageName}");
 
