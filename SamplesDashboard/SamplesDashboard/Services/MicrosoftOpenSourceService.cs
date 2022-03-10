@@ -64,7 +64,7 @@ namespace SamplesDashboard.Services
                     throw new MsalException(MsalError.AuthenticationFailed, "AcquireTokenForClient returned null");
                 }
 
-                var client = _clientFactory.CreateClient();
+                var client = _clientFactory.CreateClient("Default");
 
                 var apiPath =
                     $"https://repos.opensource.microsoft.com/api/maintainers/org/{organization}/repo/{repoName}?api-version=2017-09-01";

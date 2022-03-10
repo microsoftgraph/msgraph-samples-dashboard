@@ -39,7 +39,7 @@ namespace SamplesDashboard.Services
             var fileType = GetSupportedFileType(dependencyFile);
             if (fileType != SupportedDependencyFileType.Unsupported)
             {
-                var httpClient = _clientFactory.CreateClient();
+                var httpClient = _clientFactory.CreateClient("Default");
                 var responseMessage = await httpClient.GetAsync(
                     $"https://raw.githubusercontent.com/microsoftgraph/{repoName}/{defaultBranch}/{dependencyFile}");
 

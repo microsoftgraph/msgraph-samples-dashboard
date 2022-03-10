@@ -7,8 +7,6 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Models;
 using Semver;
 
@@ -20,15 +18,13 @@ namespace SamplesDashboard.Services
     public class MavenService
     {
         private readonly IHttpClientFactory _clientFactory;
-        private readonly IConfiguration _config;
-        private readonly IMemoryCache _cache;
+        private readonly CacheService _cacheService;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public MavenService(IHttpClientFactory clientFactory, IConfiguration config, IMemoryCache memoryCache)
+        public MavenService(IHttpClientFactory clientFactory, CacheService cacheService)
         {
             _clientFactory = clientFactory;
-            _config = config;
-            _cache = memoryCache;
+            _cacheService = cacheService;
             _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         }
 
@@ -41,9 +37,9 @@ namespace SamplesDashboard.Services
         {
             // TODO: Make cache key a variable (change pattern in all caching services)
             var cacheKey = $"maven:{packageName}";
-            if (!_cache.TryGetValue(cacheKey, out MavenQuery mavenData))
+            if (!_cacheService.TryGetValue(cacheKey, out MavenQuery mavenData))
             {
-                var httpClient = _clientFactory.CreateClient();
+                var httpClient = _clientFactory.CreateClient("Default");
 
                 var packageParts = packageName.Split(':');
 
@@ -61,12 +57,14 @@ namespace SamplesDashboard.Services
                         mavenData = await JsonSerializer.DeserializeAsync<MavenQuery>(stream, _jsonOptions);
                     }
                 }
+                else
+                {
+                    var errorContent = await responseMessage.Content.ReadAsStringAsync();
+                }
 
                 if (mavenData != null)
                 {
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.CacheLifetime)));
-                    _cache.Set(cacheKey, mavenData, cacheEntryOptions);
+                    _cacheService.Set(cacheKey, mavenData);
                 }
             }
 
@@ -86,7 +84,7 @@ namespace SamplesDashboard.Services
         private async Task<string> GetLatestAndroidPackageVersion(HttpClient client, string groupName, string packageName, string currentVersion)
         {
             var cacheKey = $"android:{groupName}:{packageName}";
-            if (!_cache.TryGetValue(cacheKey, out XmlDocument xmlDocument))
+            if (!_cacheService.TryGetValue(cacheKey, out XmlDocument xmlDocument))
             {
                 var groupParts = groupName.Split('.');
                 var googleUrl = $"https://dl.google.com/android/maven2/{string.Join('/', groupParts)}/group-index.xml";
@@ -102,9 +100,7 @@ namespace SamplesDashboard.Services
 
                 if (xmlDocument != null)
                 {
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(_config.GetValue<double>(Constants.CacheLifetime)));
-                    _cache.Set(cacheKey, xmlDocument, cacheEntryOptions);
+                    _cacheService.Set(cacheKey, xmlDocument);
                 }
             }
 

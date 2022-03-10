@@ -6,7 +6,6 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using SamplesDashboard.Models;
 
 namespace SamplesDashboard.Services
@@ -15,27 +14,24 @@ namespace SamplesDashboard.Services
     {
         private const string npmRegistry = "https://registry.npmjs.org/";
         private readonly IHttpClientFactory _clientFactory;
-        private readonly double _cacheLifetime;
-        private readonly IMemoryCache _cache;
+        private readonly CacheService _cacheService;
         private readonly JsonSerializerOptions _jsonOptions;
 
         public NpmService(
             IHttpClientFactory clientFactory,
-            IConfiguration configuration,
-            IMemoryCache memoryCache)
+            CacheService cacheService)
         {
             _clientFactory = clientFactory;
-            _cacheLifetime = configuration.GetValue<double>(Constants.CacheLifetime);
-            _cache = memoryCache;
+            _cacheService = cacheService;
             _jsonOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         }
 
         public async Task<string> GetLatestVersion(string packageName)
         {
             var cacheKey = $"npm:{packageName}";
-            if (!_cache.TryGetValue(cacheKey, out string latestVersion))
+            if (!_cacheService.TryGetValue(cacheKey, out string latestVersion))
             {
-                var httpClient = _clientFactory.CreateClient();
+                var httpClient = _clientFactory.CreateClient("Default");
 
                 var response = await httpClient.GetAsync($"{npmRegistry}{packageName}");
 
@@ -46,9 +42,7 @@ namespace SamplesDashboard.Services
 
                     latestVersion = queryResult?.Tags?.Latest ?? string.Empty;
                     // Save the versions into the cache
-                    var cacheEntryOptions = new MemoryCacheEntryOptions()
-                        .SetAbsoluteExpiration(TimeSpan.FromSeconds(_cacheLifetime));
-                    _cache.Set(cacheKey, latestVersion, cacheEntryOptions);
+                    _cacheService.Set(cacheKey, latestVersion);
                 }
             }
 

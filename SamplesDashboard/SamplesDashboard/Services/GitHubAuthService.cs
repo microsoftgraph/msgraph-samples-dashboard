@@ -25,16 +25,16 @@ namespace SamplesDashboard.Services
     public class GitHubAuthService
     {
         private readonly IConfiguration _configuration;
-        private readonly IMemoryCache _cache;
+        private readonly CacheService _cacheService;
         private readonly ILogger<GitHubAuthService> _logger;
 
         public GitHubAuthService(
           IConfiguration configuration,
-          IMemoryCache memoryCache,
+          CacheService cacheService,
           ILogger<GitHubAuthService> logger)
         {
             _configuration = configuration;
-            _cache = memoryCache;
+            _cacheService = cacheService;
             _logger = logger;
         }
 
@@ -56,7 +56,7 @@ namespace SamplesDashboard.Services
         /// <returns>installation token</returns>
         internal async Task<string> GetGitHubAppToken()
         {
-            if (_cache.TryGetValue(Constants.GitHubToken, out string gitHubToken))
+            if (_cacheService.TryGetValue(Constants.GitHubToken, out string gitHubToken))
             {
                 return gitHubToken;
             }
@@ -86,7 +86,7 @@ namespace SamplesDashboard.Services
                 // Cache the token for as long as it's valid
                 var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetAbsoluteExpiration(tokenResponse.ExpiresAt);
-                _cache.Set(Constants.GitHubToken, gitHubToken, cacheEntryOptions);
+                _cacheService.Set(Constants.GitHubToken, gitHubToken, cacheEntryOptions);
 
                 return gitHubToken;
             }

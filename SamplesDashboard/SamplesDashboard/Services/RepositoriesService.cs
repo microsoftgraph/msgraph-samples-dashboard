@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using GraphQL;
 using GraphQL.Client.Http;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SamplesDashboard.Extensions;
@@ -33,7 +32,7 @@ namespace SamplesDashboard.Services
         private readonly CocoaPodsService _cocoaPodsService;
         private readonly MavenService _mavenService;
         private readonly IConfiguration _configuration;
-        private readonly IMemoryCache _cache;
+        private readonly CacheService _cacheService;
         private readonly ILogger<RepositoriesService> _logger;
         private static Regex localizedRepos = new Regex(@".[a-z]{2}-[A-Z]{2}");
 
@@ -48,7 +47,7 @@ namespace SamplesDashboard.Services
             CocoaPodsService cocoaPodsService,
             MavenService mavenService,
             IConfiguration configuration,
-            IMemoryCache memoryCache,
+            CacheService cacheService,
             ILogger<RepositoriesService> logger)
         {
             _graphQLClient = graphQLClient;
@@ -61,7 +60,7 @@ namespace SamplesDashboard.Services
             _cocoaPodsService = cocoaPodsService;
             _mavenService = mavenService;
             _configuration = configuration;
-            _cache = memoryCache;
+            _cacheService = cacheService;
             _logger = logger;
         }
 
@@ -74,7 +73,7 @@ namespace SamplesDashboard.Services
         public async Task<List<Repository>> GetRepositoriesAsync(string names)
         {
             var cacheKey = $"{names}-list";
-            if (!_cache.TryGetValue(cacheKey, out List<string> repoList))
+            if (!_cacheService.TryGetValue(cacheKey, out List<string> repoList))
             {
                 var endCursor = string.Empty;
                 var organization = _configuration.GetValue<string>(Constants.GitHubOrg);
@@ -109,9 +108,7 @@ namespace SamplesDashboard.Services
                 }
                 while(!string.IsNullOrEmpty(endCursor));
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(_configuration.GetValue<double>(Constants.CacheLifetime)));
-                _cache.Set(cacheKey, repoList, cacheEntryOptions);
+                _cacheService.Set(cacheKey, repoList);
             }
 
             var repositories = await GenerateRepositoryListAsync(repoList);
@@ -129,7 +126,7 @@ namespace SamplesDashboard.Services
         internal async Task<Repository> GetRepositoryAsync(string name, Octokit.GitHubClient gitHubClient)
         {
             _logger.LogInformation($"Getting {name}");
-            if (!_cache.TryGetValue(name, out Repository repository))
+            if (!_cacheService.TryGetValue(name, out Repository repository))
             {
                 _logger.LogInformation($"{name} not in cache - fetching");
                 var organization = _configuration.GetValue<string>(Constants.GitHubOrg);
@@ -205,9 +202,7 @@ namespace SamplesDashboard.Services
 
                 repository = await GenerateRepositoryAsync(graphQLResponse.Data.Organization.Repository, organization, gitHubClient);
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetAbsoluteExpiration(TimeSpan.FromSeconds(_configuration.GetValue<double>(Constants.CacheLifetime)));
-                _cache.Set(name, repository, cacheEntryOptions);
+                _cacheService.Set(name, repository);
             }
 
             return repository;
@@ -495,7 +490,7 @@ namespace SamplesDashboard.Services
         {
             //downloading the yaml file
             var gitHubOrg = _configuration.GetValue<string>("GitHubOrg");
-            var httpClient = _clientFactory.CreateClient();
+            var httpClient = _clientFactory.CreateClient("Default");
             return await YamlHeader.GetFromRepo(httpClient, gitHubOrg, repoName, branch);
         }
 
