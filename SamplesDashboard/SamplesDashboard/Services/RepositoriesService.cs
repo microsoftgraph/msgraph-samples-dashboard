@@ -34,7 +34,7 @@ namespace SamplesDashboard.Services
         private readonly IConfiguration _configuration;
         private readonly CacheService _cacheService;
         private readonly ILogger<RepositoriesService> _logger;
-        private static Regex localizedRepos = new Regex(@".[a-z]{2}-[A-Z]{2}");
+        private static Regex localizedRepos = new Regex(@"\.[a-z]{2}-[A-Z]{2}");
 
         public RepositoriesService(
             GraphQLHttpClient graphQLClient,
