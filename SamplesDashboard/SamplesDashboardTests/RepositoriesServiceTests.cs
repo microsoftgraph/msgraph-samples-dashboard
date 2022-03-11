@@ -4,11 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using GraphQL.Client.Http;
 using SamplesDashboard.Models;
 using SamplesDashboard.Services;
+using SampleDashboardTests.MockHandler;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -19,12 +23,29 @@ namespace SamplesDashboardTests
         private readonly RepositoriesService _repositoriesService;
         private readonly ITestOutputHelper _helper;
 
+        private readonly MockGraphQLHttpClientHandler _mockHttpHandler;
+
         public RepositoriesServiceTests(
           WebApplicationFactory<SamplesDashboard.Startup> applicationFactory,
           ITestOutputHelper helper)
         {
+            _mockHttpHandler = new MockGraphQLHttpClientHandler(
+                SamplesDashboard.Constants.GitHubGraphQLEndpoint,
+                Constants.GraphQLSamplesResponse,
+                Constants.GraphQLSdksResponse,
+                Constants.GetRepoResponse
+            );
             _helper = helper;
-            _repositoriesService = applicationFactory.Services.GetService<RepositoriesService>();
+            _repositoriesService = applicationFactory.WithWebHostBuilder(builder =>
+            {
+                builder.ConfigureTestServices(services =>
+                {
+                    services.AddHttpClient<GraphQLHttpClient>()
+                        .AddHttpMessageHandler(() => {
+                            return _mockHttpHandler;
+                        });
+                });
+            }).Services.GetService<RepositoriesService>();
         }
 
         [Fact]
