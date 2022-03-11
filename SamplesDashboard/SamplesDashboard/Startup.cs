@@ -65,7 +65,7 @@ namespace SamplesDashboard
 
             services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions
             {
-                EndPoint = new Uri("https://api.github.com/graphql")
+                EndPoint = new Uri(Constants.GitHubGraphQLEndpoint)
             });
 
             services.AddSingleton<IGraphQLWebsocketJsonSerializer, SystemTextJsonSerializer>();
