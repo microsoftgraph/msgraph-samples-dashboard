@@ -8,7 +8,7 @@ using SamplesDashboard.Services;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace SampleDashboardTests
+namespace SamplesDashboardTests
 {
     public class NpmServiceTests : IClassFixture<WebApplicationFactory<SamplesDashboard.Startup>>
     {

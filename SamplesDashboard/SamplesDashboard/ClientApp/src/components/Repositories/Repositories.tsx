@@ -343,8 +343,8 @@ export default function Repositories(props: RepositoriesProps) {
             isHeaderVisible={true}
             onRenderItemColumn={renderItemColumn}
             enableShimmer={isLoading}
-            onRenderDetailsHeader={(props, defaultRender) => {
-              if (!props) {
+            onRenderDetailsHeader={(dProps, defaultRender) => {
+              if (!dProps) {
                 return null;
               }
               return (
@@ -352,7 +352,7 @@ export default function Repositories(props: RepositoriesProps) {
                   stickyPosition={StickyPositionType.Header}
                   isScrollSynced={true}
                 >
-                  {defaultRender!({ ...props })}
+                  {defaultRender!({ ...dProps })}
                 </Sticky>
               );
             }}
