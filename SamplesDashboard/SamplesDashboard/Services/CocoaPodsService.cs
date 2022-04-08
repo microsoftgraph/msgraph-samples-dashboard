@@ -35,7 +35,7 @@ namespace SamplesDashboard.Services
             var cacheKey = $"cocoapods:{packageName}";
             if (!_cacheService.TryGetValue(cacheKey, out string packageVersion))
             {
-                var httpClient = _clientFactory.CreateClient();
+                var httpClient = _clientFactory.CreateClient("Default");
 
                 var apiUrl = $"https://cocoapods.org/pods/{packageName}";
                 var responseMessage = await httpClient.GetAsync(apiUrl);

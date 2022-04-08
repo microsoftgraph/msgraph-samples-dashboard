@@ -31,6 +31,7 @@ namespace SamplesDashboard
         public static readonly string[] KeyVaultScopes = { "https://vault.azure.net/.default" };
 
         // Repo queries
+        public static readonly string GitHubGraphQLEndpoint = "https://api.github.com/graphql";
         private static readonly string[] SamplesList = { "sample", "training"};
         public static readonly string Samples = SamplesList.BuildQueryString();
 

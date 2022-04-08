@@ -8,7 +8,7 @@ using SamplesDashboard.Services;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace SampleDashboardTests
+namespace SamplesDashboardTests
 {
     public class GitHubAuthServiceTests : IClassFixture<WebApplicationFactory<SamplesDashboard.Startup>>
     {

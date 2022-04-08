@@ -38,7 +38,13 @@ namespace SamplesDashboard
             services.AddControllersWithViews();
 
             services.AddMemoryCache();
-            services.AddHttpClient();
+            services.AddHttpClient("Default", cli => {
+                // Include user agent info
+                cli.DefaultRequestHeaders.UserAgent.Add(
+                    new ProductInfoHeaderValue(Configuration.GetValue<string>("Product"),
+                                            Configuration.GetValue<string>("ProductVersion"))
+                );
+            });
 
             // Add a GraphQL client
             services
@@ -59,7 +65,7 @@ namespace SamplesDashboard
 
             services.AddSingleton<GraphQLHttpClientOptions>(provider => new GraphQLHttpClientOptions
             {
-                EndPoint = new Uri("https://api.github.com/graphql")
+                EndPoint = new Uri(Constants.GitHubGraphQLEndpoint)
             });
 
             services.AddSingleton<IGraphQLWebsocketJsonSerializer, SystemTextJsonSerializer>();

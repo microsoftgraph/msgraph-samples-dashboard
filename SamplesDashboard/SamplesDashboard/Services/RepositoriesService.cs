@@ -34,7 +34,7 @@ namespace SamplesDashboard.Services
         private readonly IConfiguration _configuration;
         private readonly CacheService _cacheService;
         private readonly ILogger<RepositoriesService> _logger;
-        private static Regex localizedRepos = new Regex(@".[a-z]{2}-[A-Z]{2}");
+        private static Regex localizedRepos = new Regex(@"\.[a-z]{2}-[A-Z]{2}");
 
         public RepositoriesService(
             GraphQLHttpClient graphQLClient,
@@ -490,7 +490,7 @@ namespace SamplesDashboard.Services
         {
             //downloading the yaml file
             var gitHubOrg = _configuration.GetValue<string>("GitHubOrg");
-            var httpClient = _clientFactory.CreateClient();
+            var httpClient = _clientFactory.CreateClient("Default");
             return await YamlHeader.GetFromRepo(httpClient, gitHubOrg, repoName, branch);
         }
 
