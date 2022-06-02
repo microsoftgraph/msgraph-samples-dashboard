@@ -307,7 +307,7 @@ namespace SamplesDashboardTests
 
             var yamlHeader = new YamlHeader
             {
-                DependencyFile = "/demo/graphtutorial/build.gradle"
+                DependencyFile = "/demo/graphtutorial/app/build.gradle"
             };
 
             var data = new GitHubGraphQLRepoData
