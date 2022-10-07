@@ -18,7 +18,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
-    "@testing-library/user-event": "^14.2.1",
+    "@testing-library/user-event": "^14.4.3",
     "@types/jest": "^29.1.2",
     "@types/microsoft-graph": "^2.22.0",
     "@types/node": "^18.8.3",
