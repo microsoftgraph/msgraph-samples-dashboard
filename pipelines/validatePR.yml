@@ -70,7 +70,8 @@ steps:
   env:
     AZURECLIENTID: $(AzureClientId)
     AZURECLIENTSECRET: $(AzureClientSecret)
-    KEYIDENTIFIER: $(KeyIdentifier)
+    GITHUBAPPKEYIDENTIFIER: $(GitHubAppKeyIdentifier)
+    GITHUBAPPID: $(GitHubAppId)
     TENANTID: $(TenantId)
     MSOSCLIENTSECRET: $(MSOClientSecret_Value)
     KEYVAULTSECRET: $(KeyVaultSecret_Value)
