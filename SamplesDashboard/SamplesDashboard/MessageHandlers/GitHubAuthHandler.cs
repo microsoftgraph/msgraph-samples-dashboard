@@ -34,6 +34,7 @@ namespace SamplesDashboard.MessageHandlers
         {
             var token = await _gitHubAuthService.GetGitHubAppToken();
             requestMessage.Headers.Authorization = new AuthenticationHeaderValue("bearer", token);
+            requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json"));            
             return await base.SendAsync(requestMessage, cancellationToken);
         }
     }

@@ -49,11 +49,6 @@ namespace SamplesDashboard
             // Add a GraphQL client
             services
                 .AddHttpClient<GraphQLHttpClient>(cli => {
-                    // Enable dependency graph info in GraphQL queries
-                    // https://docs.github.com/en/graphql/overview/schema-previews#access-to-a-repositories-dependency-graph-preview
-                    cli.DefaultRequestHeaders.Accept.Add(
-                        new MediaTypeWithQualityHeaderValue("application/vnd.github.hawkgirl-preview+json")
-                    );
                     // Include user agent info
                     cli.DefaultRequestHeaders.UserAgent.Add(
                         new ProductInfoHeaderValue(Configuration.GetValue<string>("Product"),
