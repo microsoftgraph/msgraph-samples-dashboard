@@ -45,7 +45,7 @@ const darkTheme = createTheme({
 });
 
 type AppProps = {
-  pca: IPublicClientApplication;
+  pca?: IPublicClientApplication;
 };
 
 interface ThemedAppProps {
@@ -66,7 +66,7 @@ function ThemedApp({ children }: ThemedAppProps) {
 
 function App({ pca }: AppProps) {
   return (
-    <MsalProvider instance={pca}>
+    <MsalProvider instance={pca!}>
       <ProvideAppContext>
         <ThemedApp>
           <Router>

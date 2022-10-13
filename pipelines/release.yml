@@ -25,9 +25,10 @@ steps:
     packageType: sdk
     version: 5.x
 
-- task: UseNode@1
+- task: NodeTool@0
   inputs:
-    checkLatest: true
+    versionSpec: '16.x'
+  displayName: 'Setup Node'
 
 - task: DotNetCoreCLI@2
   displayName: "Restore Packages"
@@ -73,7 +74,8 @@ steps:
   env:
     AZURECLIENTID: $(AzureClientId)
     AZURECLIENTSECRET: $(AzureClientSecret)
-    KEYIDENTIFIER: $(KeyIdentifier)
+    GITHUBAPPKEYIDENTIFIER: $(GitHubAppKeyIdentifier)
+    GITHUBAPPID: $(GitHubAppId)
     TENANTID: $(TenantId)
     MSOSCLIENTSECRET: $(MSOClientSecret_Value)
     KEYVAULTSECRET: $(KeyVaultSecret_Value)
@@ -101,13 +103,3 @@ steps:
     REACT_APP_TENANT_ID: $(REACT_APP_TENANT_ID)
   
 - task: PublishBuildArtifacts@1
-
-- task: YodLabs.O365PostMessage.O365PostMessageBuild.O365PostMessageBuild@0
-  displayName: 'Graph Client Tooling pipeline fail notification'
-  inputs:
-    addressType: serviceEndpoint
-    serviceEndpointName: 'microsoftgraph pipeline status'
-    title: '$(Build.DefinitionName) failure notification'
-    text: 'This pipeline has failed. View the build details for further information. This is a blocking failure. '
-  condition: failed()
-  enabled: false

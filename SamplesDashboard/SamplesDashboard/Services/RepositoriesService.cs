@@ -402,7 +402,10 @@ namespace SamplesDashboard.Services
                     .BuildDependencyManifestFromFile(
                         repository.Name, repository.DefaultBranch, yamlHeader.DependencyFile);
 
-                data.DependencyManifests.Values.Add(manifest);
+                if (manifest != null)
+                {
+                    data.DependencyManifests.Values.Add(manifest);
+                }
             }
 
             var dependencyList = new List<Dependency>();
