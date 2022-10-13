@@ -25,9 +25,10 @@ steps:
     packageType: sdk
     version: 5.x
 
-- task: UseNode@1
+- task: NodeTool@0
   inputs:
-    checkLatest: true
+    versionSpec: '16.x'
+  displayName: 'Setup Node'
 
 - task: DotNetCoreCLI@2
   displayName: "Restore Packages"
