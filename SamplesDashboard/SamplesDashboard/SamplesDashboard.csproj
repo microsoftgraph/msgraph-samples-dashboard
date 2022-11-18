@@ -24,7 +24,7 @@
     <PackageReference Include="Octokit" Version="4.0.1" />
     <PackageReference Include="Semver" Version="2.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.0" />
     <PackageReference Include="YamlDotNet" Version="12.0.2" />
   </ItemGroup>
 
