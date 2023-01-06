@@ -10,7 +10,7 @@ pr:
 trigger: none
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 
 variables:
   buildConfiguration: 'Release'
@@ -26,14 +26,14 @@ steps:
   inputs:
     versionSpec: '16.x'
   displayName: 'Setup Node'
-
-- task: DotNetCoreCLI@2
-  displayName: "Restore Packages"
+  
+- task: NuGetCommand@2
+  displayName: 'nuget restore'
   inputs:
-    command: 'restore'
-    projects: '**/*.csproj'
-    feedsToUse: select
-
+    restoreSolution: '**/*.sln'
+    feedsToUse: config
+    nugetConfigPath: 'NuGet.config'
+    
 - task: DotNetCoreCLI@2
   displayName: "Build Projects"
   inputs:
