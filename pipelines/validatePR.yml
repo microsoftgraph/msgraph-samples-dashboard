@@ -21,6 +21,8 @@ steps:
   inputs:
     packageType: sdk
     version: 5.x
+    
+- task: NuGetToolInstaller@1
 
 - task: NodeTool@0
   inputs:
