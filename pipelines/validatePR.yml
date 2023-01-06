@@ -27,12 +27,12 @@ steps:
     versionSpec: '16.x'
   displayName: 'Setup Node'
   
-- task: NuGetCommand@2
-  displayName: 'nuget restore'
+- task: DotNetCoreCLI@2
+  displayName: "Restore Packages"
   inputs:
-    restoreSolution: '**/*.sln'
-    feedsToUse: config
-    nugetConfigPath: 'NuGet.config'
+    command: 'restore'
+    projects: '**/*.csproj'
+    feedsToUse: select
     
 - task: DotNetCoreCLI@2
   displayName: "Build Projects"
