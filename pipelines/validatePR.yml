@@ -10,7 +10,7 @@ pr:
 trigger: none
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'windows-latest'
 
 variables:
   buildConfiguration: 'Release'
@@ -22,8 +22,6 @@ steps:
     packageType: sdk
     version: 5.x
     
-- task: NuGetToolInstaller@1
-
 - task: NodeTool@0
   inputs:
     versionSpec: '16.x'
@@ -69,7 +67,7 @@ steps:
     command: test
     projects: '**/*Tests/*.csproj'
     publishTestResults: false
-    arguments: '--configuration $(buildConfiguration) --no-restore --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
+    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
   env:
     AZURECLIENTID: $(AzureClientId)
     AZURECLIENTSECRET: $(AzureClientSecret)
