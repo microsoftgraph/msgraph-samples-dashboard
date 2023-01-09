@@ -15,13 +15,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-steps:
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'
-    restoreSolution: '**/*.sln'
-    feedsToUse: 'select'
-        
+steps:       
 - task: UseDotNet@2
   displayName: "Use dotnet 6"
   inputs:
@@ -39,6 +33,12 @@ steps:
     command: 'restore'
     projects: '**/*.csproj'
     feedsToUse: select
+    
+- task: NuGetCommand@2
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*.sln'
+    feedsToUse: 'select'
     
 - task: DotNetCoreCLI@2
   displayName: "Build Projects"
