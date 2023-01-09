@@ -67,13 +67,14 @@ steps:
     workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
     customCommand: 'run lint'
 
-- task: DotNetCoreCLI@2
-  displayName: "Run Tests"
+- task: VSTest@2
   inputs:
-    command: test
-    projects: '**/*Tests/*.csproj'
-    publishTestResults: false
-    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\SamplesDashboardTests.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
   env:
     AZURECLIENTID: $(AzureClientId)
     AZURECLIENTSECRET: $(AzureClientSecret)
@@ -85,6 +86,25 @@ steps:
     AZUREAD__TENANTID: $(AzureAd__TenantId)
     KEYVAULTAPPID: $(KeyVaultAppId)
     MSOSCLIENTID: $(MSOSClientId)
+
+# - task: DotNetCoreCLI@2
+#   displayName: "Run Tests"
+#   inputs:
+#     command: test
+#     projects: '**/*Tests/*.csproj'
+#     publishTestResults: false
+#     arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
+#   env:
+#     AZURECLIENTID: $(AzureClientId)
+#     AZURECLIENTSECRET: $(AzureClientSecret)
+#     GITHUBAPPKEYIDENTIFIER: $(GitHubAppKeyIdentifier)
+#     GITHUBAPPID: $(GitHubAppId)
+#     TENANTID: $(TenantId)
+#     MSOSCLIENTSECRET: $(MSOClientSecret_Value)
+#     KEYVAULTSECRET: $(KeyVaultSecret_Value)
+#     AZUREAD__TENANTID: $(AzureAd__TenantId)
+#     KEYVAULTAPPID: $(KeyVaultAppId)
+#     MSOSCLIENTID: $(MSOSClientId)
 
 - task: PublishTestResults@2
   displayName: "Publish Test Results"
