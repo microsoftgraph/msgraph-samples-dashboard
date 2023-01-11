@@ -7,7 +7,7 @@
     "@azure/msal-react": "1.4.10",
     "@fluentui/react": "8.101.0",
     "@microsoft/microsoft-graph-client": "3.0.4",
-    "bootstrap": "5.2.2",
+    "bootstrap": "5.2.3",
     "react": "17.0.2",
     "react-bootstrap": "2.6.0",
     "react-dom": "17.0.2",
