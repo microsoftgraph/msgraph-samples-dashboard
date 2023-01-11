@@ -5,7 +5,7 @@
 
 pr: none
 
-trigger: 
+trigger:
   branches:
     include:
     - master
@@ -20,10 +20,10 @@ variables:
 
 steps:
 - task: UseDotNet@2
-  displayName: "Use dotnet 5"
+  displayName: "Use dotnet 6"
   inputs:
     packageType: sdk
-    version: 5.x
+    version: 6.x
 
 - task: NodeTool@0
   inputs:
@@ -55,7 +55,7 @@ steps:
   inputs:
     command: 'custom'
     workingDir: '$(System.DefaultWorkingDirectory)//SamplesDashboard//SamplesDashboard//ClientApp'
-    customCommand: 'run build'  
+    customCommand: 'run build'
 
 - task: Npm@1
   displayName: "Run Linter"
@@ -70,7 +70,7 @@ steps:
     command: 'test'
     projects: '**/*Tests.csproj'
     publishTestResults: false
-    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
+    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx"
   env:
     AZURECLIENTID: $(AzureClientId)
     AZURECLIENTSECRET: $(AzureClientSecret)
@@ -101,5 +101,5 @@ steps:
   env:
     REACT_APP_CLIENT_ID: $(REACT_APP_CLIENT_ID)
     REACT_APP_TENANT_ID: $(REACT_APP_TENANT_ID)
-  
+
 - task: PublishBuildArtifacts@1

@@ -15,31 +15,25 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-steps:       
+steps:
 - task: UseDotNet@2
   displayName: "Use dotnet 6"
   inputs:
     packageType: sdk
     version: 6.x
-    
+
 - task: NodeTool@0
   inputs:
     versionSpec: '16.x'
   displayName: 'Setup Node'
-  
+
 - task: DotNetCoreCLI@2
   displayName: "Restore Packages"
   inputs:
     command: 'restore'
     projects: '**/*.csproj'
     feedsToUse: select
-    
-- task: NuGetCommand@2
-  inputs:
-    command: 'restore'
-    restoreSolution: '**/*.sln'
-    feedsToUse: 'select'
-    
+
 - task: DotNetCoreCLI@2
   displayName: "Build Projects"
   inputs:
