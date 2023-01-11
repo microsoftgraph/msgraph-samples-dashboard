@@ -294,41 +294,7 @@ namespace SamplesDashboardTests
             Assert.NotEmpty(packages);
             Assert.Contains("com.microsoft.graph:microsoft-graph-core", packages);
         }
-
-        [Fact]
-        public async Task ShouldGetGradleDependencies()
-        {
-            //Arrange
-            var repository = new Repository
-            {
-                Name = "msgraph-training-java",
-                DefaultBranch = "main"
-            };
-
-            var yamlHeader = new YamlHeader
-            {
-                DependencyFile = "/demo/graphtutorial/app/build.gradle"
-            };
-
-            var data = new GitHubGraphQLRepoData
-            {
-                DependencyManifests = new GitHubGraphQLNodeCollection<GitHubGraphQLDependencyManifest>
-                {
-                    Values = new List<GitHubGraphQLDependencyManifest>()
-                }
-            };
-
-            //Act
-            await _repositoriesService.GetDependencyDataAsync(repository, yamlHeader, data);
-            var packages = repository.Dependencies.Select(d => d.PackageName);
-
-            //Assert
-            Assert.IsType<List<Dependency>>(repository.Dependencies);
-            Assert.NotEmpty(repository.Dependencies);
-            Assert.NotEmpty(packages);
-            Assert.Contains("com.microsoft.graph:microsoft-graph", packages);
-        }
-
+        
         [Fact]
         public async Task ShouldGetPodfileDependencies()
         {

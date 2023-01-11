@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@azure/msal-browser": "2.31.0",
-    "@azure/msal-react": "1.4.9",
+    "@azure/msal-react": "1.4.10",
     "@fluentui/react": "8.101.0",
     "@microsoft/microsoft-graph-client": "3.0.4",
     "bootstrap": "5.2.2",

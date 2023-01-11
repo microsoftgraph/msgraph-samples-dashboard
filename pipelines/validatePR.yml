@@ -17,10 +17,10 @@ variables:
 
 steps:
 - task: UseDotNet@2
-  displayName: "Use dotnet 5"
+  displayName: "Use dotnet 6"
   inputs:
     packageType: sdk
-    version: 5.x
+    version: 6.x
 
 - task: NodeTool@0
   inputs:
@@ -66,8 +66,7 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    publishTestResults: false
-    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx" --results-directory $(Build.ArtifactStagingDirectory)/TestResults'
+    arguments: '--configuration $(buildConfiguration) --verbosity normal --logger "trx;logfilename=DevXDashboard.trx"'
   env:
     AZURECLIENTID: $(AzureClientId)
     AZURECLIENTSECRET: $(AzureClientSecret)
