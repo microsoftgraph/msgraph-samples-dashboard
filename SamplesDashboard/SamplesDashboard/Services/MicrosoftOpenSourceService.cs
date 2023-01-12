@@ -26,7 +26,7 @@ namespace SamplesDashboard.Services
         // This single scope is the permission scope needed to call the
         // Microsoft Open Source GitHub portal API. Don't change this.
         private static readonly string[] _scopes =
-            { "api://5bc5e692-fe67-4053-8d49-9e2863718bfb/.default" };
+            { "api://2789159d-8d8b-4d13-b90b-ca29c1707afd/.default" };
 
         public MicrosoftOpenSourceService(
           IHttpClientFactory clientFactory,
