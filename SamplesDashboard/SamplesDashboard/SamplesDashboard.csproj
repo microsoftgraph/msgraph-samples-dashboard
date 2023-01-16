@@ -21,7 +21,7 @@
     <PackageReference Include="Microsoft.Identity.Web" Version="1.25.10" />
     <PackageReference Include="Microsoft.IdentityModel.KeyVaultExtensions" Version="6.25.1" />
     <PackageReference Include="NuGet.Protocol" Version="6.4.0" />
-    <PackageReference Include="Octokit" Version="4.0.3" />
+    <PackageReference Include="Octokit" Version="4.0.4" />
     <PackageReference Include="Semver" Version="2.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
