@@ -84,6 +84,7 @@ steps:
     MSOSCLIENTID: $(MSOSClientId)
 
 - task: PublishTestResults@2
+  condition: succeededOrFailed()
   inputs:
     testResultsFormat: 'VSTest'
     searchFolder: '$(Build.ArtifactStagingDirectory)/TestResults'
