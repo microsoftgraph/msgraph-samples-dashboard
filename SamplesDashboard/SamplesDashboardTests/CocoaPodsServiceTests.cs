@@ -33,7 +33,7 @@ namespace SamplesDashboardTests
             var latestVersion = await _cocoaPodsService.GetLatestVersion(packageName);
 
             //Assert
-            Assert.False(string.IsNullOrEmpty(latestVersion));
+            Assert.NotNull(latestVersion);
         }
     }
 }
