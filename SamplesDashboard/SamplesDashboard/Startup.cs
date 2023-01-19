@@ -44,6 +44,7 @@ namespace SamplesDashboard
                     new ProductInfoHeaderValue(Configuration.GetValue<string>("Product"),
                                             Configuration.GetValue<string>("ProductVersion"))
                 );
+                cli.Timeout = TimeSpan.FromSeconds(500);
             });
 
             // Add a GraphQL client
@@ -54,6 +55,7 @@ namespace SamplesDashboard
                         new ProductInfoHeaderValue(Configuration.GetValue<string>("Product"),
                                                 Configuration.GetValue<string>("ProductVersion"))
                     );
+                    cli.Timeout = TimeSpan.FromSeconds(500);
                 })
                 .AddPolicyHandler(GitHubRetryPolicy.Policy)
                 .AddHttpMessageHandler<GitHubAuthHandler>();

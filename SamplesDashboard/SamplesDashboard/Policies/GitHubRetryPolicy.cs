@@ -17,12 +17,12 @@ namespace SamplesDashboard.Policies
         {
             return HttpPolicyExtensions
               .HandleTransientHttpError()
-              .OrResult(msg => msg.StatusCode == HttpStatusCode.Forbidden)
+              .OrResult(msg => msg.StatusCode is HttpStatusCode.Forbidden)
               .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
         }
 
         /// <summary>
-        /// An HTTP retry policy to retry HTTP requests when we encounter HTTP 403 and 503,
+        /// An HTTP retry policy to retry HTTP requests when we encounter HTTP 403, 500 and 503,
         /// with exponential back-off
         /// Useful due to transient networking issues on the cloud.
         /// </summary>
