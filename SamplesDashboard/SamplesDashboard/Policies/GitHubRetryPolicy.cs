@@ -17,7 +17,7 @@ namespace SamplesDashboard.Policies
         {
             return HttpPolicyExtensions
               .HandleTransientHttpError()
-              .OrResult(msg => msg.StatusCode is HttpStatusCode.Forbidden or HttpStatusCode.InternalServerError)
+              .OrResult(msg => msg.StatusCode is HttpStatusCode.Forbidden)
               .WaitAndRetryAsync(6, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
         }
 
