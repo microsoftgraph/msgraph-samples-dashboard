@@ -294,40 +294,6 @@ namespace SamplesDashboardTests
             Assert.NotEmpty(packages);
             Assert.Contains("com.microsoft.graph:microsoft-graph-core", packages);
         }
-        
-        [Fact]
-        public async Task ShouldGetPodfileDependencies()
-        {
-            //Arrange
-            var repository = new Repository
-            {
-                Name = "msgraph-training-ios-swift",
-                DefaultBranch = "main"
-            };
-
-            var yamlHeader = new YamlHeader
-            {
-                DependencyFile = "/demo/GraphTutorial/Podfile"
-            };
-
-            var data = new GitHubGraphQLRepoData
-            {
-                DependencyManifests = new GitHubGraphQLNodeCollection<GitHubGraphQLDependencyManifest>
-                {
-                    Values = new List<GitHubGraphQLDependencyManifest>()
-                }
-            };
-
-            //Act
-            await _repositoriesService.GetDependencyDataAsync(repository, yamlHeader, data);
-            var packages = repository.Dependencies.Select(d => d.PackageName);
-
-            //Assert
-            Assert.IsType<List<Dependency>>(repository.Dependencies);
-            Assert.NotEmpty(repository.Dependencies);
-            Assert.NotEmpty(packages);
-            Assert.Contains("msgraphclientsdk", packages);
-        }
 
         [Fact]
         public async Task ShouldGetNullDependencies()

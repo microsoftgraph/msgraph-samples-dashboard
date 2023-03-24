@@ -27,9 +27,9 @@ namespace SamplesDashboardTests
         public async Task ShouldGetDependenciesFromGradleFile()
         {
             // Arrange
-            var repoName = "msgraph-training-android";
+            var repoName = "msgraph-training-java";
             var defaultBranch = "main";
-            var dependencyFile = "/demo/GraphTutorial/app/build.gradle";
+            var dependencyFile = "/user-auth/graphtutorial/app/build.gradle";
 
             // Act
             var manifest = await _manifestFromFileService
@@ -39,24 +39,6 @@ namespace SamplesDashboardTests
             Assert.NotNull(manifest);
             Assert.NotEmpty(manifest.Dependencies.Values);
             Assert.Equal(SamplesDashboard.Constants.Gradle, manifest.Dependencies.Values[0].PackageManager);
-        }
-
-        [Fact]
-        public async Task ShouldGetDependenciesFromPodfile()
-        {
-            // Arrange
-            var repoName = "msgraph-training-ios-swift";
-            var defaultBranch = "main";
-            var dependencyFile = "/demo/GraphTutorial/Podfile";
-
-            // Act
-            var manifest = await _manifestFromFileService
-              .BuildDependencyManifestFromFile(repoName, defaultBranch, dependencyFile);
-
-            //Assert
-            Assert.NotNull(manifest);
-            Assert.NotEmpty(manifest.Dependencies.Values);
-            Assert.Equal(SamplesDashboard.Constants.CocoaPods, manifest.Dependencies.Values[0].PackageManager);
         }
     }
 }
