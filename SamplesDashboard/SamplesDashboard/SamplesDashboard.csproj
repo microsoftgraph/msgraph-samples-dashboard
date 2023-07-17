@@ -16,7 +16,7 @@
     <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.4.0" />
     <PackageReference Include="GraphQL.Client" Version="5.1.0" />
     <PackageReference Include="GraphQL.Client.Serializer.SystemTextJson" Version="5.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.17" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="7.0.9" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="7.0.4" />
     <PackageReference Include="Microsoft.Identity.Web" Version="1.25.10" />
     <PackageReference Include="Microsoft.IdentityModel.KeyVaultExtensions" Version="6.25.1" />
